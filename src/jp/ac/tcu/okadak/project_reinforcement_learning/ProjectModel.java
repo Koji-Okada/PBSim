@@ -1,22 +1,27 @@
 package jp.ac.tcu.okadak.project_reinforcement_learning;
 
 /**
- *
- * 超簡易版 プロジェクトモデル.
+ * 超簡易版プロジェクト挙動モデル.
  *
  * @author K.Okada
- *
  */
 class ProjectModel {
 
+	/**
+	 * シミュレーション時刻.
+	 */
 	private int simTime;
-	boolean completionFlag;
+
+	/**
+	 * プロジェクト完了フラグ.
+	 */
+	private boolean completionFlag;
 
 	// 理想モデル
 	private double idealRemainingWorks;
 	private double idealCompleteWorks;
 	private double idealEfforts;
-	private int idealLastTime;
+	private int idealLastTime;			// 進行中を反映し、完了１回前で停止している点に注意！
 	private int startOfTestPhase;
 
 	// 手戻りモデル
@@ -34,8 +39,6 @@ class ProjectModel {
 	private double pv;
 	private double ev;
 	private double ac;
-	private double spi;
-	private double cpi;
 
 	// PM行動の影響を受ける可変パラメータ
 	private double efficiency;
@@ -46,12 +49,8 @@ class ProjectModel {
 	private int accumlatedApplyingPressure;
 	private int accumlatedIncreasingEfforts;
 
-
 	/**
-	 *
 	 *  コンストラクタ.
-	 *
-	 *
 	 */
 	ProjectModel() {
 		super();
@@ -78,17 +77,19 @@ class ProjectModel {
 
 	/**
 	 *
-	 * 実行する.
+	 * プロジェクトマネジメント行動を実行する.
+	 *
+	 * @param action プロジェクトマネジメント行動
 	 *
 	 */
-	void perform(ProjectManagementAction action) {
+	void perform(final ProjectManagementAction action) {
 
 		simTime++;
-		this.accumlatedApplyingPressure += action.applyingPressure;
-		this.accumlatedIncreasingEfforts += action.increasingEfforts;
+		this.accumlatedApplyingPressure += action.getApplyingPressure();
+		this.accumlatedIncreasingEfforts += action.getIncreasingEffort();
 
 		// 行動によるパラメータ変更
-		switch (action.applyingPressure) {
+		switch (action.getApplyingPressure()) {
 		// プレッシャーを掛けるほど
 		// ・効率は高い (手抜き)
 		// ・高欠陥混入率は高い
@@ -118,7 +119,7 @@ class ProjectModel {
 			System.out.println("Illegal PM operation.");
 		}
 
-		switch (action.increasingEfforts) {
+		switch (action.getIncreasingEffort()) {
 		// 人員工数を増やすほど
 		// ・工数は大きい
 		// ・欠陥混入率は微増
@@ -202,7 +203,6 @@ class ProjectModel {
 			}
 		}
 
-
 		// 進捗率の算出
 		this.idealProgressRate = this.idealCompleteWorks
 				/ (this.idealRemainingWorks + this.idealCompleteWorks);
@@ -212,52 +212,47 @@ class ProjectModel {
 		this.ev = (this.idealRemainingWorks + this.idealCompleteWorks)
 				* this.progressRate;
 		this.ac = this.totalEfforts;
-		this.spi = this.ev / this.pv;
-		this.cpi = this.ev / this.ac;
-
-//		System.out.println(simTime + ", " + this.remainingWorks + ", "
-//				+ this.latentReworks + ", " + this.pv + ", " + this.ev + ", "
-//				+ this.ac + ", " + this.spi + ", " + this.cpi);
 
 		return;
 
 	}
 
 	/**
+	 * プロジェクト状態を返す.
+	 * Q-Net学習への拡張を考慮し、状態量は離散化せず連続値のまま返す．
 	 *
-	 * 状態を返す.
-	 *
-	 * Deep Q Learning を見据え
-	 * 状態量を離散化せず連続値のまま返す．
-	 *
-	 * @return
+	 * @return プロジェクト状態.
 	 */
 	ProjectState observe() {
 
+		// 状態の器を生成する
 		ProjectState state = new ProjectState();
 
-		state.completionFlag = this.completionFlag;
-		state.simTime = this.simTime;
-		state.delay = (double) (this.simTime - (this.idealLastTime + 1));
-		state.costOverrun = this.ac - this.pv;
+		// シミュレーション時刻を設定する
+		state.setSimTime(this.simTime);
 
-		state.progressRate = this.progressRate;
-		state.spi = this.spi;
-		state.cpi = this.cpi;
+		// プロジェクト進捗率と完了フラグを設定する
+		state.setProgressRate(this.progressRate, this.completionFlag);
 
-		state.pv = this.pv;
-		state.ev = this.ev;
-		state.ac = this.ac;
+		// スケジュール遅延量と遅延率を設定する
+		state.setScheduleDelay((double) (this.simTime - (this.idealLastTime
+				+ 1)), (double) this.simTime / (double) (this.idealLastTime
+						+ 1));
+
+		// コスト超過量と超過率を設定する
+		state.setCostOverrun(this.ac - this.pv, this.ac / this.pv);
+
+		// EVM指標を設定する
+		state.setEVM(this.pv, this.ev, this.ac);
 
 		// 内部状態を使用しない場合用に初期化する
-		state.averageApplyingPressure = 0.0e0D;
-		state.averageIncreasingEfforts = 0.0e0D;
+		state.setAverageAPIE(0.0e0D, 0.0e0D);
 
-		// 内部状態量を使用する
-		state.averageApplyingPressure = (double) this.accumlatedApplyingPressure
-				/ (double) this.simTime;
-		state.averageIncreasingEfforts = (double) this.accumlatedIncreasingEfforts
-				/ (double) this.simTime;
+		// 内部状態量を使用する場合
+		state.setAverageAPIE((double) this.accumlatedApplyingPressure
+				/ (double) this.simTime,
+				(double) this.accumlatedIncreasingEfforts
+						/ (double) this.simTime);
 
 		return state;
 	}

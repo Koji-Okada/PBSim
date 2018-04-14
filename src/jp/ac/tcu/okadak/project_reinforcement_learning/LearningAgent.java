@@ -3,46 +3,105 @@ package jp.ac.tcu.okadak.project_reinforcement_learning;
 import java.util.Random;
 
 /**
- *
  * 学習エージェント.
  *
- *
  * @author K.Okada
- *
  */
 public class LearningAgent {
 
-	static final private double EPSILON = 0.20e0D; // ε-Greedy 法 のε
-	static final private double ALPHA = 0.10e0D; // 学習率
-	static final private double GAMMA = 1.00e0D; // 割引率
-
-	private Random randomizer; // 乱数生成器
-
-	private double[][][][][][][] qTable;
+	/**
+	 * ε-Greedy 法 のε.
+	 * この値の率で探索
+	 */
+	static final double EPSILON = 0.20e0D;
 
 	/**
-	 *
-	 *	コンストラクタ
-	 *
+	 * 学習率α.
+	 * この値の率で Q値を更新
+	 */
+	private static final double ALPHA = 0.10e0D;
+
+	/**
+	 * 割引率γ.
+	 * この値の率を乗算
+	 */
+	private static final double GAMMA = 1.00e0D;
+
+	/**
+	 * 乱数生成器.
+	 */
+	private Random randomizer;
+
+	/**
+	 * Qテーブル.
+	 */
+	private double[][][][][][][] qTable;
+	// Qテーブルの構成は以下の 7次元配列
+	// == STATE ==
+	// [progress]
+	// [spi]
+	// [cpi]
+	// [averageAP]
+	// [averageIE]
+	// == ACTION ==
+	// [applyingPressure]
+	// [IncreasingEffort]
+
+	/**
+	 * Qテーブル配列 progress軸の上限値.
+	 */
+	private static final int MAX_Q_PRG = 11;
+
+	/**
+	 * Qテーブル配列 SPI軸の上限値.
+	 */
+	private static final int MAX_Q_SPI = 4;
+
+	/**
+	 * Qテーブル配列 CPI軸の上限値.
+	 */
+	private static final int MAX_Q_CPI = 4;
+
+	/**
+	 * Qテーブル配列 averageAP軸の上限値.
+	 */
+	private static final int MAX_Q_AVG_AP = 4;
+
+	/**
+	 * Qテーブル配列 averageIE軸の上限値.
+	 */
+	private static final int MAX_Q_AVG_IE = 4;
+
+	/**
+	 * Qテーブル配列 applyingPressure軸の上限値.
+	 */
+	private static final int MAX_Q_AP = 4;
+
+	/**
+	 * Qテーブル配列 increasingEffort軸の上限値.
+	 */
+	private static final int MAX_Q_IE = 4;
+
+	/**
+	 * コンストラクタ.
 	 */
 	LearningAgent() {
 		super();
 
-		// 乱数生成器の生成
-		randomizer = new Random(0);	// 再現性確保のためシードを固定した場合
-//		randomizer = new Random();
+		// 乱数生成器を生成する
+		randomizer = new Random(0); // 再現性確保のためシードを固定
 
-		// Ｑテーブルの初期化
-		// State:[simTime][spi][cpi]-Action:[pressure][efforts]
-		qTable = new double[11][4][4][4][4][4][4];
-		for (int i0 = 0; i0 < 11; i0++) {
-			for (int i1 = 0; i1 < 4; i1++) {
-				for (int i2 = 0; i2 < 4; i2++) {
-					for (int i3 = 0; i3 < 4; i3++) {
-						for (int i4 = 0; i4 < 4; i4++) {
-							for (int i5 = 0; i5 < 4; i5++) {
-								for (int i6 = 0; i6 < 4; i6++) {
-									qTable[i0][i1][i2][i3][i4][i5][i6] = 0.0e0;
+		// Qテーブルを初期化する
+		// 初期値は全て 0.0e0D
+		qTable = new double[MAX_Q_PRG][MAX_Q_SPI][MAX_Q_CPI][MAX_Q_AVG_AP][MAX_Q_AVG_IE][MAX_Q_AP][MAX_Q_IE];
+		for (int i0 = 0; i0 < MAX_Q_PRG; i0++) {
+			for (int i1 = 0; i1 < MAX_Q_SPI; i1++) {
+				for (int i2 = 0; i2 < MAX_Q_CPI; i2++) {
+					for (int i3 = 0; i3 < MAX_Q_AVG_AP; i3++) {
+						for (int i4 = 0; i4 < MAX_Q_AVG_IE; i4++) {
+							for (int i5 = 0; i5 < MAX_Q_AP; i5++) {
+								for (int i6 = 0; i6 < MAX_Q_IE; i6++) {
+									qTable[i0][i1][i2][i3][i4][i5][i6] = 0.0e0D;
 								}
 							}
 						}
@@ -55,44 +114,45 @@ public class LearningAgent {
 	}
 
 	/**
+	 * 行動を決定する. (ε-Greedy 法)
 	 *
-	 * 行動を決定する.
-	 * (ε-Greedy 法)
+	 * @param state 状態
+	 * @param exploring 探索学習モードか否か
 	 *
+	 * @return 決定された行動
 	 */
-	ProjectManagementAction decideAction(ProjectState state,
-			Boolean afterLearningFlag) {
+	final ProjectManagementAction decideAction(final ProjectState state,
+			final Boolean exploring) {
 
 		int applyingPressure = 0;
 		int increasingEfforts = 0;
 
-		int simTime = state.simTime;
+		//		int simTime = state.simTime;
 
 		// 状態量 progressRate の値を離散化する.
-		int progressRate = discretizeProgressRate(state.progressRate);
+		int progressRate = discretizeProgressRate(state.getProgressRate());
 
 		// 状態量 SPI の値を離散化する
-		int spi = discretizeSPI(state.spi);
+		int spi = discretizeSPI(state.getSPI());
 
 		// 状態量 CPI の値を離散化する
-		int cpi = discretizeCPI(state.cpi);
+		int cpi = discretizeCPI(state.getCPI());
 
 		// 状態量 averageApplyingPressure の値を離散化する
 		int averageApplyingPressure = discretizeAverageApplyingPressure(
-				state.averageApplyingPressure);
+				state.getAverageAP()) + 1;
 
 		// 状態量 averageIncreasingEfforts の値を離散化する
 		int averageIncreasingEfforts = discretizeAverageIncreasingEfforts(
-				state.averageIncreasingEfforts);
+				state.getAverageIE()) + 1;
 
-		if ((EPSILON < randomizer.nextDouble()) || (afterLearningFlag)) {
-			// 最適値を適用
+		if ((EPSILON < randomizer.nextDouble()) || (!exploring)) {
+			// 最適値を適用する
 			double maxQ = -1.0e8;
 			int maxArg0 = 1;
 			int maxArg1 = 1;
 			for (int a0 = 0; a0 < 4; a0++) {
 				for (int a1 = 0; a1 < 4; a1++) {
-					//					System.out.println("["+ simTime + "][" + spi + "][" + cpi + "][" + a0 + "][" + a1 + "]");
 					if (qTable[progressRate][spi][cpi][averageApplyingPressure][averageIncreasingEfforts][a0][a1] > maxQ) {
 						maxQ = qTable[progressRate][spi][cpi][averageApplyingPressure][averageIncreasingEfforts][a0][a1];
 						maxArg0 = a0;
@@ -103,13 +163,11 @@ public class LearningAgent {
 			applyingPressure = maxArg0 - 1;
 			increasingEfforts = maxArg1 - 1;
 		} else {
-			// 乱数で行動を選択
+			// 乱数で行動を選択する
 			applyingPressure = (int) (Math.floor(randomizer.nextDouble()
-					* 4.0e0)) - 1;
+					* (double) MAX_Q_AP)) - 1;
 			increasingEfforts = (int) (Math.floor(randomizer.nextDouble()
-					* 4.0e0)) - 1;
-
-			//			System.out.println("*");
+					* (double) MAX_Q_IE)) - 1;
 		}
 
 		ProjectManagementAction action = new ProjectManagementAction(
@@ -119,32 +177,30 @@ public class LearningAgent {
 	}
 
 	/**
-	 *
 	 * 学習する.
-	 * (Ｑテーブル更新)
+	 * (Qテーブル更新)
 	 *
 	 */
 	double learn(ProjectState preState, ProjectManagementAction action,
 			double reward, ProjectState postState) {
 
-		int postSimTime = postState.simTime;
-
 		// 状態量 progressRate の値を離散化する.
-		int postProgressRate = discretizeProgressRate(postState.progressRate);
+		int postProgressRate = discretizeProgressRate(postState
+				.getProgressRate());
 
 		// 状態量 SPI の値を離散化する
-		int postSpi = discretizeSPI(postState.spi);
+		int postSpi = discretizeSPI(postState.getSPI());
 
 		// 状態量 CPI の値を離散化する
-		int postCpi = discretizeCPI(postState.cpi);
+		int postCpi = discretizeCPI(postState.getCPI());
 
 		// 状態量 averageApplyingPressure の値を離散化する
 		int postAverageApplyingPressure = discretizeAverageApplyingPressure(
-				postState.averageApplyingPressure);
+				postState.getAverageAP()) + 1;
 
 		// 状態量 averageIncreasingEfforts の値を離散化する
 		int postAverageIncreasingEfforts = discretizeAverageIncreasingEfforts(
-				postState.averageIncreasingEfforts);
+				postState.getAverageIE()) + 1;
 
 		// 状態変化後の最適値を検索
 		double maxQ = -1.0e8;
@@ -152,7 +208,8 @@ public class LearningAgent {
 		int maxArg1 = 1;
 		for (int a0 = 0; a0 < 4; a0++) {
 			for (int a1 = 0; a1 < 4; a1++) {
-				//				System.out.println("["+ simTime + "][" + spi + "][" + cpi + "][" + a0 + "][" + a1 + "]");
+				// System.out.println("["+ simTime + "][" + spi + "][" + cpi +
+				// "][" + a0 + "][" + a1 + "]");
 				if (qTable[postProgressRate][postSpi][postCpi][postAverageApplyingPressure][postAverageIncreasingEfforts][a0][a1] > maxQ) {
 					maxQ = qTable[postProgressRate][postSpi][postCpi][postAverageApplyingPressure][postAverageIncreasingEfforts][a0][a1];
 					maxArg0 = a0;
@@ -163,157 +220,173 @@ public class LearningAgent {
 
 		// Ｑテーブルを更新する
 
-		int preSimTime = preState.simTime;
-
 		// 状態量 progressRate の値を離散化する.
-		int preProgressRate = discretizeProgressRate(preState.progressRate);
+		int preProgressRate = discretizeProgressRate(preState
+				.getProgressRate());
 
 		// 状況 SPI の値を離散化する
-		int preSpi = discretizeSPI(preState.spi);
+		int preSpi = discretizeSPI(preState.getSPI());
 
 		// 状況 CPI の値を離散化する
-		int preCpi = discretizeCPI(preState.cpi);
+		int preCpi = discretizeCPI(preState.getCPI());
 
 		// 状態量 averageApplyingPressure の値を離散化する
 		int preAverageApplyingPressure = discretizeAverageApplyingPressure(
-				preState.averageApplyingPressure);
+				preState.getAverageAP()) + 1;
 
 		// 状態量 averageIncreasingEfforts の値を離散化する
 		int preAverageIncreasingEfforts = discretizeAverageIncreasingEfforts(
-				preState.averageIncreasingEfforts);
+				preState.getAverageIE()) + 1;
 
-		double q0 = qTable[preProgressRate][preSpi][preCpi][preAverageApplyingPressure][preAverageIncreasingEfforts][action.applyingPressure
-				+ 1][action.increasingEfforts + 1];
+		double q0 = qTable[preProgressRate][preSpi][preCpi][preAverageApplyingPressure][preAverageIncreasingEfforts][action
+				.getApplyingPressure() + 1][action.getIncreasingEffort() + 1];
 		double q1 = reward + GAMMA
 				* qTable[postProgressRate][postSpi][postCpi][postAverageApplyingPressure][postAverageIncreasingEfforts][maxArg0][maxArg1];
 
-		qTable[preProgressRate][preSpi][preCpi][preAverageApplyingPressure][preAverageIncreasingEfforts][action.applyingPressure
-				+ 1][action.increasingEfforts + 1] = (1.0e0 - ALPHA) * q0 + ALPHA * q1;
+		qTable[preProgressRate][preSpi][preCpi][preAverageApplyingPressure][preAverageIncreasingEfforts][action
+				.getApplyingPressure() + 1][action.getIncreasingEffort()
+						+ 1] = (1.0e0 - ALPHA) * q0 + ALPHA * q1;
 
-
-		//		System.out.println("T1 = " + preSimTime + " : T2 = " + postSimTime + " : Q1 = " + qTable[preSimTime][preSpi][preCpi]
-		//				[action.applyingPressure + 1][action.increasingEfforts + 1] + " : Q2 = " + qTable[postSimTime][postSpi][postCpi][maxArg0][maxArg1]);
-
-		return (q1 - q0) * (q1 -q0);
+		return (q1 - q0) * (q1 - q0);
 	}
 
 	/**
-	 *
 	 * ProgressRate の値を離散化する.
 	 *
+	 * @param orgValue 元の値 (0.0 ～ 1.0)
+	 * @return 離散化後の値 (0,1,2,...,10)
 	 */
-	private int discretizeProgressRate(double org) {
+	private int discretizeProgressRate(final double orgValue) {
+
+		final int division = 10; // 分割数
 
 		int progressRate;
-
-		progressRate = (int) Math.floor(org * 10.0e0);
+		progressRate = (int) Math.floor(orgValue * (double) division);
 
 		return progressRate;
 	}
 
 	/**
+	 * SPI値を離散化する.
 	 *
-	 * SPI値を離散化する．
-	 *
+	 * @param orgValue 元の値
+	 * @return 離散化後の値 (0,1,2,3)
 	 */
-	private int discretizeSPI(double org) {
+	private int discretizeSPI(final double orgValue) {
+
+		final double th1 = 0.9e0D; // 閾値1
+		final double th2 = 1.0e0D; // 閾値2
+		final double th3 = 1.1e0D; // 閾値3
+
+		final int discreteValue0 = 0; // 離散値0
+		final int discreteValue1 = 1; // 離散値1
+		final int discreteValue2 = 2; // 離散値2
+		final int discreteValue3 = 3; // 離散値3
 
 		int spi;
-		if (org <= 0.9e0) {
-			spi = 0;
-		} else if (org <= 1.0e0) {
-			spi = 1;
-		} else if (org <= 1.1e0) {
-			spi = 2;
+		if (orgValue <= th1) {
+			spi = discreteValue0;
+		} else if (orgValue <= th2) {
+			spi = discreteValue1;
+		} else if (orgValue <= th3) {
+			spi = discreteValue2;
 		} else {
-			spi = 3;
+			spi = discreteValue3;
 		}
 
 		return spi;
 	}
 
 	/**
+	 * CPI値を離散化する.
 	 *
-	 * CPI値を離散化する．
-	 *
+	 * @param orgValue 元の値
+	 * @return 離散化後の値
 	 */
-	private int discretizeCPI(double org) {
+	private int discretizeCPI(final double orgValue) {
+
+		final double th1 = 0.9e0D; // 閾値1
+		final double th2 = 1.0e0D; // 閾値2
+		final double th3 = 1.1e0D; // 閾値3
+
+		final int discreteValue0 = 0; // 離散値0
+		final int discreteValue1 = 1; // 離散値1
+		final int discreteValue2 = 2; // 離散値2
+		final int discreteValue3 = 3; // 離散値3
 
 		int cpi;
-		if (org <= 0.9e0) {
-			cpi = 0;
-		} else if (org <= 1.0e0) {
-			cpi = 1;
-		} else if (org <= 1.1e0) {
-			cpi = 2;
+		if (orgValue <= th1) {
+			cpi = discreteValue0;
+		} else if (orgValue <= th2) {
+			cpi = discreteValue1;
+		} else if (orgValue <= th3) {
+			cpi = discreteValue2;
 		} else {
-			cpi = 3;
+			cpi = discreteValue3;
 		}
 
 		return cpi;
 	}
 
 	/**
-	 *
 	 * averageApplyingPressure の値を離散化する.
 	 *
+	 * @param orgValue 元の値
+	 * @return 離散化後の値 (-1,0,1,2)
 	 */
-	private int discretizeAverageApplyingPressure(double org) {
+	private int discretizeAverageApplyingPressure(final double orgValue) {
+
+		final double th1 = -0.5e0D; // 閾値1
+		final double th2 = 0.5e0D; // 閾値2
+		final double th3 = 1.5e0D; // 閾値3
+
+		final int discreteValueM1 = -1; // 離散値0
+		final int discreteValue0 = 0; // 離散値1
+		final int discreteValueP1 = 1; // 離散値2
+		final int discreteValueP2 = 2; // 離散値3
 
 		int averageApplyingPressure;
-		if (org <= -0.5e0) {
-			averageApplyingPressure = -1;
-		} else if (org <= 0.5e0) {
-			averageApplyingPressure = 0;
-		} else if (org <= 1.5e0) {
-			averageApplyingPressure = 1;
+		if (orgValue <= th1) {
+			averageApplyingPressure = discreteValueM1;
+		} else if (orgValue <= th2) {
+			averageApplyingPressure = discreteValue0;
+		} else if (orgValue <= th3) {
+			averageApplyingPressure = discreteValueP1;
 		} else {
-			averageApplyingPressure = 2;
+			averageApplyingPressure = discreteValueP2;
 		}
 
-		return averageApplyingPressure + 1;
+		return averageApplyingPressure;
 	}
 
 	/**
-	 *
 	 * averageIncreasingEfforts の値を離散化する.
 	 *
+	 * @param orgValue 元の値
+	 * @return 離散化後の値 (-1,0,1,2)
 	 */
-	private int discretizeAverageIncreasingEfforts(double org) {
+	private int discretizeAverageIncreasingEfforts(final double orgValue) {
+
+		final double th1 = -0.5e0D; // 閾値1
+		final double th2 = 0.5e0D; // 閾値2
+		final double th3 = 1.5e0D; // 閾値3
+
+		final int discreteValueM1 = -1; // 離散値0
+		final int discreteValue0 = 0; // 離散値1
+		final int discreteValueP1 = 1; // 離散値2
+		final int discreteValueP2 = 2; // 離散値3
 
 		int averageIncreasingEfforts;
-		if (org <= -0.5e0) {
-			averageIncreasingEfforts = -1;
-		} else if (org <= 0.5e0) {
-			averageIncreasingEfforts = 0;
-		} else if (org <= 1.5e0) {
-			averageIncreasingEfforts = 1;
+		if (orgValue <= th1) {
+			averageIncreasingEfforts = discreteValueM1;
+		} else if (orgValue <= th2) {
+			averageIncreasingEfforts = discreteValue0;
+		} else if (orgValue <= th3) {
+			averageIncreasingEfforts = discreteValueP1;
 		} else {
-			averageIncreasingEfforts = 2;
+			averageIncreasingEfforts = discreteValueP2;
 		}
 
-		return averageIncreasingEfforts + 1;
-	}
-
-	/**
-	 *
-	 * Ｑテーブルを表示する.
-	 *
-	 */
-	void showQTable(int time) {
-
-		String str;
-		for (int i0 = 0; i0 < 4; i0++) {
-			for (int i1 = 0; i1 < 4; i1++) {
-				str = "";
-				for (int i2 = 0; i2 < 4; i2++) {
-					for (int i3 = 0; i3 < 4; i3++) {
-						str = str + "\t" + qTable[time][i0][i1][1][1][i2][i3];
-					}
-				}
-				System.out.println(str);
-			}
-		}
-
+		return averageIncreasingEfforts;
 	}
 }

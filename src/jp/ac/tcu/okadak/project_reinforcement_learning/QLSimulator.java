@@ -1,24 +1,50 @@
 package jp.ac.tcu.okadak.project_reinforcement_learning;
 
 /**
- *
- * シミュレーション本体.
+ * シミュレータ本体.
  *
  * @author K.Okada
- *
  */
-public class QLSimulator {
+public final class QLSimulator {
 
-	private int iteration0 = 500;
-	private int iteration1 = 3000;
-	private int iteration2 = 1000;
-	private int last = 10;
+	/**
+	 * 全体の反復回数.
+	 */
+	private static final int ITERATION_ALL = 500;
 
-	public static void main(String[] args) {
+	/**
+	 * 探索学習モードでの反復回数.
+	 */
+	private static final int ITERATION_WITH_EXPLORING = 3000;
 
-		QLSimulator simulator = new QLSimulator();
+	/**
+	 * 収束学習モードでの反復回数.
+	 */
+	private static final int ITERATION_WITHOUT_EXPLORING = 1000;
+
+	/**
+	 * 学習結果算出用の反復数.
+	 */
+	private static final int LAST_EVALUATIOMS = 10;
+
+	/**
+	 * コンストラクタ.
+	 * (プライベート化)
+	 */
+	private QLSimulator() {
+		super();
+		return;
+	}
+
+	/**
+	 * メインルーチン.
+	 *
+	 * @param args	デフォルトの引数指定
+	 */
+	public static void main(final String[] args) {
 
 		System.out.println("Start ...");
+		QLSimulator simulator = new QLSimulator();
 		simulator.qLearning();
 		System.out.println("... Fin.");
 
@@ -26,55 +52,71 @@ public class QLSimulator {
 	}
 
 	/**
-	 *
-	 * 一連のＱ学習を行う
-	 *
+	 * 一連の Q学習を行う.
 	 */
 	private void qLearning() {
 
+		// 学習エージェントを生成する
 		LearningAgent agent = new LearningAgent();
+
+		// 報酬評価器を生成する
 		RewardEvaluator evaluator = new RewardEvaluator();
+
+		// 学習収束度パラメータを初期化する
 		double sumLearningIndex1 = 0.0e0D;
 		double sumLearningIndex2 = 0.0e0D;
 
-		for (int j = 0; j < this.iteration0; j++) {
+		for (int j = 0; j < ITERATION_ALL; j++) {
 
-			// プロジェクト反復のループ (ε-Greedyオンで探索＆学習)
-			for (int i = 0; i < this.iteration1; i++) {
-				sumLearningIndex1 += performProject(agent, evaluator, false);
+			// プロジェクト反復のループ (探索学習モード(ε-Greedyオン))
+			for (int i = 0; i < ITERATION_WITH_EXPLORING; i++) {
+				ProjectModel project = new ProjectModel();
+				sumLearningIndex1 += performProject(project, agent, evaluator,
+						true);
 			}
-			sumLearningIndex1 /= this.iteration1;
 
-			// プロジェクト反復のループ (ε-Greedyオフで一旦収束させる)
-			for (int i = 0; i < this.iteration2 - this.last; i++) {
-				sumLearningIndex2 += performProject(agent, evaluator, true);
+			// プロジェクト反復のループ (収束学習モード(ε-Greedyオフ))
+			double sumDelay = 0.0e0D;
+			double sumCostOverrun = 0.0e0D;
+			for (int i = 0; i < ITERATION_WITHOUT_EXPLORING; i++) {
+				ProjectModel project = new ProjectModel();
+				sumLearningIndex2 += performProject(project, agent, evaluator,
+						false);
+
+				// 学習結果の評価を行う
+				if ((ITERATION_WITHOUT_EXPLORING - i) <= LAST_EVALUATIOMS) {
+					sumDelay += project.observe().getScheduleDelay();
+					sumCostOverrun += project.observe().getCostOverrun();
+				}
 			}
-			sumLearningIndex2 /= (this.iteration2 - this.last);
 
-			System.out.print(sumLearningIndex1 + "\t" + sumLearningIndex2
-					+ "\t");
-
-			//			System.out.println("--");
-			evaluateLearning(agent, evaluator);
-			//			System.out.println("--");
+			System.out.print(sumLearningIndex1 / (double) ITERATION_WITH_EXPLORING + "\t");
+			System.out.print(sumLearningIndex2 / (double) ITERATION_WITHOUT_EXPLORING + "\t");
+			System.out.println(sumDelay / (double) LAST_EVALUATIOMS + "\t"
+					+ sumCostOverrun / (double) LAST_EVALUATIOMS);
 		}
 
 		return;
 	}
 
-	/**
-	 *
-	 *
-	 *
-	 */
-	private double performProject(LearningAgent agent,
-			RewardEvaluator evaluator, Boolean afterLearning) {
 
-		ProjectModel project = new ProjectModel();
+	/**
+	 * プロジェクトを実行する.
+	 *
+	 * @param project プロジェクト
+	 * @param agent 学習エージェント
+	 * @param evaluator 報酬評価器
+	 * @param exploring 探索学習モード
+	 *
+	 * @return 学習収束度パラメータ
+	 */
+	private double performProject(final ProjectModel project,
+			final LearningAgent agent, final RewardEvaluator evaluator,
+			final Boolean exploring) {
+
 		double learningIndex = 0.0e0D;
 
 		ProjectState postState;
-		Boolean completionFlag;
 		do {
 
 			// 行動前の状態を観測する
@@ -82,78 +124,22 @@ public class QLSimulator {
 
 			// エージェントに行動を決定させる
 			ProjectManagementAction action = agent.decideAction(preState,
-					afterLearning);
-					//	ProjectManagementAction action = new ProjectManagementAction(0, 0);
+					exploring);
 
 			// 環境に対して行動を行う
 			project.perform(action);
 
 			// 行動後の状態を観測する
 			postState = project.observe();
-			completionFlag = postState.completionFlag;
 
-			// 報酬を求める
+			// 報酬を決定する
 			double reward = evaluator.evaluate(postState);
 
-			//			System.out.println(" R:" + reward);
 			// エージェントに学習させる
 			learningIndex += agent.learn(preState, action, reward, postState);
 
-		} while (!completionFlag);
+		} while (!postState.isComplete());
 
-		return learningIndex / (double) postState.simTime;
+		return learningIndex / (double) postState.getSimTime();
 	}
-
-	/**
-	 *
-	 * 学習結果を評価する
-	 *
-	 */
-	private void evaluateLearning(LearningAgent agent,
-			RewardEvaluator evaluator) {
-
-		double sumDelay = 0.0e0D;
-		double sumCostOverrun = 0.0e0D;
-
-		for (int i = 0; i < this.last; i++) {
-
-			ProjectModel project = new ProjectModel();
-			ProjectState postState;
-
-			Boolean completionFlag;
-			do {
-
-				// 行動前の状態を観測する
-				ProjectState preState = project.observe();
-
-				// エージェントに行動を決定させる
-				ProjectManagementAction action = agent.decideAction(preState,
-						true);
-
-				// 環境に対して行動を行う
-				project.perform(action);
-
-				// 行動後の状態を観測する
-				postState = project.observe();
-
-				completionFlag = postState.completionFlag;
-
-				// 報酬を求める
-				double reward = evaluator.evaluate(postState);
-
-				// エージェントに学習させる
-				agent.learn(preState, action, reward, postState);
-
-			} while (!completionFlag);
-
-			sumDelay += postState.delay;
-			sumCostOverrun += postState.costOverrun;
-		}
-
-		System.out.println(sumDelay / (double) this.last + "\t" + sumCostOverrun
-				/ (double) this.last);
-
-		return;
-	}
-
 }
