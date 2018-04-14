@@ -83,6 +83,21 @@ public class LearningAgent {
 	private static final int MAX_Q_IE = 4;
 
 	/**
+	 *
+	 */
+	private Boolean recordAction = false;
+
+	/**
+	 *
+	 * @param flag
+	 */
+	void setRecordAction(Boolean flag) {
+		this.recordAction = flag;
+
+		return;
+	}
+
+	/**
 	 * コンストラクタ.
 	 */
 	LearningAgent() {
@@ -114,6 +129,36 @@ public class LearningAgent {
 	}
 
 	/**
+	 * 学習エージェントのクローンを作成する.
+	 *
+	 * @return	学習エージェントのクローン
+	 */
+	LearningAgent agentClone() {
+
+		// 学習エージェントを生成する
+		LearningAgent clonedAgent = new LearningAgent();
+
+		// Qテーブルを複写する
+		for (int i0 = 0; i0 < MAX_Q_PRG; i0++) {
+			for (int i1 = 0; i1 < MAX_Q_SPI; i1++) {
+				for (int i2 = 0; i2 < MAX_Q_CPI; i2++) {
+					for (int i3 = 0; i3 < MAX_Q_AVG_AP; i3++) {
+						for (int i4 = 0; i4 < MAX_Q_AVG_IE; i4++) {
+							for (int i5 = 0; i5 < MAX_Q_AP; i5++) {
+								for (int i6 = 0; i6 < MAX_Q_IE; i6++) {
+									clonedAgent.qTable[i0][i1][i2][i3][i4][i5][i6] = this.qTable[i0][i1][i2][i3][i4][i5][i6];
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return clonedAgent;
+	}
+
+	/**
 	 * 行動を決定する. (ε-Greedy 法)
 	 *
 	 * @param state 状態
@@ -127,8 +172,6 @@ public class LearningAgent {
 		int applyingPressure = 0;
 		int increasingEfforts = 0;
 
-		//		int simTime = state.simTime;
-
 		// 状態量 progressRate の値を離散化する.
 		int progressRate = discretizeProgressRate(state.getProgressRate());
 
@@ -139,12 +182,12 @@ public class LearningAgent {
 		int cpi = discretizeCPI(state.getCPI());
 
 		// 状態量 averageApplyingPressure の値を離散化する
-		int averageApplyingPressure = discretizeAverageApplyingPressure(
-				state.getAverageAP()) + 1;
+		int averageApplyingPressure = discretizeAverageApplyingPressure(state
+				.getAverageAP()) + 1;
 
 		// 状態量 averageIncreasingEfforts の値を離散化する
-		int averageIncreasingEfforts = discretizeAverageIncreasingEfforts(
-				state.getAverageIE()) + 1;
+		int averageIncreasingEfforts = discretizeAverageIncreasingEfforts(state
+				.getAverageIE()) + 1;
 
 		if ((EPSILON < randomizer.nextDouble()) || (!exploring)) {
 			// 最適値を適用する
@@ -173,6 +216,19 @@ public class LearningAgent {
 		ProjectManagementAction action = new ProjectManagementAction(
 				applyingPressure, increasingEfforts);
 
+		if (recordAction) {
+			if (0 == state.getSimTime()) {
+				System.out.println("SimTime\t" + "ProgRate\t" + "SPI\t"
+						+ "CPI\t" + "AvrgAplPressr\t" + "AvrgIncEffort\t"
+						+ "ApprlyPressure\t" + "IncreaseEffort");
+			}
+			System.out.println(state.getSimTime() + "\t" + progressRate + "\t"
+					+ (spi - 1) + "\t" + (cpi - 1) + "\t"
+					+ (averageApplyingPressure - 1) + "\t"
+					+ (averageIncreasingEfforts - 1) + "\t" + applyingPressure
+					+ "\t" + increasingEfforts);
+		}
+
 		return action;
 	}
 
@@ -180,6 +236,11 @@ public class LearningAgent {
 	 * 学習する.
 	 * (Qテーブル更新)
 	 *
+	 * @param preState		行動前の状態
+	 * @param action		行動
+	 * @param reward		報酬
+	 * @param postState	行動後の状態
+	 * @return				行動前Q値と行動後Q値の誤差平方
 	 */
 	double learn(ProjectState preState, ProjectManagementAction action,
 			double reward, ProjectState postState) {

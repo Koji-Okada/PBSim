@@ -165,6 +165,31 @@ class ProjectState {
 
 	// =======================================================================
 	/**
+	 * 生産性指標.
+	 */
+	private double productivity;
+
+	/**
+	 * 生産性指標を取得する.
+	 *
+	 * @return 生産性指標
+	 */
+	final double getProductivity() {
+		return this.productivity;
+	}
+
+	/**
+	 * 生産性指標を設定する.
+	 *
+	 * @param prod	生産性指標
+	 */
+	final void setProductivity(final double prod) {
+		this.productivity = prod;
+	}
+
+
+	// =======================================================================
+	/**
 	 * Planned Value.
 	 */
 	private double pv;
@@ -220,8 +245,19 @@ class ProjectState {
 		this.pv = evmPv;
 		this.ev = evmEv;
 		this.ac = evmAc;
-		this.spi = evmEv / evmPv;
-		this.cpi = evmEv / evmAc;
+		if (1.0e-6D < evmPv) {
+			this.spi = evmEv / evmPv;
+		} else {
+			this.spi = 1.0e0D;
+		}
+		if (1.0e-6D < evmAc) {
+			this.cpi = evmEv / evmAc;
+		} else {
+			this.cpi = 1.0e0D;
+		}
+
+
+
 		return;
 	}
 
@@ -295,6 +331,12 @@ class ProjectState {
 	final void setAverageAPIE(final double avgAP, final double avgIE) {
 		this.averageApplyingPressure = avgAP;
 		this.averageIncreasingEffort = avgIE;
+
+		// 内部歪み推定を行わない場合
+//		this.averageApplyingPressure = 0.0e0D;
+//		this.averageIncreasingEffort = 0.0e0D;
+
+
 		return;
 	}
 }
