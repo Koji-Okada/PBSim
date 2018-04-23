@@ -7,7 +7,7 @@ import java.util.StringTokenizer;
  *
  * CSV専用のトークナイザ.
  *
- * @author Koji-Okada
+ * @author K.Okada
  * @version 2017.11.08
  *
  */
