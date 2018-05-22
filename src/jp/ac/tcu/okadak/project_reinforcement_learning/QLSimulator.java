@@ -62,6 +62,10 @@ public final class QLSimulator {
 		// 最良エージェント
 		LearningAgent bestAgent = null;
 
+		LearningAgent agent1 = null;
+		LearningAgent agent2 = null;
+
+
 		// 学習エージェントを生成する
 		LearningAgent agent = new LearningAgent();
 
@@ -201,6 +205,15 @@ public final class QLSimulator {
 				System.out.print("\t");
 			}
 
+			if (ITERATION_ALL - 10 == j) {
+				agent1 = agent.agentClone();
+			}
+
+			if (ITERATION_ALL - 20 == j) {
+				agent2 = agent.agentClone();
+			}
+
+
 			// 評価結果のコンソール出力
 			System.out.printf("%10.4f\t",
 					sumDelayRate / (double) LAST_EVALUATIONS);
@@ -213,71 +226,77 @@ public final class QLSimulator {
 			System.out.println();
 		}
 
-//		// 基準プロジェクトを生成する
-//		ProjectModel baseProject = new ProjectModel(1000.0e0, 20.0e0, 1.0e0, 1.0e0);
-//
-//		// プロジェクトを実施する
-////		bestAgent.setRecordAction(true);
-//		System.out.println();
-//		System.out.println("---- base 1");
+		// 基準プロジェクトを生成する
+		ProjectModel baseProject = new ProjectModel(1000.0e0, 20.0e0, 1.0e0, 1.0e0);
+
+		// プロジェクトを実施する
+//		bestAgent.setRecordAction(true);
+		System.out.println();
+		System.out.println("---- agent 0");
 //		performProject(baseProject, bestAgent, evaluator, false,
 //				false);
-//		System.out.println();
-//
-//		System.out.println();
-//		System.out.printf("duration = %4.0f", (double)baseProject.observe().getSimTime());
-//		System.out.println();
-//		System.out.printf("cost     = %8.3f", baseProject.observe().getAC());
-//		System.out.println();
-//		System.out.printf("schedule deley = %4.0f", (double)baseProject.observe().getScheduleDelay());
-//		System.out.println();
-//		System.out.printf("cost overrun   = %8.3f", baseProject.observe().getCostOverrun());
-//		System.out.println();
-//
-//
-//
-//		// 基準プロジェクトを生成する
-//		baseProject = new ProjectModel(10000.0e0, 200.0e0, 1.0e0, 1.0e0);
-//
-//		// プロジェクトを実施する
-////		bestAgent.setRecordAction(true);
-//		System.out.println();
-//		System.out.println("---- base 2");
+		performProject(baseProject, agent, evaluator, false,
+				false);
+		System.out.println();
+
+		System.out.println();
+		System.out.printf("duration = %4.0f", (double)baseProject.observe().getSimTime());
+		System.out.println();
+		System.out.printf("cost     = %8.3f", baseProject.observe().getAC());
+		System.out.println();
+		System.out.printf("schedule deley = %4.0f", (double)baseProject.observe().getScheduleDelay());
+		System.out.println();
+		System.out.printf("cost overrun   = %8.3f", baseProject.observe().getCostOverrun());
+		System.out.println();
+
+
+
+		// 基準プロジェクトを生成する
+		baseProject = new ProjectModel(1000.0e0, 20.0e0, 1.0e0, 1.0e0);
+
+		// プロジェクトを実施する
+//		bestAgent.setRecordAction(true);
+		System.out.println();
+		System.out.println("---- agent 1");
 //		performProject(baseProject, bestAgent, evaluator, false,
 //				false);
-//		System.out.println();
-//
-//		System.out.println();
-//		System.out.printf("duration = %4.0f", (double)baseProject.observe().getSimTime());
-//		System.out.println();
-//		System.out.printf("cost     = %8.3f", baseProject.observe().getAC());
-//		System.out.println();
-//		System.out.printf("schedule deley = %4.0f", (double)baseProject.observe().getScheduleDelay());
-//		System.out.println();
-//		System.out.printf("cost overrun   = %8.3f", baseProject.observe().getCostOverrun());
-//		System.out.println();
-//
-//
-//		// 基準プロジェクトを生成する
-//		baseProject = new ProjectModel(100.0e0, 2.0e0, 1.0e0, 1.0e0);
-//
-//		// プロジェクトを実施する
-////		bestAgent.setRecordAction(true);
-//		System.out.println();
-//		System.out.println("---- base 3");
+		performProject(baseProject, agent1, evaluator, false,
+				false);
+		System.out.println();
+
+		System.out.println();
+		System.out.printf("duration = %4.0f", (double)baseProject.observe().getSimTime());
+		System.out.println();
+		System.out.printf("cost     = %8.3f", baseProject.observe().getAC());
+		System.out.println();
+		System.out.printf("schedule deley = %4.0f", (double)baseProject.observe().getScheduleDelay());
+		System.out.println();
+		System.out.printf("cost overrun   = %8.3f", baseProject.observe().getCostOverrun());
+		System.out.println();
+
+
+		// 基準プロジェクトを生成する
+		baseProject = new ProjectModel(1000.0e0, 20.0e0, 1.0e0, 1.0e0);
+
+		// プロジェクトを実施する
+//		bestAgent.setRecordAction(true);
+		System.out.println();
+		System.out.println("---- base 2");
 //		performProject(baseProject, bestAgent, evaluator, false,
 //				false);
-//		System.out.println();
-//
-//		System.out.println();
-//		System.out.printf("duration = %4.0f", (double)baseProject.observe().getSimTime());
-//		System.out.println();
-//		System.out.printf("cost     = %8.3f", baseProject.observe().getAC());
-//		System.out.println();
-//		System.out.printf("schedule deley = %4.0f", (double)baseProject.observe().getScheduleDelay());
-//		System.out.println();
-//		System.out.printf("cost overrun   = %8.3f", baseProject.observe().getCostOverrun());
-//		System.out.println();
+		performProject(baseProject, agent2, evaluator, false,
+				false);
+		System.out.println();
+
+		System.out.println();
+		System.out.printf("duration = %4.0f", (double)baseProject.observe().getSimTime());
+		System.out.println();
+		System.out.printf("cost     = %8.3f", baseProject.observe().getAC());
+		System.out.println();
+		System.out.printf("schedule deley = %4.0f", (double)baseProject.observe().getScheduleDelay());
+		System.out.println();
+		System.out.printf("cost overrun   = %8.3f", baseProject.observe().getCostOverrun());
+		System.out.println();
 
 
 		return;
