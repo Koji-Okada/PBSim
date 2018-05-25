@@ -7,12 +7,12 @@ package jp.ac.tcu.okadak.project_reinforcement_learning;
  * @author K.Okada
  *
  */
-public final class SimpleSimulation {
+public final class SimpleSimulator {
 
 	/**
 	 * コンストラクタ. (プライベート化)
 	 */
-	private SimpleSimulation() {
+	private SimpleSimulator() {
 		super();
 		return;
 	}

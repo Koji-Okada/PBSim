@@ -254,7 +254,6 @@ class ProjectModel {
 		this.ac = this.totalEfforts;
 
 		return;
-
 	}
 
 	/**
@@ -287,10 +286,10 @@ class ProjectModel {
 		double co = 0.0e0D;
 		double cor = 0.0e0D;
 		if (0 != this.simTime) {
-			sd = this.ac - this.pv;
-			sdr = this.ac / this.pv;
+			co = this.ac - this.pv;
+			cor = this.ac / this.pv;
 		}
-		state.setCostOverrun(sd, sdr);
+		state.setCostOverrun(co, cor);
 
 		// 生産性を設定する
 		state.setProductivity(this.productSize / (this.ac * 5.0e0D));
@@ -298,10 +297,9 @@ class ProjectModel {
 		// EVM指標を設定する
 		state.setEVM(this.pv, this.ev, this.ac);
 
+		// 内部状態を使用しない場合用に初期化する
 		double avAP = 0.0e0D;
 		double avIE = 0.0e0D;
-
-		// 内部状態を使用しない場合用に初期化する
 
 		// 内部状態量を使用する場合
 		if (0 != this.simTime) {
