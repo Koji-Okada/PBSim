@@ -9,9 +9,9 @@ package jp.ac.tcu.okadak.project_reinforcement_learning;
  */
 public class RewardEvaluator {
 
-	private static double RWD_ST_SCH = 1.0e-6D; // 1.0e-6D; 重視: 1000.0e0D
+	private static double RWD_ST_SCH = 0.0e-6D; // 1.0e-6D; 重視: 1000.0e0D
 	private static double RWD_ST_CST = 1.0e-6D; // 1.0e-6D; 重視: 1000.0e0D
-	private static double RWD_FN_SCH = 1000.0e0D; // 1000.0e0D;
+	private static double RWD_FN_SCH = 0000.0e0D; // 1000.0e0D;
 	private static double RWD_FN_CST = 1000.0e0D; // 1000.0e0D
 
 	/**
@@ -26,8 +26,14 @@ public class RewardEvaluator {
 
 		if (state.completionFlag) {
 			// プロジェクト終了時
-			reward = (double) (-state.delay) * RWD_FN_SCH
-					+ (double) (-state.costOverrun) / 10 * RWD_FN_CST;
+
+			if (state.delay <= 3) {
+				reward = (double) (-state.delay) * RWD_FN_SCH
+						+ (double) (-state.costOverrun) / 10 * RWD_FN_CST;
+			} else {
+				reward = (double) (-state.delay) * 1000
+						+ (double) (-state.costOverrun) / 10 * RWD_FN_CST;
+			}
 
 		} else {
 			// プロジェクト進行時
