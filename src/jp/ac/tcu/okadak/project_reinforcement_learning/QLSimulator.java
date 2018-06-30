@@ -75,6 +75,7 @@ public final class QLSimulator {
 
 		// プロジェクト属性生成器を生成する
 		ProjectAttributesGenerator pjAtrGen = new ProjectAttributesGenerator();
+		pjAtrGen.setRandomSeed(0);
 
 		// 成果物規模の確率分布を設定する
 //				pjAtrGen.setProductSizeDistibution(1000.0e0D * 5.0e0, 100.0e0D);
