@@ -68,6 +68,7 @@ public final class QLSimulator {
 
 		// 学習エージェントを生成する
 		LearningAgent agent = new LearningAgent();
+		agent.SetRandomSeed(0);		// 再現性確保のため乱数種を固定する
 
 		// 報酬評価器を生成する
 		RewardEvaluator evaluator = new RewardEvaluator();

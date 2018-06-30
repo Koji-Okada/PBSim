@@ -97,6 +97,7 @@ public class LearningAgent {
 		return;
 	}
 
+
 	/**
 	 * コンストラクタ.
 	 */
@@ -104,7 +105,7 @@ public class LearningAgent {
 		super();
 
 		// 乱数生成器を生成する
-		randomizer = new Random(0); // 再現性確保のためシードを固定
+		this.randomizer = new Random();
 
 		// Qテーブルを初期化する
 		// 初期値は全て 0.0e0D
@@ -129,7 +130,18 @@ public class LearningAgent {
 	}
 
 	/**
+	 * 乱数生成器の乱数種を設定する
+	 * (再現性確保のため)
+	 */
+	void SetRandomSeed(int randomSeed) {
+		// 新たな乱数生成器を生成する
+		this.randomizer = new Random(randomSeed);
+	}
+
+
+	/**
 	 * 学習エージェントのクローンを作成する.
+	 * (Qテーブルのみクローンで、乱数シードはクローンでない)
 	 *
 	 * @return	学習エージェントのクローン
 	 */
@@ -189,7 +201,7 @@ public class LearningAgent {
 		int averageIncreasingEfforts = discretizeAverageIncreasingEfforts(state
 				.getAverageIE()) + 1;
 
-		if ((EPSILON < randomizer.nextDouble()) || (!exploring)) {
+		if ((EPSILON < this.randomizer.nextDouble()) || (!exploring)) {
 			// 最適値を適用する
 			double maxQ = -1.0e8;
 			int maxArg0 = 1;
@@ -207,9 +219,9 @@ public class LearningAgent {
 			increasingEfforts = maxArg1 - 1;
 		} else {
 			// 乱数で行動を選択する
-			applyingPressure = (int) (Math.floor(randomizer.nextDouble()
+			applyingPressure = (int) (Math.floor(this.randomizer.nextDouble()
 					* (double) MAX_Q_AP)) - 1;
-			increasingEfforts = (int) (Math.floor(randomizer.nextDouble()
+			increasingEfforts = (int) (Math.floor(this.randomizer.nextDouble()
 					* (double) MAX_Q_IE)) - 1;
 		}
 
