@@ -32,7 +32,7 @@ public final class SimpleSimulator {
 			for (int increasingEffort = ProjectManagementAction.MIN_ACTION_IE; increasingEffort < ProjectManagementAction.MAX_ACTION_IE; increasingEffort++) {
 
 				// 基準プロジェクトを生成する
-				ProjectModel project = new ProjectModel(1000.0e0, 20.0e0, 1.0e0, 1.0e0);
+				ProjectModel project = new ProjectModel(1000.0e0, 20.0e0, 1.2e0, 1.0e0);
 				do {
 					ProjectManagementAction action = new ProjectManagementAction(
 							applyingPressure, increasingEffort);

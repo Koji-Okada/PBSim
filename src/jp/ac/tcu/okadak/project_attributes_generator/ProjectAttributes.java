@@ -77,6 +77,16 @@ public class ProjectAttributes {
 	 */
 	double plannedTotalDuration;
 
+	/**
+	 * 計画期間を返す.
+	 *
+	 * @return 計画期間
+	 */
+	final double getPlannedTotalDuration() {
+		return this.plannedTotalDuration;
+	}
+
+
 	/** =======================================================================
 	 * 計画人員数.
 	 */
