@@ -30,6 +30,10 @@ public class VensimCmdFileGenerator {
 		String fileName = "C:\\Users\\Okada\\Documents\\Okada\\Research\\PjCsDtGen\\"
 				+ caseName + ".cmd";
 
+//		String simModel = "Model\\Probes_SD_v0.2-20180119-gen.mdl";		// Proves-SD0-Rev2
+		String simModel = "Model\\Probes_SD_r3-20180714-gen.mdl";		// Proves-SD0-Rev3
+
+
 		try {
 			File file = new File(fileName);
 			BufferedWriter bw = new BufferedWriter(new FileWriter(file));
@@ -38,7 +42,7 @@ public class VensimCmdFileGenerator {
 			bw.write("SPECIAL>NOINTERACTION");
 			bw.newLine();
 			bw.write(
-					"SPECIAL>LOADMODEL|Model\\Probes_SD_v0.2-20180119-gen.mdl");
+					"SPECIAL>LOADMODEL|" + simModel);
 			bw.newLine();
 
 			// Vensimコマンドファイル変数設定部分の書込み
