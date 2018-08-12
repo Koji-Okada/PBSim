@@ -7,18 +7,14 @@ import java.util.StringTokenizer;
  *
  * CSV専用のトークナイザ.
  *
- * @author Koji-Okada
+ * @author K.Okada
  * @version 2017.11.08
  *
  */
 public class CSVTokenizer extends StringTokenizer {
 
 	/**
-	 *
 	 * コンストラクタ.
-	 *
-	 * @author K.Okada
-	 * @version 2016.01.14
 	 *
 	 * @param str			入力文字列
 	 */
@@ -27,11 +23,7 @@ public class CSVTokenizer extends StringTokenizer {
 	}
 
 	/**
-	 *
 	 * 次のトークンを返す.
-	 *
-	 * @author Koji-Okada
-	 * @version 2016.01.17
 	 *
 	 * @return			分割されたトークン
 	 */
@@ -82,3 +74,4 @@ public class CSVTokenizer extends StringTokenizer {
 		return str;
 	}
 }
+
