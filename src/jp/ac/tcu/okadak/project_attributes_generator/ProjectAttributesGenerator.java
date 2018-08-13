@@ -13,6 +13,20 @@ import org.apache.commons.math3.random.JDKRandomGenerator;
 public class ProjectAttributesGenerator {
 
 	/**
+	 * 主となる乱数種.
+	 */
+	private int randomSeed = 0;
+
+	/**
+	 * 主乱数種の設定.
+	 */
+	public void setRandomSeed(int seed) {
+		this.randomSeed = seed * 100;	// 副と組合せるため
+
+		return;
+	}
+
+	/**
 	 * 成果物規模の確率分布.
 	 */
 	private LogNormalDistribution distributionProduuctSize = null;
@@ -29,7 +43,7 @@ public class ProjectAttributesGenerator {
 	 * (ただし他のランダムシードと同じ値にしないこと！)
 	 */
 	private NormalDistribution distributionPhaseEffortRate = new NormalDistribution(
-			new JDKRandomGenerator(3), 0.0e0D, 0.05e0D);
+			new JDKRandomGenerator(this.randomSeed + 3), 0.0e0D, 0.05e0D);
 
 	//
 	/**
@@ -39,7 +53,7 @@ public class ProjectAttributesGenerator {
 	 * (ただし他のランダムシードと同じ値にしないこと！)
 	 */
 	NormalDistribution distributionePhaseDurationRate = new NormalDistribution(
-			new JDKRandomGenerator(4), 0.0e0D, 0.05e0D);
+			new JDKRandomGenerator(this.randomSeed + 4), 0.0e0D, 0.05e0D);
 
 	/**
 	 * 能力レベルの確立分布.
@@ -48,7 +62,7 @@ public class ProjectAttributesGenerator {
 	 * (ただし他のランダムシードと同じ値にしないこと！)
 	 */
 	NormalDistribution distributionCapabilityLevel = new NormalDistribution(
-			new JDKRandomGenerator(5), 0.0e0D, 0.05e0D);
+			new JDKRandomGenerator(this.randomSeed + 5), 0.0e0D, 0.05e0D);
 
 	/**
 	 * モチベーションレベルの確立分布.
@@ -57,7 +71,7 @@ public class ProjectAttributesGenerator {
 	 * (ただし他のランダムシードと同じ値にしないこと！)
 	 */
 	NormalDistribution distributionMotivationLevel = new NormalDistribution(
-			new JDKRandomGenerator(6), 0.0e0D, 0.05e0D);
+			new JDKRandomGenerator(this.randomSeed + 6), 0.0e0D, 0.05e0D);
 
 	/**
 	 * レビュー方針(レビュー作業工数比率)の確立分布.
@@ -66,7 +80,7 @@ public class ProjectAttributesGenerator {
 	 * (ただし他のランダムシードと同じ値にしないこと！)
 	 */
 	NormalDistribution distributionReviewPolicy = new NormalDistribution(
-			new JDKRandomGenerator(7), 0.0e0D, 0.05e0D);
+			new JDKRandomGenerator(this.randomSeed + 7), 0.0e0D, 0.05e0D);
 
 	/**
 	 * コミュニケーション方針(コミュニケーション作業工数比率)の確立分布.
@@ -75,7 +89,7 @@ public class ProjectAttributesGenerator {
 	 * (ただし他のランダムシードと同じ値にしないこと！)
 	 */
 	NormalDistribution distributionCommunicationPolicy = new NormalDistribution(
-			new JDKRandomGenerator(8), 0.0e0D, 0.05e0D);
+			new JDKRandomGenerator(this.randomSeed + 8), 0.0e0D, 0.05e0D);
 
 	/**
 	 * コミュニケーションエラー率の確立分布.
@@ -84,7 +98,7 @@ public class ProjectAttributesGenerator {
 	 * (ただし他のランダムシードと同じ値にしないこと！)
 	 */
 	NormalDistribution distributionCommunicationErrorRate = new NormalDistribution(
-			new JDKRandomGenerator(9), 0.0e0D, 0.05e0D);
+			new JDKRandomGenerator(this.randomSeed + 9), 0.0e0D, 0.05e0D);
 
 	/**
 	 * 工数見積係数.
@@ -238,7 +252,7 @@ public class ProjectAttributesGenerator {
 
 		// 再現性確保のためランダムシードを固定
 		// (ただし他のランダムシードと同じ値にしないこと！)
-		JDKRandomGenerator rg = new JDKRandomGenerator(1);
+		JDKRandomGenerator rg = new JDKRandomGenerator(this.randomSeed + 1);
 		this.distributionProduuctSize = new LogNormalDistribution(rg, p1, p2);
 		//		this.distributionProduuctSize = new LogNormalDistribution(p1, p2);
 
@@ -256,7 +270,7 @@ public class ProjectAttributesGenerator {
 
 		// 再現性確保のためランダムシードを固定
 		// (ただし他のランダムシードと同じ値にしないこと！)
-		JDKRandomGenerator rg = new JDKRandomGenerator(2);
+		JDKRandomGenerator rg = new JDKRandomGenerator(this.randomSeed + 2);
 
 		this.distributionDuration = new NormalDistribution(rg, mean, sd);
 		//		this.distributionDuration = new NormalDistribution(mean, sd);

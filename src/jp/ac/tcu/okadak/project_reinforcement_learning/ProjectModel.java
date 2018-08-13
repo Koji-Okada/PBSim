@@ -26,7 +26,7 @@ class ProjectModel {
 	private double idealRemainingWork;
 	private double idealCompleteWork;
 	private double effortInUST;
-	private int idealLastTime; // 進行中を反映し、完了１回前で停止している点に注意！
+	private int idealLastTime;
 	private int startOfTestPhase;
 
 	// 手戻りモデル
@@ -55,7 +55,7 @@ class ProjectModel {
 	private int accumlatedIncreasingEfforts = 0;
 
 	/**
-	 *  コンストラクタ.
+	 * コンストラクタ.
 	 */
 	ProjectModel(ProjectAttributes pjAtr) {
 		super();
@@ -73,6 +73,9 @@ class ProjectModel {
 		this.startOfTestPhase = (int) (this.idealRemainingWork
 				/ this.effortInUST * 0.6e0D);
 
+		this.idealLastTime = (int) Math
+				.ceil(this.idealRemainingWork / this.effortInUST);
+
 		// 現実モデルを設定する
 		this.remainingWorks = pjAtr.getIdealTotalEffort() / 5.0e0D;
 		this.completeWorks = 0.0e0D;
@@ -82,7 +85,7 @@ class ProjectModel {
 	}
 
 	/**
-	 *  コンストラクタ (直接指定).
+	 * コンストラクタ (直接指定).
 	 *
 	 * @param size
 	 * @param hr
@@ -118,7 +121,8 @@ class ProjectModel {
 	 *
 	 * プロジェクトマネジメント行動を実行する.
 	 *
-	 * @param action プロジェクトマネジメント行動
+	 * @param action
+	 *            プロジェクトマネジメント行動
 	 *
 	 */
 	void perform(final ProjectManagementAction action) {
@@ -129,64 +133,63 @@ class ProjectModel {
 
 		// 行動によるパラメータ変更
 		switch (action.getApplyingPressure()) {
-		// プレッシャーを掛けるほど
-		// ・効率は高い (手抜き)
-		// ・高欠陥混入率は高い
-		// ・欠陥発見率は低い
+			// プレッシャーを掛けるほど
+			// ・効率は高い (手抜き)
+			// ・高欠陥混入率は高い
+			// ・欠陥発見率は低い
 
-		case -1:
-			this.efficiency = 0.90e0D;
-			this.defectInjectionRate = 0.15e0D;
-			this.defectDetectionRate = 0.35e0D;
-			break;
-		case 0:
-			this.efficiency = 0.95e0D;
-			this.defectInjectionRate = 0.20e0D;
-			this.defectDetectionRate = 0.30e0D;
-			break;
-		case 1:
-			this.efficiency = 1.00e0D;
-			this.defectInjectionRate = 0.25e0D;
-			this.defectDetectionRate = 0.25e0D;
-			break;
-		case 2:
-			this.efficiency = 1.05e0D;
-			this.defectInjectionRate = 0.30e0D;
-			this.defectDetectionRate = 0.20e0D;
-			break;
-		default:
-			System.out.println("Illegal PM operation.");
+			case -1 :
+				this.efficiency = 0.90e0D;
+				this.defectInjectionRate = 0.15e0D;
+				this.defectDetectionRate = 0.35e0D;
+				break;
+			case 0 :
+				this.efficiency = 0.95e0D;
+				this.defectInjectionRate = 0.20e0D;
+				this.defectDetectionRate = 0.30e0D;
+				break;
+			case 1 :
+				this.efficiency = 1.00e0D;
+				this.defectInjectionRate = 0.25e0D;
+				this.defectDetectionRate = 0.25e0D;
+				break;
+			case 2 :
+				this.efficiency = 1.05e0D;
+				this.defectInjectionRate = 0.30e0D;
+				this.defectDetectionRate = 0.20e0D;
+				break;
+			default :
+				System.out.println("Illegal PM operation.");
 		}
 
 		switch (action.getIncreasingEffort()) {
-		// 人員工数を増やすほど
-		// ・工数は大きい
-		// ・欠陥混入率は微増
-		case -1:
-			this.efforts = this.effortInUST * 0.90e0D;
-			this.defectInjectionRate += 0.00e0D;
-			break;
-		case 0:
-			this.efforts = this.effortInUST * 1.00e0D;
-			this.defectInjectionRate += 0.00e0D;
-			break;
-		case 1:
-			this.efforts = this.effortInUST * 1.10e0D;
-			this.defectInjectionRate += 0.01e0D;
-			break;
-		case 2:
-			this.efforts = this.effortInUST * 1.20e0D;
-			this.defectInjectionRate += 0.02e0D;
-			break;
-		default:
-			System.out.println("Illegal PM operation.");
+			// 人員工数を増やすほど
+			// ・工数は大きい
+			// ・欠陥混入率は微増
+			case -1 :
+				this.efforts = this.effortInUST * 0.90e0D;
+				this.defectInjectionRate += 0.00e0D;
+				break;
+			case 0 :
+				this.efforts = this.effortInUST * 1.00e0D;
+				this.defectInjectionRate += 0.00e0D;
+				break;
+			case 1 :
+				this.efforts = this.effortInUST * 1.10e0D;
+				this.defectInjectionRate += 0.01e0D;
+				break;
+			case 2 :
+				this.efforts = this.effortInUST * 1.20e0D;
+				this.defectInjectionRate += 0.02e0D;
+				break;
+			default :
+				System.out.println("Illegal PM operation.");
 		}
 
 		// 理想モデルの状態変化
 		if (this.idealRemainingWork >= this.effortInUST) {
 			this.idealCompleteWork += this.effortInUST;
 			this.idealRemainingWork -= this.effortInUST;
-			this.idealLastTime = this.simTime;
 		} else {
 			this.idealCompleteWork += this.idealRemainingWork;
 			this.idealRemainingWork = 0.0e0D;
@@ -224,8 +227,9 @@ class ProjectModel {
 				this.remainingWorks -= effectiveEfforts;
 
 				// 潜在欠陥量に応じて欠陥検出量を算出
-				double detectedReworks = Math.min(effectiveEfforts
-						* defectDetectionRate, this.latentReworks);
+				double detectedReworks = Math.min(
+						effectiveEfforts * defectDetectionRate,
+						this.latentReworks);
 
 				// 検出された欠陥作業量を残作業に追加
 				this.latentReworks -= detectedReworks;
@@ -246,20 +250,18 @@ class ProjectModel {
 		// 進捗率の算出
 		this.idealProgressRate = this.idealCompleteWork
 				/ (this.idealRemainingWork + this.idealCompleteWork);
-		this.progressRate = this.completeWorks / (this.remainingWorks
-				+ this.completeWorks);
+		this.progressRate = this.completeWorks
+				/ (this.remainingWorks + this.completeWorks);
 		this.pv = this.idealCompleteWork;
 		this.ev = (this.idealRemainingWork + this.idealCompleteWork)
 				* this.progressRate;
 		this.ac = this.totalEfforts;
 
 		return;
-
 	}
 
 	/**
-	 * プロジェクト状態を返す.
-	 * Q-Net学習への拡張を考慮し、状態量は離散化せず連続値のまま返す．
+	 * プロジェクト状態を返す. Q-Net学習への拡張を考慮し、状態量は離散化せず連続値のまま返す．
 	 *
 	 * @return プロジェクト状態.
 	 */
@@ -276,21 +278,23 @@ class ProjectModel {
 
 		// スケジュール遅延量と遅延率を設定する
 		double sd = 0.0e0D;
-		double sdr = 0.0e0D;
+		double sdr = 1.0e0D;
 		if (0 != this.simTime) {
-			sd = (double) (this.simTime - (this.idealLastTime + 1));
-			sdr = (double) this.simTime / (double) (this.idealLastTime + 1);
+			sd = (double) (this.simTime - this.idealLastTime);
+			sdr = (double) this.simTime / (double) this.idealLastTime;
 		}
 		state.setScheduleDelay(sd, sdr);
 
 		// コスト超過量と超過率を設定する
 		double co = 0.0e0D;
-		double cor = 0.0e0D;
+		double cor = 1.0e0D;
 		if (0 != this.simTime) {
-			sd = this.ac - this.pv;
-			sdr = this.ac / this.pv;
+			double base = Math.max(this.pv, this.ev);
+			// PVよりもEVが先行する場合を考慮
+			co = this.ac - base;
+			cor = this.ac / base;
 		}
-		state.setCostOverrun(sd, sdr);
+		state.setCostOverrun(co, cor);
 
 		// 生産性を設定する
 		state.setProductivity(this.productSize / (this.ac * 5.0e0D));
@@ -298,10 +302,9 @@ class ProjectModel {
 		// EVM指標を設定する
 		state.setEVM(this.pv, this.ev, this.ac);
 
+		// 内部状態を使用しない場合用に初期化する
 		double avAP = 0.0e0D;
 		double avIE = 0.0e0D;
-
-		// 内部状態を使用しない場合用に初期化する
 
 		// 内部状態量を使用する場合
 		if (0 != this.simTime) {

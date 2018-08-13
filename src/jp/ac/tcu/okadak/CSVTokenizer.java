@@ -14,7 +14,11 @@ import java.util.StringTokenizer;
 public class CSVTokenizer extends StringTokenizer {
 
 	/**
+	 *
 	 * コンストラクタ.
+	 *
+	 * @author K.Okada
+	 * @version 2016.01.14
 	 *
 	 * @param str			入力文字列
 	 */
