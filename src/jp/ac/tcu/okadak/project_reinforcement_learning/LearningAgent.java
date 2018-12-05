@@ -348,9 +348,14 @@ public class LearningAgent {
 	 */
 	private int discretizeSPI(final double orgValue) {
 
-		final double th1 = 0.9e0D; // 閾値1
-		final double th2 = 1.0e0D; // 閾値2
-		final double th3 = 1.1e0D; // 閾値3
+		// 変更前
+//		final double th1 = 0.9e0D; // 閾値1
+//		final double th2 = 1.0e0D; // 閾値2
+//		final double th3 = 1.1e0D; // 閾値3
+
+		final double th1 = 0.95e0D; // 閾値1
+		final double th2 = 1.05e0D; // 閾値2
+		final double th3 = 1.15e0D; // 閾値3
 
 		final int discreteValue0 = 0; // 離散値0
 		final int discreteValue1 = 1; // 離散値1
@@ -379,9 +384,14 @@ public class LearningAgent {
 	 */
 	private int discretizeCPI(final double orgValue) {
 
-		final double th1 = 0.9e0D; // 閾値1
-		final double th2 = 1.0e0D; // 閾値2
-		final double th3 = 1.1e0D; // 閾値3
+		// 変更前
+//		final double th1 = 0.9e0D; // 閾値1
+//		final double th2 = 1.0e0D; // 閾値2
+//		final double th3 = 1.1e0D; // 閾値3
+
+		final double th1 = 0.95e0D; // 閾値1
+		final double th2 = 1.05e0D; // 閾値2
+		final double th3 = 1.15e0D; // 閾値3
 
 		final int discreteValue0 = 0; // 離散値0
 		final int discreteValue1 = 1; // 離散値1
