@@ -3,6 +3,7 @@ package jp.ac.tcu.okadak.project_reinforcement_learning;
 import java.util.Random;
 
 /**
+ *
  * 学習エージェント.
  *
  * @author K.Okada

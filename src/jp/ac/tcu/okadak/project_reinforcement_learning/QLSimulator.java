@@ -1,9 +1,7 @@
 package jp.ac.tcu.okadak.project_reinforcement_learning;
 
-import jp.ac.tcu.okadak.project_attributes_generator.ProjectAttributes;
-import jp.ac.tcu.okadak.project_attributes_generator.ProjectAttributesGenerator;
-
 /**
+ *
  * シミュレータ本体.
  *
  * @author K.Okada
@@ -39,7 +37,6 @@ public final class QLSimulator {
 	 * エージェントID (乱数種の値).
 	 */
 	private int agentID = 0;
-
 
 	/**
 	 * コンストラクタ. (プライベート化)
@@ -80,23 +77,24 @@ public final class QLSimulator {
 		// 報酬評価器を生成する
 		RewardEvaluator evaluator = new RewardEvaluator();
 
-		// プロジェクト属性生成器を生成する
-		ProjectAttributesGenerator pjAtrGen = new ProjectAttributesGenerator();
-		pjAtrGen.setRandomSeed(0);
-
-		// 成果物規模の確率分布を設定する
-		// pjAtrGen.setProductSizeDistibution(1000.0e0D * 5.0e0, 100.0e0D);
-		pjAtrGen.setProductSizeDistibution(2843.371e0D, 4711.928e0D);
-
-		// 期間変動の確立分布を設定する
-		// pjAtrGen.setDurationDistribution(0.0e0D, 0.10e0D);
-		pjAtrGen.setDurationDistribution(0.0e0D, 0.45e0D);
-
-		// 工数見積係数を設定する
-		pjAtrGen.setEffortEstimationParameter(safetyRate); // 1 + 手戻り工数率
-
-		// 理想的工数見積係数を設定する
-		pjAtrGen.setIdealEffortEstimationParameter(1.0e0D);
+		// *** 単一プロジェクトでの実験のためコメント化
+		//
+		// // プロジェクト属性生成器を生成する
+		// ProjectAttributesGenerator pjAtrGen = new
+		// ProjectAttributesGenerator();
+		// pjAtrGen.setRandomSeed(0);
+		//
+		// // 成果物規模の確率分布を設定する
+		// pjAtrGen.setProductSizeDistibution(2843.371e0D, 4711.928e0D);
+		//
+		// // 期間変動の確立分布を設定する
+		// pjAtrGen.setDurationDistribution(0.0e0D, 0.45e0D);
+		//
+		// // 工数見積係数を設定する
+		// pjAtrGen.setEffortEstimationParameter(safetyRate); // 1 + 手戻り工数率
+		//
+		// // 理想的工数見積係数を設定する
+		// pjAtrGen.setIdealEffortEstimationParameter(1.0e0D);
 
 		for (int j = 0; j < ITERATION_ALL; j++) {
 			// 全体の反復ループ
@@ -107,9 +105,15 @@ public final class QLSimulator {
 				// プロジェクト反復のループ (探索学習モード(ε-Greedyオン))
 
 				// プロジェクトを生成する
-				ProjectAttributes pjAtr = pjAtrGen
-						.generateProjectAttribute(false);
-				ProjectModel project = new ProjectModel(pjAtr);
+
+				// *** 単一プロジェクトでの実験のためコメント化
+				// ProjectAttributes pjAtr = pjAtrGen
+				// .generateProjectAttribute(false);
+
+				// *** 単一プロジェクトでの実験のため直接指定
+//				ProjectModel project = new ProjectModel(pjAtr);
+				ProjectModel project = new ProjectModel(1000.0e0D, 20.0e0D, 1.0e0D * this.safetyRate, 1.0e0D);
+
 
 				// プロジェクトを実施する
 				sumLearningIndex1 += performProject(project, agent, evaluator,
@@ -122,9 +126,14 @@ public final class QLSimulator {
 				// プロジェクト反復のループ (収束学習モード(ε-Greedyオフ))
 
 				// プロジェクトを生成する
-				ProjectAttributes pjAtr = pjAtrGen
-						.generateProjectAttribute(false);
-				ProjectModel project = new ProjectModel(pjAtr);
+				// *** 単一プロジェクトでの実験のためコメント化
+				// ProjectAttributes pjAtr = pjAtrGen
+				// .generateProjectAttribute(false);
+
+				// *** 単一プロジェクトでの実験のため直接指定
+//				ProjectModel project = new ProjectModel(pjAtr);
+				ProjectModel project = new ProjectModel(1000.0e0D, 20.0e0D, 1.0e0D * this.safetyRate, 1.0e0D);
+
 
 				// プロジェクトを実施する
 				sumLearningIndex2 += performProject(project, agent, evaluator,
@@ -142,21 +151,23 @@ public final class QLSimulator {
 			double sumDelayRate = 0.0e0D;
 			double sumCostOverrunRate = 0.0e0D;
 			double sumReward = 0.0e0D;
-			double sumProductivity = 0.0e0D;
 			double sumDelayRate0 = 0.0e0D;
 			double sumCostOverrunRate0 = 0.0e0D;
 			double sumReward0 = 0.0e0D;
-			double sumProductivity0 = 0.0e0D;
 
 			// 学習結果の評価
 			for (int i = 0; i < LAST_EVALUATIONS; i++) {
 
-				// プロジェクト属性を生成する
-				ProjectAttributes pjAtr = pjAtrGen
-						.generateProjectAttribute(false);
+				// *** 単一プロジェクトでの実験のためコメント化
+//				// プロジェクト属性を生成する
+//				ProjectAttributes pjAtr = pjAtrGen
+//						.generateProjectAttribute(false);
 
 				// プロジェクトを生成する
-				ProjectModel project = new ProjectModel(pjAtr);
+				// *** 単一プロジェクトでの実験のため直接指定
+//				ProjectModel project = new ProjectModel(pjAtr);
+				ProjectModel project = new ProjectModel(1000.0e0D, 20.0e0D, 1.0e0D * this.safetyRate, 1.0e0D);
+
 
 				// プロジェクトを実施する
 				performProject(project, agent, evaluator, false, false);
@@ -165,7 +176,6 @@ public final class QLSimulator {
 				sumReward += evaluator.evaluate(project.observe());
 				sumDelayRate += project.observe().getScheduleDelayRate();
 				sumCostOverrunRate += project.observe().getCostOverrunRate();
-				sumProductivity += project.observe().getProductivity();
 
 				// 最良学習エージェントにもプロジェクトを実行させる
 				if (null == bestAgent) {
@@ -173,7 +183,10 @@ public final class QLSimulator {
 				}
 
 				// プロジェクトを生成する(プロジェクト属性は同一)
-				ProjectModel project0 = new ProjectModel(pjAtr);
+				// *** 単一プロジェクトでの実験のため直接指定
+//				ProjectModel project0 = new ProjectModel(pjAtr);
+				ProjectModel project0 = new ProjectModel(1000.0e0D, 20.0e0D, 1.0e0D * this.safetyRate, 1.0e0D);
+
 
 				// プロジェクトを実施する
 				performProject(project0, bestAgent, evaluator, false, false);
@@ -182,7 +195,6 @@ public final class QLSimulator {
 				sumReward0 += evaluator.evaluate(project0.observe());
 				sumDelayRate0 += project0.observe().getScheduleDelayRate();
 				sumCostOverrunRate0 += project0.observe().getCostOverrunRate();
-				sumProductivity0 += project0.observe().getProductivity();
 			}
 
 			// 評価結果のコンソール出力
@@ -193,8 +205,6 @@ public final class QLSimulator {
 					sumCostOverrunRate / (double) LAST_EVALUATIONS);
 			System.out.printf("%10.4f\t",
 					sumReward / (double) LAST_EVALUATIONS);
-			System.out.printf("%10.4f\t",
-					sumProductivity / (double) LAST_EVALUATIONS);
 
 			// 最良学習エージェントと結果を比較し淘汰する
 			if (sumReward0 < sumReward) {
@@ -208,7 +218,6 @@ public final class QLSimulator {
 				sumReward = sumReward0;
 				sumDelayRate = sumDelayRate0;
 				sumCostOverrunRate = sumCostOverrunRate0;
-				sumProductivity = sumProductivity0;
 				System.out.print("\t");
 			}
 
@@ -219,84 +228,83 @@ public final class QLSimulator {
 					sumCostOverrunRate / (double) LAST_EVALUATIONS);
 			System.out.printf("%10.4f\t",
 					sumReward / (double) LAST_EVALUATIONS);
-			System.out.printf("%10.4f\t",
-					sumProductivity / (double) LAST_EVALUATIONS);
 			System.out.println();
 		}
 
-
-		for (int p = 0; p < 10; p++) {
-
-			// プロジェクト属性生成器を、再度、生成する
-			pjAtrGen = new ProjectAttributesGenerator();
-			pjAtrGen.setRandomSeed(p); // 再現性確保のため
-
-			// 成果物規模の確率分布を設定する
-			// pjAtrGen.setProductSizeDistibution(1000.0e0D * 5.0e0, 100.0e0D);
-			pjAtrGen.setProductSizeDistibution(2843.371e0D, 4711.928e0D);
-
-			// 期間変動の確立分布を設定する
-			// pjAtrGen.setDurationDistribution(0.0e0D, 0.10e0D);
-			pjAtrGen.setDurationDistribution(0.0e0D, 0.45e0D);
-
-			// 工数見積係数を設定する
-			pjAtrGen.setEffortEstimationParameter(safetyRate); // 1 + 手戻り工数率
-
-			// 理想的工数見積係数を設定する
-			pjAtrGen.setIdealEffortEstimationParameter(1.0e0D);
-
-
-			// プロジェクトを生成する
-			ProjectAttributes pjAtr = pjAtrGen.generateProjectAttribute(false);
-			ProjectModel project = new ProjectModel(pjAtr);
-
-			double idealCost = pjAtr.getIdealTotalEffort() / 5.0e0d;
-			double plannedCost = pjAtr.getEstimatedTotalEffort() / 5.0e0d;
-
-			// プロジェクトを実施する
-			// bestAgent.setRecordAction(true);
-			System.out.println();
-			System.out.println("---- Project " + p);
-
-			performProject(project, agent, evaluator, false, false);
-			// System.out.println();
-
-			ProjectState st = project.observe();
-			double performedDuration = (double) st.getSimTime();
-			double performedCost = st.getAC();
-			double scheduleDelay = (double) st
-					.getScheduleDelay();
-			double costOverrun = st.getCostOverrun();
-			double plannedDuration = performedDuration - scheduleDelay;
-
-
-			System.out.printf("pl_duration = \t%4.0f", plannedDuration);
-			System.out.println();
-			System.out.printf("pf_duration = \t%4.0f", performedDuration);
-			System.out.println();
-			System.out.printf("schedule deley = \t%4.0f", scheduleDelay);
-			System.out.println();
-			System.out.printf("schedule deley rate = \t%8.3f", scheduleDelay / plannedDuration);
-			System.out.println();
-
-			System.out.printf("id_cost     = \t%8.3f", idealCost);
-			System.out.println();
-			System.out.printf("pl_cost     = \t%8.3f", plannedCost);
-			System.out.println();
-			System.out.printf("pf_cost     = \t%8.3f", performedCost);
-			System.out.println();
-			System.out.printf("cost overrun   = \t%8.3f", costOverrun);
-			System.out.println();
-			System.out.printf("cost overrun rate = \t%8.3f", costOverrun / plannedCost);
-			System.out.println();
-
-//			System.out.printf("pv = \t%8.3f", st.getPV());
-//			System.out.println();
-//			System.out.printf("ev = \t%8.3f", st.getEV());
-//			System.out.println();
-//			System.out.printf("ac = \t%8.3f", st.getAC());
-//			System.out.println();
-		}
+		// for (int p = 0; p < 10; p++) {
+		//
+		// // プロジェクト属性生成器を、再度、生成する
+		// pjAtrGen = new ProjectAttributesGenerator();
+		// pjAtrGen.setRandomSeed(p); // 再現性確保のため
+		//
+		// // 成果物規模の確率分布を設定する
+		// // pjAtrGen.setProductSizeDistibution(1000.0e0D * 5.0e0, 100.0e0D);
+		// pjAtrGen.setProductSizeDistibution(2843.371e0D, 4711.928e0D);
+		//
+		// // 期間変動の確立分布を設定する
+		// // pjAtrGen.setDurationDistribution(0.0e0D, 0.10e0D);
+		// pjAtrGen.setDurationDistribution(0.0e0D, 0.45e0D);
+		//
+		// // 工数見積係数を設定する
+		// pjAtrGen.setEffortEstimationParameter(safetyRate); // 1 + 手戻り工数率
+		//
+		// // 理想的工数見積係数を設定する
+		// pjAtrGen.setIdealEffortEstimationParameter(1.0e0D);
+		//
+		//
+		// // プロジェクトを生成する
+		// ProjectAttributes pjAtr = pjAtrGen.generateProjectAttribute(false);
+		// ProjectModel project = new ProjectModel(pjAtr);
+		//
+		// double idealCost = pjAtr.getIdealTotalEffort() / 5.0e0d;
+		// double plannedCost = pjAtr.getEstimatedTotalEffort() / 5.0e0d;
+		//
+		// // プロジェクトを実施する
+		// // bestAgent.setRecordAction(true);
+		// System.out.println();
+		// System.out.println("---- Project " + p);
+		//
+		// performProject(project, agent, evaluator, false, false);
+		// // System.out.println();
+		//
+		// ProjectState st = project.observe();
+		// double performedDuration = (double) st.getSimTime();
+		// double performedCost = st.getAC();
+		// double scheduleDelay = (double) st
+		// .getScheduleDelay();
+		// double costOverrun = st.getCostOverrun();
+		// double plannedDuration = performedDuration - scheduleDelay;
+		//
+		//
+		// System.out.printf("pl_duration = \t%4.0f", plannedDuration);
+		// System.out.println();
+		// System.out.printf("pf_duration = \t%4.0f", performedDuration);
+		// System.out.println();
+		// System.out.printf("schedule deley = \t%4.0f", scheduleDelay);
+		// System.out.println();
+		// System.out.printf("schedule deley rate = \t%8.3f", scheduleDelay /
+		// plannedDuration);
+		// System.out.println();
+		//
+		// System.out.printf("id_cost = \t%8.3f", idealCost);
+		// System.out.println();
+		// System.out.printf("pl_cost = \t%8.3f", plannedCost);
+		// System.out.println();
+		// System.out.printf("pf_cost = \t%8.3f", performedCost);
+		// System.out.println();
+		// System.out.printf("cost overrun = \t%8.3f", costOverrun);
+		// System.out.println();
+		// System.out.printf("cost overrun rate = \t%8.3f", costOverrun /
+		// plannedCost);
+		// System.out.println();
+		//
+		//// System.out.printf("pv = \t%8.3f", st.getPV());
+		//// System.out.println();
+		//// System.out.printf("ev = \t%8.3f", st.getEV());
+		//// System.out.println();
+		//// System.out.printf("ac = \t%8.3f", st.getAC());
+		//// System.out.println();
+		// }
 
 		return;
 	}

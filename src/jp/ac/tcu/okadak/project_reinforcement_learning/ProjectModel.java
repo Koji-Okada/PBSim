@@ -3,6 +3,7 @@ package jp.ac.tcu.okadak.project_reinforcement_learning;
 import jp.ac.tcu.okadak.project_attributes_generator.ProjectAttributes;
 
 /**
+ *
  * 超簡易版プロジェクト挙動モデル.
  *
  * @author K.Okada
@@ -103,14 +104,17 @@ class ProjectModel {
 		this.productSize = size;
 
 		// 理想モデルを設定する
-		this.idealRemainingWork = size * est;
+		this.idealRemainingWork = this.productSize * est;
 		this.idealCompleteWork = 0.0e0D;
 		this.effortInUST = hr;
 		this.startOfTestPhase = (int) (this.idealRemainingWork
 				/ this.effortInUST * 0.6e0D);
 
+		this.idealLastTime = (int) Math
+				.ceil(this.idealRemainingWork / this.effortInUST);
+
 		// 現実モデルを設定する
-		this.remainingWorks = size * ideal;
+		this.remainingWorks = this.productSize * ideal;
 		this.completeWorks = 0.0e0D;
 		this.latentReworks = 0.0e0D;
 
@@ -158,6 +162,11 @@ class ProjectModel {
 				this.defectInjectionRate = 0.30e0D;
 				this.defectDetectionRate = 0.20e0D;
 				break;
+			case 99 :
+				this.efficiency = 1.00e0D;
+				this.defectInjectionRate = 0.00e0D;
+				this.defectDetectionRate = 0.00e0D;
+				break;
 			default :
 				System.out.println("Illegal PM operation.");
 		}
@@ -181,6 +190,10 @@ class ProjectModel {
 			case 2 :
 				this.efforts = this.effortInUST * 1.20e0D;
 				this.defectInjectionRate += 0.02e0D;
+				break;
+			case 99 :
+				this.efforts = this.effortInUST * 1.00e0D;
+				this.defectInjectionRate += 0.00e0D;
 				break;
 			default :
 				System.out.println("Illegal PM operation.");
@@ -280,8 +293,8 @@ class ProjectModel {
 		double sd = 0.0e0D;
 		double sdr = 1.0e0D;
 		if (0 != this.simTime) {
-			sd = (double) (this.simTime - this.idealLastTime);
-			sdr = (double) this.simTime / (double) this.idealLastTime;
+			sd = (double) ((this.simTime - 1)  - this.idealLastTime);
+			sdr = (double) (this.simTime - 1) / (double) this.idealLastTime;
 		}
 		state.setScheduleDelay(sd, sdr);
 
@@ -295,9 +308,6 @@ class ProjectModel {
 			cor = this.ac / base;
 		}
 		state.setCostOverrun(co, cor);
-
-		// 生産性を設定する
-		state.setProductivity(this.productSize / (this.ac * 5.0e0D));
 
 		// EVM指標を設定する
 		state.setEVM(this.pv, this.ev, this.ac);

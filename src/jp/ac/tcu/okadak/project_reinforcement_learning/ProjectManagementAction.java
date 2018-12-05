@@ -1,6 +1,7 @@
 package jp.ac.tcu.okadak.project_reinforcement_learning;
 
 /**
+ *
  * プロジェクトマネジメント行動.
  *
  * @author K.Okada

@@ -5,7 +5,6 @@ package jp.ac.tcu.okadak.project_reinforcement_learning;
  * プロジェクト状態.
  *
  * @author K.Okada
- *
  */
 class ProjectState {
 
@@ -165,31 +164,6 @@ class ProjectState {
 
 	// =======================================================================
 	/**
-	 * 生産性指標.
-	 */
-	private double productivity;
-
-	/**
-	 * 生産性指標を取得する.
-	 *
-	 * @return 生産性指標
-	 */
-	final double getProductivity() {
-		return this.productivity;
-	}
-
-	/**
-	 * 生産性指標を設定する.
-	 *
-	 * @param prod	生産性指標
-	 */
-	final void setProductivity(final double prod) {
-		this.productivity = prod;
-	}
-
-
-	// =======================================================================
-	/**
 	 * Planned Value.
 	 */
 	private double pv;
@@ -255,8 +229,6 @@ class ProjectState {
 		} else {
 			this.cpi = 1.0e0D;
 		}
-
-
 
 		return;
 	}
