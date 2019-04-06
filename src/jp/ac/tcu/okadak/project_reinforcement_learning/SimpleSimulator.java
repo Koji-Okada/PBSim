@@ -31,25 +31,49 @@ public final class SimpleSimulator {
 		for (int applyingPressure = ProjectManagementAction.MIN_ACTION_AP; applyingPressure < ProjectManagementAction.MAX_ACTION_AP; applyingPressure++) {
 			for (int increasingEffort = ProjectManagementAction.MIN_ACTION_IE; increasingEffort < ProjectManagementAction.MAX_ACTION_IE; increasingEffort++) {
 
+				 System.out.printf("%4d\t", applyingPressure);
+				 System.out.printf("%4d\t", increasingEffort);
+
 				// 基準プロジェクトを生成する
 				ProjectModel project = new ProjectModel(1000.0e0, 20.0e0, 1.0e0,
 						1.0e0);
+
+				int i = 0;
 				do {
+					int ap = applyingPressure;
+					int ie = increasingEffort;
+
+					// 40回以上は、[0,0] に
+//					if (40 <= i) {
+//						ap = 0;
+//						ie = 0;
+//					}
+
 					ProjectManagementAction action = new ProjectManagementAction(
-							applyingPressure, increasingEffort);
+							ap, ie);
 
 					project.perform(action);
 
 					// 行動後の状態を観測する
 					postState = project.observe();
 
-				} while (!postState.isComplete());
+//					System.out.printf("%6.2f\t", postState.getSPI());
+//					System.out.printf("%6.2f\t", postState.getCPI());
+					System.out.printf("%6.2f\t", postState.getProgressRate());
 
-				System.out.println(applyingPressure + "\t" + increasingEffort
-						+ "\t" + postState.getScheduleDelay() + "\t"
-						+ postState.getCostOverrun() + "\t"
-						+ postState.getAverageAP() + "\t"
-						+ postState.getAverageIE());
+					i++;
+
+				} while (!postState.isComplete());
+				System.out.println();
+
+				// System.out.printf("%4d\t", applyingPressure);
+				// System.out.printf("%4d\t", increasingEffort);
+				// System.out.printf("%6.2f\t", postState.getScheduleDelay());
+				// System.out.printf("%6.2f\t", postState.getCostOverrun());
+				// System.out.printf("%6.2f\t",
+				// postState.getScheduleDelayRate());
+				// System.out.printf("%6.2f\t", postState.getCostOverrunRate());
+				// System.out.println();
 			}
 		}
 
@@ -67,11 +91,13 @@ public final class SimpleSimulator {
 
 		} while (!postState.isComplete());
 
-		System.out.println(99 + "\t" + 99 + "\t"
-				+ postState.getScheduleDelay() + "\t"
-				+ postState.getCostOverrun() + "\t"
-				+ postState.getAverageAP() + "\t"
-				+ postState.getAverageIE());
+		// System.out.printf("%4d\t", 99);
+		// System.out.printf("%4d\t", 99);
+		// System.out.printf("%6.2f\t", postState.getScheduleDelay());
+		// System.out.printf("%6.2f\t", postState.getCostOverrun());
+		// System.out.printf("%6.2f\t", postState.getScheduleDelayRate());
+		// System.out.printf("%6.2f\t", postState.getCostOverrunRate());
+		// System.out.println();
 
 		System.out.println("... Fin.");
 	}

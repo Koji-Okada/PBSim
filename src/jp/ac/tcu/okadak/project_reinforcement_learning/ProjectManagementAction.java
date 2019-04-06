@@ -66,8 +66,6 @@ public class ProjectManagementAction {
 			final int iEfforts) {
 		super();
 
-		// 値の範囲の確認を行った方が良いが、未実装
-
 		this.applyingPressure = aPressure;
 		this.increasingEffort = iEfforts;
 

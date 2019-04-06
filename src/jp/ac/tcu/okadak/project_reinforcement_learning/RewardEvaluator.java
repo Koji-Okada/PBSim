@@ -9,9 +9,9 @@ package jp.ac.tcu.okadak.project_reinforcement_learning;
 public class RewardEvaluator {
 
 	private static double RWD_FN_SCH = 1.0e3D; // 1.0e3D
-	private static double RWD_FN_CST = 0.0e3D; // 1.0e3D
+	private static double RWD_FN_CST = 0.0e3D; // 0.0e3D
 	private static double RWD_OG_SCH = 1.0e0D; // 1.0e0D
-	private static double RWD_OG_CST = 0.0e0D; // 1.0e0D
+	private static double RWD_OG_CST = 0.0e0D; // 0.0e0D
 
 	/**
 	 * 報酬を評価する.

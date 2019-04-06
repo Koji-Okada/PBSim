@@ -353,9 +353,9 @@ public class LearningAgent {
 //		final double th2 = 1.0e0D; // 閾値2
 //		final double th3 = 1.1e0D; // 閾値3
 
-		final double th1 = 0.95e0D; // 閾値1
-		final double th2 = 1.05e0D; // 閾値2
-		final double th3 = 1.15e0D; // 閾値3
+		final double th1 = 0.82e0D; // 閾値1
+		final double th2 = 0.94e0D; // 閾値2
+		final double th3 = 1.06e0D; // 閾値3
 
 		final int discreteValue0 = 0; // 離散値0
 		final int discreteValue1 = 1; // 離散値1
@@ -389,9 +389,9 @@ public class LearningAgent {
 //		final double th2 = 1.0e0D; // 閾値2
 //		final double th3 = 1.1e0D; // 閾値3
 
-		final double th1 = 0.95e0D; // 閾値1
-		final double th2 = 1.05e0D; // 閾値2
-		final double th3 = 1.15e0D; // 閾値3
+		final double th1 = 0.82e0D; // 閾値1
+		final double th2 = 0.94e0D; // 閾値2
+		final double th3 = 1.06e0D; // 閾値3
 
 		final int discreteValue0 = 0; // 離散値0
 		final int discreteValue1 = 1; // 離散値1
@@ -472,5 +472,29 @@ public class LearningAgent {
 		}
 
 		return averageIncreasingEfforts;
+	}
+
+
+
+	/**
+	 * 挙動確認用.
+	 *
+	 *
+	 * @return Q値
+	 */
+	double getQV(int prg, int spi, int cpi, int avAP, int avIE, int aP, int iE) {
+
+		// Qテーブルの構成は以下の 7次元配列
+		// == STATE ==
+		// [progress]
+		// [spi]
+		// [cpi]
+		// [averageAP]
+		// [averageIE]
+		// == ACTION ==
+		// [applyingPressure]
+		// [IncreasingEffort]
+
+		return this.qTable[prg][spi][cpi][avAP][avIE][aP][iE];
 	}
 }

@@ -307,8 +307,6 @@ class ProjectState {
 		// 内部歪み推定を行わない場合
 //		this.averageApplyingPressure = 0.0e0D;
 //		this.averageIncreasingEffort = 0.0e0D;
-
-
 		return;
 	}
 }
