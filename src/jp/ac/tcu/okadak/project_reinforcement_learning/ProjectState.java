@@ -4,7 +4,7 @@ package jp.ac.tcu.okadak.project_reinforcement_learning;
  *
  * プロジェクト状態.
  *
- * @author K.Okada
+ * @author K.Okada T.Hayashi
  */
 class ProjectState {
 
@@ -207,6 +207,7 @@ class ProjectState {
 		return this.ac;
 	}
 
+	// =======================================================================
 	/**
 	 * EVMの値を設定する.
 	 *
@@ -233,7 +234,6 @@ class ProjectState {
 		return;
 	}
 
-	// =======================================================================
 	/**
 	 * スケジュール効率指数.
 	 */
@@ -248,7 +248,6 @@ class ProjectState {
 		return this.spi;
 	}
 
-	// =======================================================================
 	/**
 	 * コスト効率指数.
 	 */
@@ -262,7 +261,6 @@ class ProjectState {
 	final double getCPI() {
 		return this.cpi;
 	}
-
 
 	// =======================================================================
 	/**
@@ -294,19 +292,80 @@ class ProjectState {
 		return this.averageIncreasingEffort;
 	}
 
+	// =======================================================================
+	/**
+	 * スコープ調整指示の過去平均値.
+	 */
+	private double averageScopeAdjust;
+
+	/**
+	 * スコープ調整指示の過去平均値を取得する.
+	 *
+	 * @return スコープ調整指示の過去平均値
+	 */
+	final double getAverageSA() {
+		return this.averageScopeAdjust;
+	}
+
+	// =======================================================================
+	/**
+	 * 仕様妥協量.
+	 */
+	private double compromiseWorks;
+
+	/**
+	 * 仕様妥協量を取得する.
+	 *
+	 * @return スケジュール遅延量
+	 */
+	final double getCompromiseWorks() {
+		return this.compromiseWorks;
+	}
+
+	/**
+	 * 仕様妥協量および仕様妥協率を設定する.
+	 *
+	 * @param cpWorks 仕様妥協量
+	 * @param cpWorksRate 仕様妥協率
+	 */
+	final void setCompromiseWorks(final double cpWorks,
+			final double cpWorksRate) {
+		this.compromiseWorks = cpWorks;
+		this.compromiseWorksRate = cpWorksRate;
+		return;
+	}
+
+	/**
+	 * 仕様妥協率.
+	 */
+	private double compromiseWorksRate;
+
+	/**
+	 * 仕様妥協率を取得する.
+	 *
+	 * @return 仕様妥協率
+	 */
+	final double getCompromiseWorksRate() {
+		return this.compromiseWorksRate;
+	}
+
+	// =======================================================================
 	/**
 	 * 指示の過去平均値を設定する.
 	 *
 	 * @param avgAP 計画遵守圧力の過去平均値
 	 * @param avgIE 工数増加指示の過去平均値
+	 * @param avgSA スコープ調整の過去平均値
 	 */
-	final void setAverageAPIE(final double avgAP, final double avgIE) {
+	final void setAverageAPIESA(final double avgAP, final double avgIE, final double avgSA) {
 		this.averageApplyingPressure = avgAP;
 		this.averageIncreasingEffort = avgIE;
-
+		this.averageIncreasingEffort = avgSA;
 		// 内部歪み推定を行わない場合
 //		this.averageApplyingPressure = 0.0e0D;
 //		this.averageIncreasingEffort = 0.0e0D;
+//		this.averageScopeAdjust = 0.0e0D;
+
 		return;
 	}
 }
