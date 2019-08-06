@@ -48,7 +48,6 @@ class ProjectState {
 		return this.completionFlag;
 	}
 
-	// =======================================================================
 	/**
 	 * 進捗率.
 	 */
@@ -104,7 +103,6 @@ class ProjectState {
 		return;
 	}
 
-	// =======================================================================
 	/**
 	 * スケジュール遅延率.
 	 */
@@ -147,7 +145,6 @@ class ProjectState {
 		return;
 	}
 
-	// =======================================================================
 	/**
 	 * コスト超過率.
 	 */
@@ -160,6 +157,48 @@ class ProjectState {
 	 */
 	final double getCostOverrunRate() {
 		return this.costOverrunRate;
+	}
+
+	// =======================================================================
+	/**
+	 * 仕様妥協量.
+	 */
+	private double compromiseWorks;
+
+	/**
+	 * 仕様妥協量を取得する.
+	 *
+	 * @return スケジュール遅延量
+	 */
+	final double getCompromiseWorks() {
+		return this.compromiseWorks;
+	}
+
+	/**
+	 * 仕様妥協量および仕様妥協率を設定する.
+	 *
+	 * @param cpWorks 仕様妥協量
+	 * @param cpWorksRate 仕様妥協率
+	 */
+	final void setCompromiseWorks(final double cpWorks,
+			final double cpWorksRate) {
+		this.compromiseWorks = cpWorks;
+		this.compromiseWorksRate = cpWorksRate;
+		return;
+	}
+
+	/**
+	 * 仕様妥協率.
+	 */
+	private double compromiseWorksRate;
+
+	/**
+	 * 仕様妥協率を取得する.
+	 *
+	 * @return 仕様妥協率
+	 */
+	final double getCompromiseWorksRate() {
+		return this.compromiseWorksRate;
 	}
 
 	// =======================================================================
@@ -177,7 +216,6 @@ class ProjectState {
 		return this.pv;
 	}
 
-	// =======================================================================
 	/**
 	 * Earned Value.
 	 */
@@ -192,7 +230,6 @@ class ProjectState {
 		return this.ev;
 	}
 
-	// =======================================================================
 	/**
 	 * Actual Cost.
 	 */
@@ -207,7 +244,6 @@ class ProjectState {
 		return this.ac;
 	}
 
-	// =======================================================================
 	/**
 	 * EVMの値を設定する.
 	 *
@@ -277,7 +313,6 @@ class ProjectState {
 		return this.averageApplyingPressure;
 	}
 
-	// =======================================================================
 	/**
 	 * 工数増加指示の過去平均値.
 	 */
@@ -292,7 +327,6 @@ class ProjectState {
 		return this.averageIncreasingEffort;
 	}
 
-	// =======================================================================
 	/**
 	 * スコープ調整指示の過去平均値.
 	 */
@@ -307,49 +341,6 @@ class ProjectState {
 		return this.averageScopeAdjust;
 	}
 
-	// =======================================================================
-	/**
-	 * 仕様妥協量.
-	 */
-	private double compromiseWorks;
-
-	/**
-	 * 仕様妥協量を取得する.
-	 *
-	 * @return スケジュール遅延量
-	 */
-	final double getCompromiseWorks() {
-		return this.compromiseWorks;
-	}
-
-	/**
-	 * 仕様妥協量および仕様妥協率を設定する.
-	 *
-	 * @param cpWorks 仕様妥協量
-	 * @param cpWorksRate 仕様妥協率
-	 */
-	final void setCompromiseWorks(final double cpWorks,
-			final double cpWorksRate) {
-		this.compromiseWorks = cpWorks;
-		this.compromiseWorksRate = cpWorksRate;
-		return;
-	}
-
-	/**
-	 * 仕様妥協率.
-	 */
-	private double compromiseWorksRate;
-
-	/**
-	 * 仕様妥協率を取得する.
-	 *
-	 * @return 仕様妥協率
-	 */
-	final double getCompromiseWorksRate() {
-		return this.compromiseWorksRate;
-	}
-
-	// =======================================================================
 	/**
 	 * 指示の過去平均値を設定する.
 	 *
@@ -361,7 +352,8 @@ class ProjectState {
 		this.averageApplyingPressure = avgAP;
 		this.averageIncreasingEffort = avgIE;
 		this.averageIncreasingEffort = avgSA;
-		// 内部歪み推定を行わない場合
+
+		// 内部歪み推定を行わない場合は、全て 0 に設定し直す
 //		this.averageApplyingPressure = 0.0e0D;
 //		this.averageIncreasingEffort = 0.0e0D;
 //		this.averageScopeAdjust = 0.0e0D;

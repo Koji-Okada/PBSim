@@ -14,52 +14,48 @@ class ProjectModel {
 	 */
 	private int simTime;
 
-	/**
-	 * プロジェクト完了フラグ.
-	 */
-	private boolean completionFlag;
-
 	// 成果物規模
 	private double productSize;
 
 	// 理想モデル
-	private double idealTotalWork;
-	private double idealRemainingWork;
-	private double idealCompleteWork;
-	private double effortInUST;
-	private int idealLastTime;
-	private double startOfTestPhase;
-	private double idealTotalEfforts;
+	private boolean idealCompletionFlag; // 完了フラグ
+	private double idealInitialWork; // 初期作業量
+	private double idealRemainingWork; // 残作業量
+	private double idealCompleteWork; // 完了作業
+	private double idealEffort; // 作業工数
+	private double idealCompromisedWork; // 妥協作業量 (EV算出に必要)
+	private int idealLastTime; // 計画完了日 (PVの有効範囲)
 
 	// 手戻りモデル
-	private double remainingWorks;
-	private double completeWorks;
-	private double efforts;
-	private double latentReworks;
-	private double totalEffort;
-	private double compromiseWork;
+	private boolean completionFlag; // 完了フラグ
+	private double initialWork; // 初期作業量
+	private double remainingWork; // 残作業量
+	private double completeWork; // 完了作業
+	private double effort; // 作業工数
+	private double latentRework; // 潜在手戻り作業
+	private double compromisedWork; // 妥協作業量
+	private double totalEffort; // 総投入工数 (AC算出に必要)
+	private boolean testFlag; // テスト開始フラグ
 
-	private double completeThreshold = 2.0e0D;
+	private double completeThreshold = 2.0e0D; // 完了条件の閾値
 
 	// プロジェクト状態
 	private double idealProgressRate;
-	private double progressRate = 0.0e0D;
+	private double progressRate;
 	private double pv;
 	private double ev;
 	private double ac;
 
 	// PM行動の影響を受ける可変パラメータ
-	private double efficiency;
-	private double defectInjectionRate;
-	private double defectDetectionRate;
-    //スコープ調整の可変パラメータ
-	private double scopeAdjustRate;
+	private double efficiency; // 表面的な効率向上
+	private double defectInjectionRate; // 欠陥混入率
+	private double defectDetectionRate; // 欠陥検出率
+	private double scopeAdjustRate; // スコープ調整率
 
 	// PM行動の累積
 	private int accumlatedApplyingPressure = 0;
 	private int accumlatedIncreasingEfforts = 0;
 	private int accumlatedScopeAdjust = 0;
-
 
 	/**
 	 * コンストラクタ (直接指定).
@@ -70,31 +66,35 @@ class ProjectModel {
 	 * @param idealEst
 	 */
 	ProjectModel(final double size, final double hr, final double est,
-			final double ideal) {
+			final double idealEst) {
 		super();
 
 		this.simTime = 0;
-		this.completionFlag = false;
 
 		// 成果物規模を設定する
 		this.productSize = size;
 
 		// 理想モデルを設定する
-		this.idealTotalWork = size * est;
-		this.idealRemainingWork = this.productSize * est;
+		this.idealInitialWork = this.productSize * est;
+		this.idealRemainingWork = this.idealInitialWork;
 		this.idealCompleteWork = 0.0e0D;
-		this.effortInUST = hr;
-		this.startOfTestPhase = (int) (this.idealRemainingWork
-				/ this.effortInUST * 0.6e0D);
-		this. idealTotalEfforts= 0.0e0d;
+		this.idealProgressRate = 0.0e0D;
+		this.idealCompletionFlag = false;
+		this.idealCompromisedWork = 0.0e0D;
+		this.idealEffort = hr;
 
 		this.idealLastTime = (int) Math
-				.ceil(this.idealRemainingWork / this.effortInUST);
+				.ceil(this.idealRemainingWork / this.idealEffort);
 
 		// 現実モデルを設定する
-		this.remainingWorks = this.productSize * ideal;
-		this.completeWorks = 0.0e0D;
-		this.latentReworks = 0.0e0D;
+		this.initialWork = this.productSize * idealEst;
+		this.remainingWork = this.initialWork;
+		this.completeWork = 0.0e0D;
+		this.latentRework = 0.0e0D;
+		this.progressRate = 0.0e0D;
+		this.completionFlag = false;
+		this.compromisedWork = 0.0e0D;
+		this.testFlag = false;
 
 		return;
 	}
@@ -109,17 +109,139 @@ class ProjectModel {
 	 */
 	void perform(final ProjectManagementAction action) {
 
+		// シミュレーション時刻を更新する
 		simTime++;
+
+		// プロジェクトマネジメント行動の累積値を求める
 		this.accumlatedApplyingPressure += action.getApplyingPressure();
 		this.accumlatedIncreasingEfforts += action.getIncreasingEffort();
 		this.accumlatedScopeAdjust += action.getScopeAdjust();
 
-		// 行動によるパラメータ変更
+		// プロジェクトマネジメント行動により可変パラメータを設定する
+		setParameters(action);
+
+		// スコープ調整量を算出する
+		double idealScopeAdjust = this.idealInitialWork * this.scopeAdjustRate;
+		double scopeAdjust = this.initialWork * this.scopeAdjustRate;
+
+		// ===================================================================
+		// スコープ調整に伴う理想モデルの状態変化
+		// ※EV算出用に仮想的に使用妥協量を算出しているのみなので
+		// idealRemainingWork に影響を与えていない点に注意！
+		// PVに関しては、仕様妥協の影響を受けない！
+		this.idealCompromisedWork += idealScopeAdjust;
+
+		// ===================================================================
+		// スコープ調整に伴う現実モデルの状態変化
+		if (this.remainingWork > scopeAdjust) {
+			// 残作業がゼロにはならない場合
+			this.compromisedWork += scopeAdjust;
+			this.remainingWork -= scopeAdjust;
+		} else {
+			// 残作業がゼロとなる場合
+			this.compromisedWork += this.remainingWork;
+			this.remainingWork = 0.0e0D;
+		}
+
+		// ===================================================================
+		// 作業実施に伴う理想モデルの状態変化
+		if (this.idealRemainingWork >= this.idealEffort) {
+			// まだ完了しない場合
+			this.idealCompleteWork += this.idealEffort;
+			this.idealRemainingWork -= this.idealEffort;
+		} else {
+			// 完了する場合
+			this.idealCompleteWork += this.idealRemainingWork;
+			this.idealRemainingWork = 0.0e0D;
+			this.idealCompletionFlag = true; // 完了フラグ
+		}
+
+		// ===================================================================
+		// 作業実施に伴う現実モデルの状態変化
+
+		// 表面的な効率を算出
+		double effectiveEfforts = this.effort * this.efficiency;
+
+		// 作業の実施
+		if (!this.testFlag) {
+			// 制作フェーズの場合の処理
+
+			// 作業実施に伴う作業量の移動
+			// (制作フェーズ(前半)なので残作業量が負値になることはないと想定)
+			this.totalEffort += this.effort; // ACを算出する
+			this.completeWork += effectiveEfforts;
+			this.remainingWork -= effectiveEfforts;
+
+			// 欠陥の混入
+			this.latentRework += effectiveEfforts * this.defectInjectionRate;
+
+		} else {
+			// テストフェーズの場合の処理
+
+			// 追加テストの決定
+			if ((this.remainingWork < effectiveEfforts)
+					&& (this.latentRework > this.completeThreshold)) {
+				this.remainingWork += effectiveEfforts;
+			}
+
+			if (this.remainingWork >= effectiveEfforts) {
+				// 残テスト作業量が多い場合の処理
+				this.totalEffort += this.effort; // ACを算出する
+				this.completeWork += effectiveEfforts;
+				this.remainingWork -= effectiveEfforts;
+
+				// 潜在欠陥量に応じて欠陥検出量を算出
+				double detectedReworks = Math.min(
+						effectiveEfforts * defectDetectionRate,
+						this.latentRework);
+
+				// 検出された欠陥作業量を残作業に追加
+				this.latentRework -= detectedReworks;
+				this.remainingWork += detectedReworks;
+
+			} else {
+				// 残テスト作業量が少ない場合の処理
+				// 終結処理
+				this.totalEffort += this.remainingWork; // ACを算出する
+				this.completeWork += this.remainingWork;
+				this.remainingWork = 0.0e0D;
+
+				this.completionFlag = true; // 完了状態
+			}
+		}
+
+		// 進捗率の算出
+		this.idealProgressRate = this.idealCompleteWork
+				/ (this.idealRemainingWork + this.idealCompleteWork);
+
+		this.progressRate = this.completeWork
+				/ (this.remainingWork + this.completeWork);
+		if (this.progressRate >= 0.60e0D) {
+			// 進捗率が 60% 以上の場合
+			this.testFlag = true; // テスト開始とする
+		}
+
+		this.pv = this.idealCompleteWork;
+		this.ev = (this.idealInitialWork - this.idealCompromisedWork)
+				* this.progressRate;
+		this.ac = this.totalEffort;
+
+		return;
+	}
+
+	/**
+	 * プロジェクトマネジメント指示により可変パラメータを設定する.
+	 *
+	 * @param action
+	 */
+	private void setParameters(ProjectManagementAction action) {
+
+		// 行動によりパラメータを変更する
 		switch (action.getApplyingPressure()) {
 			// プレッシャーを掛けるほど
-			// ・効率は高い (手抜き)
-			// ・高欠陥混入率は高い
-			// ・欠陥発見率は低い
+			// ・効率は高くなる (手抜き) 少し圧力を掛けた状態で標準値
+			// ・高欠陥混入率は高くなる
+			// ・欠陥発見率は低くなる
 
 			case -1 :
 				this.efficiency = 0.90e0D;
@@ -141,7 +263,7 @@ class ProjectModel {
 				this.defectInjectionRate = 0.30e0D;
 				this.defectDetectionRate = 0.20e0D;
 				break;
-			case 99 :	// 理想モデルとの一致確認用
+			case 99 : // 理想モデルとの一致確認用
 				this.efficiency = 1.00e0D;
 				this.defectInjectionRate = 0.00e0D;
 				this.defectDetectionRate = 0.00e0D;
@@ -151,27 +273,27 @@ class ProjectModel {
 		}
 
 		switch (action.getIncreasingEffort()) {
-			// 人員工数を増やすほど
-			// ・工数は大きい
-			// ・欠陥混入率は微増
+			// 投入工数を増やすほど
+			// ・投入工数は大きくなる
+			// ・余りに投入工数が多くなると欠陥混入率が増加する
 			case -1 :
-				this.efforts = this.effortInUST * 0.90e0D;
+				this.effort = this.idealEffort * 0.90e0D;
 				this.defectInjectionRate += 0.00e0D;
 				break;
 			case 0 :
-				this.efforts = this.effortInUST * 1.00e0D;
+				this.effort = this.idealEffort * 1.00e0D;
 				this.defectInjectionRate += 0.00e0D;
 				break;
 			case 1 :
-				this.efforts = this.effortInUST * 1.10e0D;
+				this.effort = this.idealEffort * 1.10e0D;
 				this.defectInjectionRate += 0.01e0D;
 				break;
 			case 2 :
-				this.efforts = this.effortInUST * 1.20e0D;
+				this.effort = this.idealEffort * 1.20e0D;
 				this.defectInjectionRate += 0.02e0D;
 				break;
-			case 99 :	// 理想モデルとの一致確認用
-				this.efforts = this.effortInUST * 1.00e0D;
+			case 99 : // 理想モデルとの一致確認用
+				this.effort = this.idealEffort * 1.00e0D;
 				this.defectInjectionRate += 0.00e0D;
 				break;
 			default :
@@ -179,128 +301,41 @@ class ProjectModel {
 		}
 
 		switch (action.getScopeAdjust()) {
-			//スコープ調整を行うと製品仕様目標の引き上げ下げを行う
+			// スコープ調整を行うと製品仕様目標の引下げを行う
 			case -1 :
-				//削減なし
-				this. scopeAdjustRate = 0.000e0D;
+				// 削減なし
+				this.scopeAdjustRate = 0.000e0D;
 				break;
 			case 0 :
-				//0.1%削減
-				this. scopeAdjustRate = 0.001e0D;
+				// 0.1%削減
+				this.scopeAdjustRate = 0.001e0D;
 				break;
 			case 1 :
-				//0.2%削減
-				this. scopeAdjustRate = 0.002e0D;
+				// 0.2%削減
+				this.scopeAdjustRate = 0.002e0D;
 				break;
 			case 2 :
-				//0.3%削減
-				this. scopeAdjustRate = 0.003e0D;
+				// 0.3%削減
+				this.scopeAdjustRate = 0.003e0D;
 				break;
-			case 99 :	// 理想モデルとの一致確認用
-				this.scopeAdjustRate = 0.00e0D;
+			case 99 : // 理想モデルとの一致確認用
+				this.scopeAdjustRate = 0.000e0D;
 				break;
 			default :
 				System.out.println("Illegal PM operation.");
 		}
 
-//		★スコープ調整	上限設定	if(this.compromiseWork / this.idealTotalWork )
-//		★if (this.compromiseWork / this.idealTotalWork <= 0.3e0D)
-		{
-			//理想のスコープ調整
-			this.idealRemainingWork = this.idealRemainingWork * (1.0e0D - scopeAdjustRate);
-			this.idealCompleteWork = this.idealCompleteWork * (1.0e0D - scopeAdjustRate);
-			//スコープ調整
-			this.compromiseWork += this.remainingWorks * scopeAdjustRate;
-			this.remainingWorks = this.remainingWorks * (1.0e0D - scopeAdjustRate);
-//			this.completeWorks = this.completeWorks * (1.0e0D - scopeAdjustRate);
-
-			}
-
-//		 理想モデルの状態変化
-		if (this.idealRemainingWork >= this.effortInUST) {
-			this.idealCompleteWork += this.effortInUST;
-			this.idealTotalEfforts += this.effortInUST;
-			this.idealRemainingWork -= this.effortInUST;
-		} else {
-			this.idealCompleteWork += this.idealRemainingWork;
-			this.idealRemainingWork = 0.0e0D;
-		}
-
-		// 現実モデルの状態変化
-		double effectiveEfforts = this.efforts * this.efficiency;
-
-		// 作業の実施
-		if (this.simTime <= startOfTestPhase) {
-			// 制作フェーズの場合の処理
-
-			// 作業実施に伴う作業量の移動
-			// (制作フェーズ(前半)なので残作業量が負値になることはない)
-			this.totalEffort += this.efforts;
-			this.completeWorks += effectiveEfforts;
-			this.remainingWorks -= effectiveEfforts;
-
-			// 欠陥の混入
-			this.latentReworks += effectiveEfforts * this.defectInjectionRate;
-
-		} else {
-			// テストフェーズの場合の処理
-
-			// 追加テストの決定
-			if ((this.remainingWorks < effectiveEfforts)
-					&& (this.latentReworks > this.completeThreshold)) {
-				this.remainingWorks += this.efforts;
-			}
-
-			if (this.remainingWorks >= effectiveEfforts) {
-				// 残テスト作業量が多い場合の処理
-				this.totalEffort += this.efforts;
-				this.completeWorks += effectiveEfforts;
-				this.remainingWorks -= effectiveEfforts;
-
-				// 潜在欠陥量に応じて欠陥検出量を算出
-				double detectedReworks = Math.min(
-						effectiveEfforts * defectDetectionRate,
-						this.latentReworks);
-
-				// 検出された欠陥作業量を残作業に追加
-				this.latentReworks -= detectedReworks;
-				this.remainingWorks += detectedReworks;
-
-			} else {
-				// 残テスト作業量が少ない場合の処理
-				// 終結処理
-				this.totalEffort += this.remainingWorks;
-				this.completeWorks += this.remainingWorks;
-				this.remainingWorks = 0.0e0D;
-
-				this.completionFlag = true;
-
-			}
-
-		}
-
-
-		// 進捗率の算出
-		this.idealProgressRate = this.idealCompleteWork
-				/ (this.idealRemainingWork + this.idealCompleteWork);
-		this.progressRate = this.completeWorks
-				/ (this.remainingWorks + this.completeWorks);
-		this.pv = this.idealTotalEfforts;
-		this.ev = (this.idealRemainingWork + this.idealCompleteWork)
-				* this.progressRate;
-		this.ac = this.totalEffort;
-
 		return;
 	}
 
 	/**
-	 * プロジェクト状態を返す. Q-Net学習への拡張を考慮し、状態量は離散化せず連続値のまま返す．
+	 * プロジェクト状態を返す. Q-Net学習への拡張を考慮し、 状態量は離散化せず連続値のまま返す．
 	 *
 	 * @return プロジェクト状態.
 	 */
 	ProjectState observe() {
 
-		// 状態の器を生成する
+		// 状態量を格納する器を生成する
 		ProjectState state = new ProjectState();
 
 		// シミュレーション時刻を設定する
@@ -313,7 +348,7 @@ class ProjectModel {
 		double sd = 0.0e0D;
 		double sdr = 1.0e0D;
 		if (0 != this.simTime) {
-			sd = (double) ((this.simTime - 1)  - this.idealLastTime);
+			sd = (double) ((this.simTime - 1) - this.idealLastTime);
 			sdr = (double) (this.simTime - 1) / (double) this.idealLastTime;
 		}
 		state.setScheduleDelay(sd, sdr);
@@ -322,24 +357,17 @@ class ProjectModel {
 		double co = 0.0e0D;
 		double cor = 1.0e0D;
 		if (0 != this.simTime) {
-			double base = Math.max(this.pv, this.ev);
-			// PVよりもEVが先行する場合を考慮
-			co = this.ac - base;
-			cor = this.ac / base;
+			co = this.ac - this.idealInitialWork;
+			cor = this.ac - this.idealInitialWork;
 		}
 		state.setCostOverrun(co, cor);
 
-
-		//仕様妥協量と仕様妥協率　
+		// 仕様妥協量と仕様妥協率
 		double cp = 0.0e0D;
 		double cpr = 1.0e0D;
 		if (0 != this.simTime) {
-			cp  = (double)(this.compromiseWork);
-			cpr = (double)this.compromiseWork / ((double)this.idealTotalWork);
-		//新方式　
-//		if (0 != this.simTime) {
-//			cp  = (double)(this.compromiseWorks);
-//			cpr = (double)this.compromiseWorks / 理想プロセスの総作業量);
+			cp = (double) (this.compromisedWork);
+			cpr = (double) this.compromisedWork / ((double) this.initialWork);
 		}
 		state.setCompromiseWorks(cp, cpr);
 
@@ -357,10 +385,8 @@ class ProjectModel {
 					/ (double) this.simTime;
 			avIE = (double) this.accumlatedIncreasingEfforts
 					/ (double) this.simTime;
-			avSA = (double) this.accumlatedScopeAdjust
-					/ (double) this.simTime;
+			avSA = (double) this.accumlatedScopeAdjust / (double) this.simTime;
 		}
-
 		state.setAverageAPIESA(avAP, avIE, avSA);
 
 		return state;

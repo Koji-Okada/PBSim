@@ -7,15 +7,15 @@ package jp.ac.tcu.okadak.project_reinforcement_learning;
  */
 public class RewardEvaluator {
 
-	private static double RWD_FN_SCH = 0.0e3D; // 1.0e3D 0.5e3D
-	private static double RWD_FN_CST = 1.0e3D; // 1.0e3D 0.5e3D
+	private static double RWD_FN_SCH = 1.0e3D; // 1.0e3D 0.5e3D
+	private static double RWD_FN_CST = 0.0e3D; // 1.0e3D 0.5e3D
 	// 製品魅力の重み係数
-	private static double RWD_FN_CPW = 1.0e0D; // 1.0e3D 2.0e3D 4.0e3D
+	private static double RWD_FN_CPW = 1.0e4D; // 1.0e2D 1.0e4D
 	// 投資回収結果の重み係数
 	private static double RWD_FN_Business = 1.0e0D;
 
-	private static double RWD_OG_SCH = 0.0e0D; // 1.0e0D 0.50e0D
-	private static double RWD_OG_CST = 1.0e0D; // 1.0e0D 0.50e0D
+	private static double RWD_OG_SCH = 1.0e0D; // 1.0e0D 0.50e0D
+	private static double RWD_OG_CST = 0.0e0D; // 1.0e0D 0.50e0D
 	// 製品魅力の重み係数
 	// private static double RWD_OG_CPW= 1.0e0D; // 1.0e3D
 
