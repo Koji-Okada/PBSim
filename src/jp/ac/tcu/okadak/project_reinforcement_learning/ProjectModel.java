@@ -358,7 +358,7 @@ class ProjectModel {
 		double cor = 1.0e0D;
 		if (0 != this.simTime) {
 			co = this.ac - this.idealInitialWork;
-			cor = this.ac - this.idealInitialWork;
+			cor = this.ac / this.idealInitialWork;
 		}
 		state.setCostOverrun(co, cor);
 
