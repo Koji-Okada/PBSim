@@ -57,8 +57,8 @@ public final class SimpleSimulator {
 					// 行動後の状態を観測する
 					postState = project.observe();
 
-//					System.out.printf("%6.2f\t", postState.getSPI());
-//					System.out.printf("%6.2f\t", postState.getCPI());
+					System.out.printf("%6.2f\t", postState.getSPI());
+					System.out.printf("%6.2f\t", postState.getCPI());
 					System.out.printf("%6.2f\t", postState.getProgressRate());
 
 					i++;
@@ -66,14 +66,13 @@ public final class SimpleSimulator {
 				} while (!postState.isComplete());
 				System.out.println();
 
-				// System.out.printf("%4d\t", applyingPressure);
-				// System.out.printf("%4d\t", increasingEffort);
-				// System.out.printf("%6.2f\t", postState.getScheduleDelay());
-				// System.out.printf("%6.2f\t", postState.getCostOverrun());
-				// System.out.printf("%6.2f\t",
-				// postState.getScheduleDelayRate());
-				// System.out.printf("%6.2f\t", postState.getCostOverrunRate());
-				// System.out.println();
+//				 System.out.printf("%4d\t", applyingPressure);
+//				 System.out.printf("%4d\t", increasingEffort);
+//				 System.out.printf("%6.2f\t", postState.getScheduleDelay());
+//				 System.out.printf("%6.2f\t", postState.getCostOverrun());
+//				 System.out.printf("%6.2f\t", postState.getScheduleDelayRate());
+//				 System.out.printf("%6.2f\t", postState.getCostOverrunRate());
+//				 System.out.println();
 			}
 		}
 
