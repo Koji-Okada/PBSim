@@ -77,8 +77,7 @@ public final class SimpleSimulator {
 
         } while (!postState.isComplete());
 
-         System.out.printf("%4d\t", 99);
-         System.out.printf("%4d\t", 99);
+         System.out.printf("理想モデルとの一致\t");
          System.out.printf("%6.2f\t", postState.getScheduleDelay());
          System.out.printf("%6.2f\t", postState.getCostOverrun());
          System.out.printf("%6.2f\t", postState.getScheduleDelayRate());

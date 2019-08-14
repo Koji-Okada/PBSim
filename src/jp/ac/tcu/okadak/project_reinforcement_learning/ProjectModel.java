@@ -84,7 +84,7 @@ class ProjectModel {
 		this.idealEffort = hr;
 
 		this.idealLastTime = (int) Math
-				.ceil(this.idealRemainingWork / this.idealEffort);
+				.ceil(this.idealInitialWork / this.idealEffort);
 
 		// 現実モデルを設定する
 		this.initialWork = this.productSize * idealEst;

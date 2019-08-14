@@ -320,11 +320,11 @@ public final class QLSimulator {
         double scheduleDelayRate = st.getScheduleDelayRate();
         double costOverrun = st.getCostOverrun();
         double costOverrunRate = st.getCostOverrunRate();
-//        double plannedDuration = performedDuration - scheduleDelay;
+        double plannedDuration = performedDuration - scheduleDelay;
         double compromiseWorks = st.getCompromiseWorks();
         double compromiseWorksRate = st.getCompromiseWorksRate();
 
-        //          System.out.printf("pl_duration = \t%4.0f", plannedDuration);
+        //          System.out.printf("pl_duration = \t%4.0f\t", plannedDuration);
         //          System.out.println();
         //          System.out.printf("pf_duration = \t%4.0f", performedDuration);
         //          System.out.println();
