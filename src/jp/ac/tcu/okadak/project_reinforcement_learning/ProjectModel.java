@@ -160,7 +160,7 @@ class ProjectModel {
 		// 作業実施に伴う現実モデルの状態変化
 
 		// 表面的な効率を算出
-		double effectiveEfforts = this.effort * this.efficiency;
+		double effectiveEffort = this.effort * this.efficiency;
 
 		// 作業の実施
 		if (!this.testFlag) {
@@ -169,30 +169,31 @@ class ProjectModel {
 			// 作業実施に伴う作業量の移動
 			// (制作フェーズ(前半)なので残作業量が負値になることはないと想定)
 			this.totalEffort += this.effort; // ACを算出する
-			this.completeWork += effectiveEfforts;
-			this.remainingWork -= effectiveEfforts;
+			this.completeWork += effectiveEffort;
+			this.remainingWork -= effectiveEffort;
 
 			// 欠陥の混入
-			this.latentRework += effectiveEfforts * this.defectInjectionRate;
+			this.latentRework += effectiveEffort * this.defectInjectionRate;
 
 		} else {
 			// テストフェーズの場合の処理
 
 			// 追加テストの決定
-			if ((this.remainingWork < effectiveEfforts)
+			if ((this.remainingWork < effectiveEffort)
 					&& (this.latentRework > this.completeThreshold)) {
-				this.remainingWork += effectiveEfforts;
+				this.remainingWork += effectiveEffort;
+//                this.remainingWork += this.effort;
 			}
 
-			if (this.remainingWork >= effectiveEfforts) {
+			if (this.remainingWork >= effectiveEffort) {
 				// 残テスト作業量が多い場合の処理
 				this.totalEffort += this.effort; // ACを算出する
-				this.completeWork += effectiveEfforts;
-				this.remainingWork -= effectiveEfforts;
+				this.completeWork += effectiveEffort;
+				this.remainingWork -= effectiveEffort;
 
 				// 潜在欠陥量に応じて欠陥検出量を算出
 				double detectedReworks = Math.min(
-						effectiveEfforts * defectDetectionRate,
+						effectiveEffort * defectDetectionRate,
 						this.latentRework);
 
 				// 検出された欠陥作業量を残作業に追加
