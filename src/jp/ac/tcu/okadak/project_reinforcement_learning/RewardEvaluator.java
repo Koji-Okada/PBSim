@@ -8,11 +8,11 @@ package jp.ac.tcu.okadak.project_reinforcement_learning;
 public class RewardEvaluator {
 
     private static double RWD_FN_SCH = 1.0e3D; // 1.0e3D 0.4e3D 0.0e3D
-    private static double RWD_FN_CST = 1.0e3D; // 1.0e3D 0.6e3D 0.0e3D
+    private static double RWD_FN_CST = 0.0e3D; // 1.0e3D 0.6e3D 0.0e3D
     private static double RWD_FN_CPW = 1.0e2D; // 1.0e4D 1.0e2D
 
     private static double RWD_OG_SCH = 1.0e0D; // 1.0e0D 0.50e0D
-    private static double RWD_OG_CST = 1.0e0D; // 1.0e0D 0.50e0D
+    private static double RWD_OG_CST = 0.0e0D; // 1.0e0D 0.50e0D
 
     // 投資回収結果の重み係数
     private static double RWD_FN_BIZ = 1.0e-3D; // 投資回収利益は桁が大き過ぎるので
@@ -48,14 +48,13 @@ public class RewardEvaluator {
 
 
             // 投資回収性の評価
-
-            double sd = state.getScheduleDelay();
-            double co = state.getCostOverrun();
-
-            ServiceModel sm = new ServiceModel();
-            double bizRes = sm.perform(sd, co, rcw);
-
-            reward = bizRes * RWD_FN_BIZ;
+//            double sd = state.getScheduleDelay();
+//            double co = state.getCostOverrun();
+//
+//            ServiceModel sm = new ServiceModel();
+//            double bizRes = sm.perform(sd, co, rcw);
+//
+//            reward = bizRes * RWD_FN_BIZ;
 
         } else {
             // プロジェクト進行時

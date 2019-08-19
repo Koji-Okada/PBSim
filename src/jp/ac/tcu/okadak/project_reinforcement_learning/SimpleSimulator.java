@@ -31,7 +31,9 @@ public final class SimpleSimulator {
         for (int applyingPressure = ProjectManagementAction.MIN_ACTION_AP; applyingPressure < ProjectManagementAction.MAX_ACTION_AP; applyingPressure++) {
             for (int increasingEffort = ProjectManagementAction.MIN_ACTION_IE; increasingEffort < ProjectManagementAction.MAX_ACTION_IE; increasingEffort++) {
 //             for (int scopeAdjust = ProjectManagementAction.MIN_ACTION_SA; scopeAdjust < ProjectManagementAction.MAX_ACTION_SA; scopeAdjust++) {
-                {int scopeAdjust = -1;
+                {
+//                    int scopeAdjust = -1;
+                    int scopeAdjust = 0;
 
 
                     // 基準プロジェクトを生成する
