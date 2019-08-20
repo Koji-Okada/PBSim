@@ -305,19 +305,19 @@ class ProjectModel {
 			// スコープ調整を行うと製品仕様目標の引下げを行う
 			case -1 :
 				// 削減なし
-				this.scopeAdjustRate = 0.000e0D;
+				this.scopeAdjustRate = 0.0e-3D;
 				break;
 			case 0 :
 				// 0.1%削減
-				this.scopeAdjustRate = 0.001e0D;
+				this.scopeAdjustRate = 1.0e-3D;
 				break;
 			case 1 :
 				// 0.2%削減
-				this.scopeAdjustRate = 0.002e0D;
+				this.scopeAdjustRate = 2.0e-3D;
 				break;
 			case 2 :
 				// 0.3%削減
-				this.scopeAdjustRate = 0.003e0D;
+				this.scopeAdjustRate = 3.0e-3D;
 				break;
 			case 99 : // 理想モデルとの一致確認用
 				this.scopeAdjustRate = 0.000e0D;
@@ -325,6 +325,9 @@ class ProjectModel {
 			default :
 				System.out.println("Illegal PM operation.");
 		}
+
+		// 仕様追加も扱う場合
+//		this.scopeAdjustRate -= 1.0e-3D;
 
 		return;
 	}
