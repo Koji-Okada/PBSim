@@ -247,22 +247,26 @@ class ProjectModel {
 			case -1 :
 				this.efficiency = 0.90e0D;
 				this.defectInjectionRate = 0.15e0D;
-				this.defectDetectionRate = 0.35e0D;
+//				this.defectDetectionRate = 0.35e0D;		// 変更した
+				this.defectDetectionRate = 0.30e0D;
 				break;
 			case 0 :
 				this.efficiency = 0.95e0D;
 				this.defectInjectionRate = 0.20e0D;
-				this.defectDetectionRate = 0.30e0D;
+//				this.defectDetectionRate = 0.30e0D;		// 変更した
+				this.defectDetectionRate = 0.25e0D;
 				break;
 			case 1 :
 				this.efficiency = 1.00e0D;
 				this.defectInjectionRate = 0.25e0D;
-				this.defectDetectionRate = 0.25e0D;
+//				this.defectDetectionRate = 0.25e0D;		// 変更した
+				this.defectDetectionRate = 0.20e0D;
 				break;
 			case 2 :
 				this.efficiency = 1.05e0D;
 				this.defectInjectionRate = 0.30e0D;
-				this.defectDetectionRate = 0.20e0D;
+//				this.defectDetectionRate = 0.20e0D;		// 変更した
+				this.defectDetectionRate = 0.15e0D;
 				break;
 			case 99 : // 理想モデルとの一致確認用
 				this.efficiency = 1.00e0D;
@@ -327,7 +331,11 @@ class ProjectModel {
 		}
 
 		// 仕様追加も扱う場合
-//		this.scopeAdjustRate -= 1.0e-3D;
+		this.scopeAdjustRate -= 1.0e-3D;
+
+		if (99 == action.getScopeAdjust()) {
+			this.scopeAdjustRate = 0.000e0D;
+		}
 
 		return;
 	}

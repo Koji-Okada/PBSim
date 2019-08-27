@@ -7,14 +7,19 @@ package jp.ac.tcu.okadak.project_reinforcement_learning;
  */
 public class ServiceModel {
 
-    double mspq0 = 6.0e6D;  //  週当たりの利益 (6.0 M\/週)
-    double msd0 = 100.0;    //  想定サービス期間 (100週 / 50週)
-    double pdc0 = 250.0e6D;   //  計画開発費
-    double beta = 1.0e0;    //  仕様妥協の影響
+    private double mspq0 = 8.0e6D;  //  週当たりの利益 (8.0 M\/週)
+    private double msd0 =50.0;    //  想定サービス期間 (100週 / 50週)
+    private double pdc0 = 250.0e6D;   //  計画開発費
+    private double beta = 0.8e0;    //  仕様妥協の影響
 
-//    public ServiceModel() {
-//        super();
-//    }
+    /**
+     *
+     * @param duration
+     */
+    public void setDuration(double duration) {
+        this.msd0 = duration;
+        return;
+    }
 
     /**
      * サービスモデルプロジェクトを実施する.
@@ -35,6 +40,4 @@ public class ServiceModel {
 
         return msf;
     }
-
-
 }

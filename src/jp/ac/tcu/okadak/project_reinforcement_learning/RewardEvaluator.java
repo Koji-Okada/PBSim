@@ -7,12 +7,12 @@ package jp.ac.tcu.okadak.project_reinforcement_learning;
  */
 public class RewardEvaluator {
 
-    private static double RWD_FN_SCH = 1.0e3D; // 1.0e3D 0.4e3D 0.0e3D
-    private static double RWD_FN_CST = 0.0e3D; // 1.0e3D 0.6e3D 0.0e3D
-    private static double RWD_FN_CPW = 1.0e2D; // 1.0e4D 1.0e2D
+    private static double RWD_FN_SCH = 0.00e3D; // 1.0e3D 0.2e3D 0.0e3D
+    private static double RWD_FN_CST = 1.00e3D; // 1.0e3D 0.8e3D 0.0e3D
+    private static double RWD_FN_CPW = 0.0e3D; // 1.0e3D 0.0e3D
 
-    private static double RWD_OG_SCH = 1.0e0D; // 1.0e0D 0.50e0D
-    private static double RWD_OG_CST = 0.0e0D; // 1.0e0D 0.50e0D
+    private static double RWD_OG_SCH = 0.00e0D; // 1.0e0D 0.2e0D 0.0e0D
+    private static double RWD_OG_CST = 1.00e0D; // 1.0e0D 0.8e0D 0.0e0D
 
     // 投資回収結果の重み係数
     private static double RWD_FN_BIZ = 1.0e-3D; // 投資回収利益は桁が大き過ぎるので
@@ -41,10 +41,14 @@ public class RewardEvaluator {
             //                    + (1.0e0D - rco) * RWD_FN_CST
             //                    - rcw * RWD_FN_CPW;
 
+            double rrcw = 1.0e0 - rcw;
+
             // スケジュール・コストは計画通りが最良
             reward = (Math.min(rsd, 1.0e0D / rsd) - 1.0e0D) * RWD_FN_SCH
                     + (Math.min(rco, 1.0e0D / rco) - 1.0e0D) * RWD_FN_CST
-                    - rcw * RWD_FN_CPW;
+ //                   - rcw * RWD_FN_CPW;
+//                      - Math.abs(rcw) * RWD_FN_CPW;
+            + (Math.min(rrcw, 1.0e0D / rrcw) - 1.0e0D) * RWD_FN_CPW;
 
 
             // 投資回収性の評価

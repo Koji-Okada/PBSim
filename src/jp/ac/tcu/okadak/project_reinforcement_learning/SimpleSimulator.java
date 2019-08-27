@@ -53,13 +53,21 @@ public final class SimpleSimulator {
                     double costOverrun = postState.getCostOverrun();
                     double compromiseWorksRate = postState.getCompromiseWorksRate();
 
-                    ServiceModel sm = new ServiceModel();
-                    double bizRes = sm.perform(scheduleDelay, costOverrun, compromiseWorksRate);
+                    ServiceModel sm1 = new ServiceModel();
+                    ServiceModel sm2 = new ServiceModel();
+
+                    sm1.setDuration(50.0e0D);
+                    sm1.setDuration(100.0e0D);
+
+
+                    double bizRes1 = sm1.perform(scheduleDelay, costOverrun, compromiseWorksRate);
+                    double bizRes2 = sm2.perform(scheduleDelay, costOverrun, compromiseWorksRate);
+
 
                     System.out.println("-終了結果-" + "\t" + applyingPressure + "\t"
                             + increasingEffort + "\t" + scopeAdjust + "\t"
                             + scheduleDelay + "\t" + costOverrun + "\t" + compromiseWorksRate
-                            + "\t" + (bizRes / 1.0e6D));
+                            + "\t" + (bizRes1 / 1.0e6D) + "\t" + (bizRes2 / 1.0e6D));
                 }
             }
         }
