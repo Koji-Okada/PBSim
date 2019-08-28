@@ -28,6 +28,14 @@ public final class QLSimulator {
     private static final int LAST_EVALUATIONS = 1;
 
     /**
+     *
+     */
+    private static final int PROJECT_SIZE = 1000;
+    private static final int PROJECT_HR = 20;
+
+
+
+    /**
      * 見積りの安全率.
      */
     //	private double safetyRate = 1.0e0d;
@@ -103,7 +111,7 @@ public final class QLSimulator {
                 // プロジェクトを生成する
                 //				ProjectAttributes pjAtr = pjAtrGen
                 //						.generateProjectAttribute(false);
-                ProjectModel project = new ProjectModel(1000.0e0, 20.0e0, 1.0e0, 1.0e0);
+                ProjectModel project = new ProjectModel(PROJECT_SIZE, PROJECT_HR, 1.0e0, 1.0e0);
 
                 // プロジェクトを実施する
                 sumLearningIndex1 += performProject(project, agent, evaluator,
@@ -118,7 +126,7 @@ public final class QLSimulator {
                 // プロジェクトを生成する
                 //				ProjectAttributes pjAtr = pjAtrGen
                 //						.generateProjectAttribute(false);
-                ProjectModel project = new ProjectModel(1000.0e0, 20.0e0, 1.0e0, 1.0e0);
+                ProjectModel project = new ProjectModel(PROJECT_SIZE, PROJECT_HR, 1.0e0, 1.0e0);
 
                 // プロジェクトを実施する
                 sumLearningIndex2 += performProject(project, agent, evaluator,
@@ -149,7 +157,7 @@ public final class QLSimulator {
                 //						.generateProjectAttribute(false);
 
                 // プロジェクトを生成する
-                ProjectModel project = new ProjectModel(1000.0e0, 20.0e0, 1.0e0, 1.0e0);
+                ProjectModel project = new ProjectModel(PROJECT_SIZE, PROJECT_HR, 1.0e0, 1.0e0);
 
                 // プロジェクトを実施する
                 performProject(project, agent, evaluator, false, false);
@@ -165,7 +173,7 @@ public final class QLSimulator {
                 }
 
                 // プロジェクトを生成する(プロジェクト属性は同一)
-                ProjectModel project0 = new ProjectModel(1000.0e0, 20.0e0, 1.0e0, 1.0e0);
+                ProjectModel project0 = new ProjectModel(PROJECT_SIZE, PROJECT_HR, 1.0e0, 1.0e0);
 
                 // プロジェクトを実施する
                 performProject(project0, bestAgent, evaluator, false, false);
@@ -234,7 +242,7 @@ public final class QLSimulator {
             //			// プロジェクトを生成する
             //			ProjectAttributes pjAtr = pjAtrGen.generateProjectAttribute(false);
             //★ProjectModel project = new ProjectModel(pjAtr);
-            ProjectModel project = new ProjectModel(1000.0e0, 20.0e0, 1.0e0, 1.0e0);
+            ProjectModel project = new ProjectModel(PROJECT_SIZE, PROJECT_HR, 1.0e0, 1.0e0);
             //			double idealCost = pjAtr.getIdealTotalEffort() / 5.0e0d;
             //			double plannedCost = pjAtr.getEstimatedTotalEffort() / 5.0e0d;
 
