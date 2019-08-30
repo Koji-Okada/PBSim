@@ -247,25 +247,21 @@ class ProjectModel {
 			case -1 :
 				this.efficiency = 0.90e0D;
 				this.defectInjectionRate = 0.15e0D;
-//				this.defectDetectionRate = 0.35e0D;		// 変更した
 				this.defectDetectionRate = 0.30e0D;
 				break;
 			case 0 :
 				this.efficiency = 0.95e0D;
 				this.defectInjectionRate = 0.20e0D;
-//				this.defectDetectionRate = 0.30e0D;		// 変更した
 				this.defectDetectionRate = 0.25e0D;
 				break;
 			case 1 :
 				this.efficiency = 1.00e0D;
 				this.defectInjectionRate = 0.25e0D;
-//				this.defectDetectionRate = 0.25e0D;		// 変更した
 				this.defectDetectionRate = 0.20e0D;
 				break;
 			case 2 :
 				this.efficiency = 1.05e0D;
 				this.defectInjectionRate = 0.30e0D;
-//				this.defectDetectionRate = 0.20e0D;		// 変更した
 				this.defectDetectionRate = 0.15e0D;
 				break;
 			case 99 : // 理想モデルとの一致確認用
@@ -306,35 +302,28 @@ class ProjectModel {
 		}
 
 		switch (action.getScopeAdjust()) {
-			// スコープ調整を行うと製品仕様目標の引下げを行う
+			// スコープ調整
 			case -1 :
-				// 削減なし
-				this.scopeAdjustRate = 0.0e-3D;
+				// 0.1%追加
+				this.scopeAdjustRate = -1.0e-3D;
 				break;
 			case 0 :
+				// 増減なし
+				this.scopeAdjustRate = 0.0e-3D;
+				break;
+			case 1 :
 				// 0.1%削減
 				this.scopeAdjustRate = 1.0e-3D;
 				break;
-			case 1 :
+			case 2 :
 				// 0.2%削減
 				this.scopeAdjustRate = 2.0e-3D;
-				break;
-			case 2 :
-				// 0.3%削減
-				this.scopeAdjustRate = 3.0e-3D;
 				break;
 			case 99 : // 理想モデルとの一致確認用
 				this.scopeAdjustRate = 0.000e0D;
 				break;
 			default :
 				System.out.println("Illegal PM operation.");
-		}
-
-		// 仕様追加も扱う場合
-		this.scopeAdjustRate -= 1.0e-3D;
-
-		if (99 == action.getScopeAdjust()) {
-			this.scopeAdjustRate = 0.000e0D;
 		}
 
 		return;
