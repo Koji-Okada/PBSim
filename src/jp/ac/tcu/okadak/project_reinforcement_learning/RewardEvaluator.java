@@ -7,12 +7,12 @@ package jp.ac.tcu.okadak.project_reinforcement_learning;
  */
 public class RewardEvaluator {
 
-	private static double RWD_FN_SCH = 0.99e3D; // 0.99e3D 0.20e3D 0.01e3D
-	private static double RWD_FN_CST = 0.01e3D; // 0.99e3D 0.80e3D 0.01e3D
-	private static double RWD_FN_CPW = 0.01e3D; // 1.0e3D 0.01e3D
+	private static double RWD_FN_SCH = 0.20e3D; // 0.99e3D 0.20e3D 0.01e3D
+	private static double RWD_FN_CST = 0.80e3D; // 0.99e3D 0.80e3D 0.01e3D
+	private static double RWD_FN_CPW = 1.00e3D; // 1.0e3D 0.01e3D
 
-	private static double RWD_OG_SCH = 0.99e1D; // 0.99e1D 0.20e1D 0.01e1D
-	private static double RWD_OG_CST = 0.01e1D; // 0.99e1D 0.20e1D 0.01e1D
+	private static double RWD_OG_SCH = 0.20e1D; // 0.99e1D 0.20e1D 0.01e1D
+	private static double RWD_OG_CST = 0.80e1D; // 0.99e1D 0.20e1D 0.01e1D
 
 	// 投資回収結果の重み係数
 	private static double RWD_FN_BIZ = 1.0e-3D; // 投資回収利益は桁が大き過ぎるので

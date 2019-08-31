@@ -363,17 +363,17 @@ public final class QLSimulator {
         //          System.out.printf("ac = \t%8.3f", st.getAC());
         //          System.out.println();
 
-        ServiceModel sm0 = new ServiceModel(50.0e0D, 1.0e0D);
-        ServiceModel sm1 = new ServiceModel(50.0e0D, 0.8e0D);
-        ServiceModel sm2 = new ServiceModel(100.0e0D, 1.0e0D);
+        ServiceModel sm0 = new ServiceModel(100.0e0D, 1.0e0D);
+        ServiceModel sm1 = new ServiceModel(100.0e0D, 1.2e0D);
+        ServiceModel sm2 = new ServiceModel(50.0e0D, 1.0e0D);
 
         double bizRes0 = sm0.perform(scheduleDelay, costOverrun, scopeChangeRate);
         double bizRes1 = sm1.perform(scheduleDelay, costOverrun, scopeChangeRate);
         double bizRes2 = sm2.perform(scheduleDelay, costOverrun, scopeChangeRate);
 
-        System.out.printf("Biz Result = \t%8.3f", bizRes0 / 1.0e6D);
-        System.out.printf("\t%8.3f", bizRes1 / 1.0e6D);
-        System.out.printf("\t%8.3f", bizRes2 / 1.0e6D);
+//        System.out.printf("Biz Result = \t%8.3f", bizRes0 / 1.0e6D);
+//        System.out.printf("\t%8.3f", bizRes1 / 1.0e6D);
+//        System.out.printf("\t%8.3f", bizRes2 / 1.0e6D);
         System.out.println();
 
         return;
