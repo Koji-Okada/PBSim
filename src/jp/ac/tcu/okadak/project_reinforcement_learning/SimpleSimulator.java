@@ -51,23 +51,21 @@ public final class SimpleSimulator {
 
                     double scheduleDelay = postState.getScheduleDelay();
                     double costOverrun = postState.getCostOverrun();
-                    double compromiseWorksRate = postState.getCompromiseWorksRate();
+                    double scopeChangeRate = postState.getScopeChangeRate();
 
-                    ServiceModel sm1 = new ServiceModel();
-                    ServiceModel sm2 = new ServiceModel();
+                    ServiceModel sModel0 = new ServiceModel(50.0e0D, 1.0e0D);
+                    ServiceModel sModel1 = new ServiceModel(50.0e0D, 0.8e0D);
+                    ServiceModel sModel2 = new ServiceModel(100.0e0D, 1.0e0D);
 
-                    sm1.setDuration(50.0e0D);
-                    sm1.setDuration(100.0e0D);
-
-
-                    double bizRes1 = sm1.perform(scheduleDelay, costOverrun, compromiseWorksRate);
-                    double bizRes2 = sm2.perform(scheduleDelay, costOverrun, compromiseWorksRate);
+                    double bizRes0 = sModel1.perform(scheduleDelay, costOverrun, scopeChangeRate);
+                    double bizRes1 = sModel1.perform(scheduleDelay, costOverrun, scopeChangeRate);
+                    double bizRes2 = sModel2.perform(scheduleDelay, costOverrun, scopeChangeRate);
 
 
                     System.out.println("-終了結果-" + "\t" + applyingPressure + "\t"
                             + increasingEffort + "\t" + scopeAdjust + "\t"
-                            + scheduleDelay + "\t" + costOverrun + "\t" + compromiseWorksRate
-                            + "\t" + (bizRes1 / 1.0e6D) + "\t" + (bizRes2 / 1.0e6D));
+                            + scheduleDelay + "\t" + costOverrun + "\t" + scopeChangeRate
+                            + "\t" + (bizRes0 / 1.0e6D) + "\t" + (bizRes1 / 1.0e6D) + "\t" + (bizRes2 / 1.0e6D));
                 }
             }
         }

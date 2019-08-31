@@ -182,7 +182,7 @@ class ProjectModel {
 			if ((this.remainingWork < effectiveEffort)
 					&& (this.latentRework > this.completeThreshold)) {
 				this.remainingWork += effectiveEffort;
-//                this.remainingWork += this.effort;
+				// this.remainingWork += this.effort;
 			}
 
 			if (this.remainingWork >= effectiveEffort) {
@@ -366,11 +366,14 @@ class ProjectModel {
 		// 仕様妥協量と仕様妥協率
 		double cp = 0.0e0D;
 		double cpr = 1.0e0D;
+		double scr = 1.0e0D;
 		if (0 != this.simTime) {
 			cp = (double) (this.compromisedWork);
 			cpr = (double) this.compromisedWork / ((double) this.initialWork);
+			scr = 1.0e0D - ((double) this.compromisedWork
+					/ ((double) this.initialWork));
 		}
-		state.setCompromiseWorks(cp, cpr);
+		state.setScopeChange(cp, scr);
 
 		// EVM指標を設定する
 		state.setEVM(this.pv, this.ev, this.ac);

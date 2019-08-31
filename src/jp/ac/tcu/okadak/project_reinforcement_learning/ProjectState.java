@@ -168,37 +168,37 @@ class ProjectState {
 	/**
 	 * 仕様妥協量を取得する.
 	 *
-	 * @return スケジュール遅延量
+	 * @return 仕様妥協量
 	 */
 	final double getCompromiseWorks() {
 		return this.compromiseWorks;
 	}
 
 	/**
-	 * 仕様妥協量および仕様妥協率を設定する.
+	 * 仕様妥協量およびスコープ変化率を設定する.
 	 *
 	 * @param cpWorks 仕様妥協量
-	 * @param cpWorksRate 仕様妥協率
+	 * @param scopeChangeRate スコープ変化率
 	 */
-	final void setCompromiseWorks(final double cpWorks,
-			final double cpWorksRate) {
+	final void setScopeChange(final double cpWorks,
+			final double scopeChangeRate) {
 		this.compromiseWorks = cpWorks;
-		this.compromiseWorksRate = cpWorksRate;
+		this.scopeChangeRate = scopeChangeRate;
 		return;
 	}
 
 	/**
-	 * 仕様妥協率.
+	 * スコープ変更率.
 	 */
-	private double compromiseWorksRate;
+	private double scopeChangeRate;
 
 	/**
-	 * 仕様妥協率を取得する.
+	 * スコープ変更率を取得する.
 	 *
-	 * @return 仕様妥協率
+	 * @return スコープ変更率
 	 */
-	final double getCompromiseWorksRate() {
-		return this.compromiseWorksRate;
+	final double getScopeChangeRate() {
+		return this.scopeChangeRate;
 	}
 
 	// =======================================================================

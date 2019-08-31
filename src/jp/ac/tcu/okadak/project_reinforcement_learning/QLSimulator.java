@@ -330,7 +330,7 @@ public final class QLSimulator {
         double costOverrunRate = st.getCostOverrunRate();
         double plannedDuration = performedDuration - scheduleDelay;
         double compromiseWorks = st.getCompromiseWorks();
-        double compromiseWorksRate = st.getCompromiseWorksRate();
+        double scopeChangeRate = st.getScopeChangeRate();
 
         //          System.out.printf("pl_duration = \t%4.0f\t", plannedDuration);
         //          System.out.println();
@@ -353,7 +353,7 @@ public final class QLSimulator {
         //仕様妥協量と仕様妥協率
         //          System.out.printf("compromiseWorks   = \t%8.3f", compromiseWorks);
         //          System.out.println();
-        System.out.printf("compromiseWorks rate = \t%8.3f\t", compromiseWorksRate);
+        System.out.printf("compromiseWorks rate = \t%8.3f\t", 1.0e0D - scopeChangeRate);
 
 
         //          System.out.printf("pv = \t%8.3f", st.getPV());
@@ -363,17 +363,17 @@ public final class QLSimulator {
         //          System.out.printf("ac = \t%8.3f", st.getAC());
         //          System.out.println();
 
-        ServiceModel sm1 = new ServiceModel();
-        ServiceModel sm2 = new ServiceModel();
+        ServiceModel sm0 = new ServiceModel(50.0e0D, 1.0e0D);
+        ServiceModel sm1 = new ServiceModel(50.0e0D, 0.8e0D);
+        ServiceModel sm2 = new ServiceModel(100.0e0D, 1.0e0D);
 
-        sm1.setDuration(50.0e0D);
-        sm2.setDuration(100.0e0D);
+        double bizRes0 = sm0.perform(scheduleDelay, costOverrun, scopeChangeRate);
+        double bizRes1 = sm1.perform(scheduleDelay, costOverrun, scopeChangeRate);
+        double bizRes2 = sm2.perform(scheduleDelay, costOverrun, scopeChangeRate);
 
-        double bizRes1 = sm1.perform(scheduleDelay, costOverrun, compromiseWorksRate);
-        double bizRes2 = sm2.perform(scheduleDelay, costOverrun, compromiseWorksRate);
-        System.out.printf("Biz Result = \t%8.3f", bizRes1 / 1.0e6D);
+        System.out.printf("Biz Result = \t%8.3f", bizRes0 / 1.0e6D);
+        System.out.printf("\t%8.3f", bizRes1 / 1.0e6D);
         System.out.printf("\t%8.3f", bizRes2 / 1.0e6D);
-
         System.out.println();
 
         return;
