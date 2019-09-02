@@ -15,7 +15,7 @@ public class RewardEvaluator {
 	private static double RWD_OG_CST = 0.01e1D; // 0.99e1D 0.20e1D 0.01e1D
 
 	// 投資回収結果の重み係数
-	private static double RWD_FN_BIZ = 1.0e-3D; // 投資回収利益は桁が大き過ぎるので
+	private static double RWD_FN_BIZ = 1.0e-0D; // 投資回収利益は桁が大き過ぎるので
 
 	/**
 	 * 報酬を評価する.
@@ -41,13 +41,11 @@ public class RewardEvaluator {
 					+ (Math.min(rsc, 1.0e0D / rsc) - 1.0e0D) * RWD_FN_CPW;
 
 			// 投資回収性の評価
-			// double sd = state.getScheduleDelay();
-			// double co = state.getCostOverrun();
-			//
-			// ServiceModel sm = new ServiceModel();
-			// double bizRes = sm.perform(sd, co, rcw);
-			//
-			// reward = bizRes * RWD_FN_BIZ;
+//			 double sd = state.getScheduleDelay();
+//			 double co = state.getCostOverrun();
+//			 ServiceModel sm = new ServiceModel(100.0e0D, 1.0e0D);
+//			 double bizRes = sm.perform(sd, co, rsc);
+//			 reward = bizRes * RWD_FN_BIZ;
 
 		} else {
 			// プロジェクト進行時

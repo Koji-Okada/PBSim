@@ -53,9 +53,9 @@ public final class SimpleSimulator {
                     double costOverrun = postState.getCostOverrun();
                     double scopeChangeRate = postState.getScopeChangeRate();
 
-                    ServiceModel sModel0 = new ServiceModel(50.0e0D, 1.0e0D);
-                    ServiceModel sModel1 = new ServiceModel(50.0e0D, 0.8e0D);
-                    ServiceModel sModel2 = new ServiceModel(100.0e0D, 1.0e0D);
+                    ServiceModel sModel0 = new ServiceModel(100.0e0D, 1.0e0D);
+                    ServiceModel sModel1 = new ServiceModel(50.0e0D, 1.0e0D);
+                    ServiceModel sModel2 = new ServiceModel(100.0e0D, 1.5e0D);
 
                     double bizRes0 = sModel1.perform(scheduleDelay, costOverrun, scopeChangeRate);
                     double bizRes1 = sModel1.perform(scheduleDelay, costOverrun, scopeChangeRate);

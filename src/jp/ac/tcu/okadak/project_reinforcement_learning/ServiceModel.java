@@ -7,7 +7,7 @@ package jp.ac.tcu.okadak.project_reinforcement_learning;
  */
 public class ServiceModel {
 
-    private double mspq0 = 6.0e6D;  //  週当たりの利益 (8.0 M\/週)
+    private double mspq0 = 6.0e6D;  //  週当たりの利益 (6.0 M\/週)
     private double msd0 =50.0;    //  想定サービス期間 (100週 / 50週)
     private double pdc0 = 250.0e6D;   //  計画開発費
     private double beta = 1.0e0;    //  スコープ変化率の影響
