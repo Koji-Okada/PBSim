@@ -353,7 +353,7 @@ public final class QLSimulator {
         //仕様妥協量と仕様妥協率
         //          System.out.printf("compromiseWorks   = \t%8.3f", compromiseWorks);
         //          System.out.println();
-        System.out.printf("compromiseWorks rate = \t%8.3f\t", 1.0e0D - scopeChangeRate);
+        System.out.printf("compromiseWorks rate = \t%8.3f\t%8.3f", scopeChangeRate, 1.0e0D - scopeChangeRate);
 
 
         //          System.out.printf("pv = \t%8.3f", st.getPV());
