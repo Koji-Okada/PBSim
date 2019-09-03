@@ -69,6 +69,7 @@ class ProjectModel {
 			final double idealEst) {
 		super();
 
+		// シミュレーション時刻を初期化する
 		this.simTime = 0;
 
 		// 成果物規模を設定する

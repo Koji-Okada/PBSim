@@ -9,10 +9,10 @@ public class RewardEvaluator {
 
 	private static double RWD_FN_SCH = 0.99e3D; // 0.99e3D 0.20e3D 0.01e3D
 	private static double RWD_FN_CST = 0.01e3D; // 0.99e3D 0.80e3D 0.01e3D
-	private static double RWD_FN_CPW = 0.01e3D; // 1.0e3D 0.01e3D
+	private static double RWD_FN_CPW = 1.00e3D; // 1.0e3D 0.01e3D
 
 	private static double RWD_OG_SCH = 0.99e1D; // 0.99e1D 0.20e1D 0.01e1D
-	private static double RWD_OG_CST = 1.00e1D; // 0.99e1D 0.20e1D 0.01e1D
+	private static double RWD_OG_CST = 0.01e1D; // 0.99e1D 0.20e1D 0.01e1D
 
 	// 投資回収結果の重み係数
 	private static double RWD_FN_BIZ = 1.00e-0D; // 投資回収利益は桁が大き過ぎるので
@@ -40,10 +40,10 @@ public class RewardEvaluator {
 					+ (Math.min(rco, 1.0e0D / rco) - 1.0e0D) * RWD_FN_CST
 					+ (Math.min(rsc, 1.0e0D / rsc) - 1.0e0D) * RWD_FN_CPW;
 
-			// 投資回収性の評価
+			// 投資回収性の評価 (事例により、サービスモデルを切替えること)
 			 double sd = state.getScheduleDelay();
 			 double co = state.getCostOverrun();
-			 ServiceModel2 sm = new ServiceModel2(40.0e0D, 1.0e0D);
+			 ServiceModel3 sm = new ServiceModel3(50.0e0D, 1.0e0D);
 			 double bizRes = sm.perform(sd, co, rsc);
 			 reward = bizRes * RWD_FN_BIZ;
 		} else {

@@ -39,7 +39,7 @@ public class ServiceModel2 {
 
         double unit = 0.25e6D; // コスト超過量 (人週→金額)
 
-        double imp = (imp0 - 1.0e0D) * rsc * beta;
+        double imp = (imp0 - 1.0e0D) * Math.pow(rsc, beta);
         double msd = msd0 - sd;
 
         double msf = mspq0 * imp * msd - (pdc0 + co * unit);

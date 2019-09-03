@@ -245,6 +245,7 @@ public final class QLSimulator2 {
             //			ProjectAttributes pjAtr = pjAtrGen.generateProjectAttribute(false);
             //★ProjectModel project = new ProjectModel(pjAtr);
             ProjectModel project = new ProjectModel(PROJECT_SIZE, PROJECT_HR, 1.0e0, 1.0e0);
+
             //			double idealCost = pjAtr.getIdealTotalEffort() / 5.0e0d;
             //			double plannedCost = pjAtr.getEstimatedTotalEffort() / 5.0e0d;
 
@@ -288,7 +289,6 @@ public final class QLSimulator2 {
 
         ProjectState postState;
         do {
-
             // 行動前の状態を観測する
             ProjectState preState = project.observe();
 
@@ -310,6 +310,7 @@ public final class QLSimulator2 {
                 learningIndex += agent.learn(preState, action, reward,
                         postState);
             }
+
 
         } while (!postState.isComplete());
 
