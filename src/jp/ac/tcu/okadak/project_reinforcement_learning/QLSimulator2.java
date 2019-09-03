@@ -56,11 +56,13 @@ public final class QLSimulator2 {
      */
     public static void main(final String[] args) {
 
+    	int randomSeed = 100;
+
         System.out.println("Start ...");
         for (int i = 0; i < 15; i++) {
             // エージェント15体で実行する
             QLSimulator2 simulator = new QLSimulator2();
-            simulator.qLearning(i);
+            simulator.qLearning(i + randomSeed);
         }
         System.out.println("... Fin.");
 
