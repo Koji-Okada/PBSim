@@ -5,12 +5,14 @@ package jp.ac.tcu.okadak.project_reinforcement_learning;
  *
  * @author K.Okada
  */
-public class ServiceModel{
+public class ServiceModel2 {
 
-    private double mspq0 = 6.0e6D;  //  週当たりの利益 (6.0 M\/週)
-    private double msd0 =50.0;    //  想定サービス期間 (100週 / 50週)
-    private double pdc0 = 250.0e6D;   //  計画開発費
-    private double beta = 1.0e0;    //  スコープ変化率の影響
+    private double mspq0 = 6.0e6D;  //  週当たりの利益 (M￥/週)
+    private double imp0 = 1.20;  // 利益改善 (倍)
+
+    private double msd0;    //  想定サービス期間 (週 100 vs 50)
+    private double pdc0 = 40.0e6D;   //  計画開発費 (M￥)
+    private double beta;    //  スコープ変化率の影響
 
     /**
      *
@@ -18,7 +20,7 @@ public class ServiceModel{
      * @param duration 想定サービス期間
      * @param b	スコープ変化率の影響
      */
-    public ServiceModel(double duration, double b) {
+    public ServiceModel2(double duration, double b) {
     	this.msd0 = duration;
     	this.beta = b;
 
@@ -37,10 +39,10 @@ public class ServiceModel{
 
         double unit = 0.25e6D; // コスト超過量 (人週→金額)
 
-        double mspq = mspq0 * rsc * beta;
+        double imp = (imp0 - 1.0e0D) * rsc * beta;
         double msd = msd0 - sd;
 
-        double msf = mspq * msd - (pdc0 + co * unit);
+        double msf = mspq0 * imp * msd - (pdc0 + co * unit);
 
         return msf;
     }

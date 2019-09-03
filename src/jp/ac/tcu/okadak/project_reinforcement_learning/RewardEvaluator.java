@@ -41,11 +41,11 @@ public class RewardEvaluator {
 					+ (Math.min(rsc, 1.0e0D / rsc) - 1.0e0D) * RWD_FN_CPW;
 
 			// 投資回収性の評価
-//			 double sd = state.getScheduleDelay();
-//			 double co = state.getCostOverrun();
-//			 ServiceModel sm = new ServiceModel(100.0e0D, 1.0e0D);
-//			 double bizRes = sm.perform(sd, co, rsc);
-//			 reward = bizRes * RWD_FN_BIZ;
+			 double sd = state.getScheduleDelay();
+			 double co = state.getCostOverrun();
+			 ServiceModel2 sm = new ServiceModel2(40.0e0D, 1.0e0D);
+			 double bizRes = sm.perform(sd, co, rsc);
+			 reward = bizRes * RWD_FN_BIZ;
 
 		} else {
 			// プロジェクト進行時
