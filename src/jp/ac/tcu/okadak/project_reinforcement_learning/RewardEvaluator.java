@@ -43,7 +43,8 @@ public class RewardEvaluator {
 			// 投資回収性の評価 (事例により、サービスモデルを切替えること)
 			 double sd = state.getScheduleDelay();
 			 double co = state.getCostOverrun();
-			 ServiceModel3 sm = new ServiceModel3(50.0e0D, 1.0e0D);
+			 ServiceModel sm = new ServiceModel(40.0e0D, 1.0e0D);
+//			 ServiceModel3 sm = new ServiceModel3(100.0e0D, 1.0e0D);
 			 double bizRes = sm.perform(sd, co, rsc);
 			 reward = bizRes * RWD_FN_BIZ;
 		} else {

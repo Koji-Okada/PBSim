@@ -57,10 +57,10 @@ public class ServiceModel3 {
 	 */
 	double perform(double sd2, double co2, double rsc2) {
 
-		double imp2 = 0.90; // 欠陥混入率の基準変化
+		double imp2 = 1.50; // 欠陥混入率の基準変化
 		double beta2 = 1.00;
 
-		double imp = (imp2 - 1.0e0D) * Math.pow(rsc2, beta2);
+		double imp = imp2 * Math.pow(rsc2, beta2);
 
 		// 基準の製品開発プロジェクトを生成する
 		// 改善効果のメカニズムを加えた ProjectModel3を使用

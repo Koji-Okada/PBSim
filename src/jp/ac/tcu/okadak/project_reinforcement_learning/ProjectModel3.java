@@ -57,7 +57,7 @@ class ProjectModel3 {
 	private int accumlatedIncreasingEfforts = 0;
 	private int accumlatedScopeAdjust = 0;
 
-	double improveEffect = 0.00;
+	double improveEffect = 1.00;
 
 
 	/**
@@ -250,23 +250,23 @@ class ProjectModel3 {
 
 			case -1 :
 				this.efficiency = 0.90e0D;
-				this.defectInjectionRate = 0.15e0D + this.improveEffect;
-				this.defectDetectionRate = 0.30e0D - this.improveEffect;
+				this.defectInjectionRate = 0.15e0D / this.improveEffect;
+				this.defectDetectionRate = 0.30e0D * this.improveEffect;
 				break;
 			case 0 :
 				this.efficiency = 0.95e0D;
-				this.defectInjectionRate = 0.20e0D + this.improveEffect;
-				this.defectDetectionRate = 0.25e0D- this.improveEffect;
+				this.defectInjectionRate = 0.20e0D / this.improveEffect;
+				this.defectDetectionRate = 0.25e0D * this.improveEffect;
 				break;
 			case 1 :
 				this.efficiency = 1.00e0D;
-				this.defectInjectionRate = 0.25e0D + this.improveEffect;
-				this.defectDetectionRate = 0.20e0D- this.improveEffect;
+				this.defectInjectionRate = 0.25e0D / this.improveEffect;
+				this.defectDetectionRate = 0.20e0D * this.improveEffect;
 				break;
 			case 2 :
 				this.efficiency = 1.05e0D;
-				this.defectInjectionRate = 0.30e0D + this.improveEffect;
-				this.defectDetectionRate = 0.15e0D- this.improveEffect;
+				this.defectInjectionRate = 0.30e0D / this.improveEffect;
+				this.defectDetectionRate = 0.15e0D * this.improveEffect;
 				break;
 			case 99 : // 理想モデルとの一致確認用
 				this.efficiency = 1.00e0D;
