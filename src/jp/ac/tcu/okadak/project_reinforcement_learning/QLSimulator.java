@@ -57,7 +57,7 @@ public final class QLSimulator {
     public static void main(final String[] args) {
 
         System.out.println("Start ...");
-        for (int i = 0; i < 15; i++) {
+        for (int i = 0; i < 100; i++) {
             // エージェント15体で実行する
             QLSimulator simulator = new QLSimulator();
             simulator.qLearning(i);
