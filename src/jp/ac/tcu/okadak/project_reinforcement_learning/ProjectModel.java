@@ -1,5 +1,7 @@
 package jp.ac.tcu.okadak.project_reinforcement_learning;
 
+import jp.ac.tcu.okadak.project_attributes_generator.ProjectAttributes;
+
 //import jp.ac.tcu.okadak.project_attributes_generator.ProjectAttributes;
 
 /**
@@ -58,12 +60,56 @@ class ProjectModel {
 	private int accumlatedScopeAdjust = 0;
 
 	/**
+	 * コンストラクタ (プロジェクト属性から).
+	 *
+	 * @param pjAtr
+	 *            プロジェクト属性
+	 */
+	ProjectModel(final ProjectAttributes pjAtr) {
+		super();
+
+		// シミュレーション時刻を初期化する
+		this.simTime = 0;
+
+		// 成果物規模を設定する
+		this.productSize = pjAtr.getProductSize();
+
+		// 理想モデルを設定する
+		this.idealInitialWork = pjAtr.getEstimatedTotalEffort() / 5.0e0D;
+		this.idealRemainingWork = this.idealInitialWork;
+		this.idealCompleteWork = 0.0e0D;
+		this.idealProgressRate = 0.0e0D;
+		this.idealCompletionFlag = false;
+		this.idealCompromisedWork = 0.0e0D;
+		this.idealEffort = pjAtr.getPlannedNumberOfHumanResources();
+
+		this.idealLastTime = (int) Math
+				.ceil(this.idealInitialWork / this.idealEffort);
+
+		// 現実モデルを設定する
+		this.initialWork = pjAtr.getIdealTotalEffort() / 5.0e0D;
+		this.remainingWork = this.initialWork;
+		this.completeWork = 0.0e0D;
+		this.latentRework = 0.0e0D;
+		this.progressRate = 0.0e0D;
+		this.completionFlag = false;
+		this.compromisedWork = 0.0e0D;
+		this.testFlag = false;
+
+		return;
+	}
+
+	/**
 	 * コンストラクタ (直接指定).
 	 *
 	 * @param size
+	 *            プロジェクト規模
 	 * @param hr
+	 *            投入人員数
 	 * @param est
+	 *            見積係数
 	 * @param idealEst
+	 *            理想見積係数
 	 */
 	ProjectModel(final double size, final double hr, final double est,
 			final double idealEst) {

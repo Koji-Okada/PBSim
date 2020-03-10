@@ -33,8 +33,8 @@ public final class QLSimulator {
 	/**
 	 *
 	 */
-	private static final int PROJECT_SIZE = 1000;
-	private static final int PROJECT_HR = 20;
+//	private static final int PROJECT_SIZE = 1000;
+//	private static final int PROJECT_HR = 20;
 
 	/**
 	 * 見積りの安全率.
@@ -58,8 +58,8 @@ public final class QLSimulator {
 	public static void main(final String[] args) {
 
 		System.out.println("Start ...");
-		for (int i = 0; i < 100; i++) {
-			// エージェント100体で実行する
+		for (int i = 0; i < 10; i++) {
+			// エージェント10体で実行する
 			QLSimulator simulator = new QLSimulator();
 			simulator.qLearning(i);
 		}
@@ -111,8 +111,7 @@ public final class QLSimulator {
 
 				// プロジェクトを生成する
 				 ProjectAttributes pjAtr = pjAtrGen.generateProjectAttribute(false);
-				ProjectModel project = new ProjectModel(PROJECT_SIZE,
-						PROJECT_HR, 1.0e0, 1.0e0);
+				 ProjectModel project = new ProjectModel(pjAtr);
 
 				// プロジェクトを実施する
 				sumLearningIndex1 += performProject(project, agent, evaluator,
@@ -126,8 +125,7 @@ public final class QLSimulator {
 
 				// プロジェクトを生成する
 				 ProjectAttributes pjAtr = pjAtrGen.generateProjectAttribute(false);
-				ProjectModel project = new ProjectModel(PROJECT_SIZE,
-						PROJECT_HR, 1.0e0, 1.0e0);
+				 ProjectModel project = new ProjectModel(pjAtr);
 
 				// プロジェクトを実施する
 				sumLearningIndex2 += performProject(project, agent, evaluator,
@@ -153,12 +151,11 @@ public final class QLSimulator {
 			// 学習結果の評価
 			for (int i = 0; i < LAST_EVALUATIONS; i++) {
 
-				// // プロジェクト属性を生成する
+				// プロジェクト属性を生成する
 				 ProjectAttributes pjAtr = pjAtrGen.generateProjectAttribute(false);
 
 				// プロジェクトを生成する
-				ProjectModel project = new ProjectModel(PROJECT_SIZE,
-						PROJECT_HR, 1.0e0, 1.0e0);
+				 ProjectModel project = new ProjectModel(pjAtr);
 
 				// プロジェクトを実施する
 				performProject(project, agent, evaluator, false, false);
@@ -174,8 +171,7 @@ public final class QLSimulator {
 				}
 
 				// プロジェクトを生成する(プロジェクト属性は同一)
-				ProjectModel project0 = new ProjectModel(PROJECT_SIZE,
-						PROJECT_HR, 1.0e0, 1.0e0);
+				 ProjectModel project0 = new ProjectModel(pjAtr);
 
 				// プロジェクトを実施する
 				performProject(project0, bestAgent, evaluator, false, false);
@@ -222,32 +218,28 @@ public final class QLSimulator {
 
 		for (int p = 0; p < 1; p++) {
 
-			// // プロジェクト属性生成器を、再度、生成する
-			// pjAtrGen = new ProjectAttributesGenerator();
-			// pjAtrGen.setRandomSeed(p); // 再現性確保のため
-			//
-			// // 成果物規模の確率分布を設定する
-			// // pjAtrGen.setProductSizeDistibution(1000.0e0D * 5.0e0,
-			// 100.0e0D);
-			// pjAtrGen.setProductSizeDistibution(2843.371e0D, 4711.928e0D);
-			//
-			// // 期間変動の確立分布を設定する
-			// // pjAtrGen.setDurationDistribution(0.0e0D, 0.10e0D);
-			// pjAtrGen.setDurationDistribution(0.0e0D, 0.45e0D);
-			//
-			// // 工数見積係数を設定する
-			// pjAtrGen.setEffortEstimationParameter(safetyRate); // 1 + 手戻り工数率
-			//
-			// // 理想的工数見積係数を設定する
-			// pjAtrGen.setIdealEffortEstimationParameter(1.0e0D);
-			//
-			//
-			// // プロジェクトを生成する
-			// ProjectAttributes pjAtr =
-			// pjAtrGen.generateProjectAttribute(false);
-			// ★ProjectModel project = new ProjectModel(pjAtr);
-			ProjectModel project = new ProjectModel(PROJECT_SIZE, PROJECT_HR,
-					1.0e0, 1.0e0);
+			 // プロジェクト属性生成器を、再度、生成する
+			 pjAtrGen = new ProjectAttributesGenerator();
+			 pjAtrGen.setRandomSeed(p); // 再現性確保のため
+
+			 // 成果物規模の確率分布を設定する
+			 // pjAtrGen.setProductSizeDistibution(1000.0e0D * 5.0e0,100.0e0D);
+			 pjAtrGen.setProductSizeDistibution(2843.371e0D, 4711.928e0D);
+
+			 // 期間変動の確立分布を設定する
+			 // pjAtrGen.setDurationDistribution(0.0e0D, 0.10e0D);
+			 pjAtrGen.setDurationDistribution(0.0e0D, 0.45e0D);
+
+			 // 工数見積係数を設定する
+			 pjAtrGen.setEffortEstimationParameter(safetyRate); // 1 + 手戻り工数率
+
+			 // 理想的工数見積係数を設定する
+			 pjAtrGen.setIdealEffortEstimationParameter(1.0e0D);
+
+
+			 // プロジェクトを生成する
+			 ProjectAttributes pjAtr = pjAtrGen.generateProjectAttribute(false);
+			 ProjectModel project = new ProjectModel(pjAtr);
 					// double idealCost = pjAtr.getIdealTotalEffort() / 5.0e0d;
 					// double plannedCost = pjAtr.getEstimatedTotalEffort() /
 					// 5.0e0d;
