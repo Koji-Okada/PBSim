@@ -222,6 +222,11 @@ class ProjectModel {
 			// 欠陥の混入
 			this.latentRework += effectiveEffort * this.defectInjectionRate;
 
+			// for Debuging
+			if (remainingWork < 0.00e0D) {
+				System.out.println("!-- " + remainingWork + " : " + simTime);
+			}
+
 		} else {
 			// テストフェーズの場合の処理
 
@@ -246,7 +251,6 @@ class ProjectModel {
 				// 検出された欠陥作業量を残作業に追加
 				this.latentRework -= detectedReworks;
 				this.remainingWork += detectedReworks;
-
 			} else {
 				// 残テスト作業量が少ない場合の処理
 				// 終結処理
@@ -256,6 +260,11 @@ class ProjectModel {
 
 				this.completionFlag = true; // 完了状態
 			}
+		}
+
+		// for Debuging
+		if (remainingWork < 0.00e0D) {
+			System.out.println("!!! " + remainingWork);
 		}
 
 		// 進捗率の算出

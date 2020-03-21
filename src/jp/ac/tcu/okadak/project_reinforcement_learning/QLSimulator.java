@@ -39,7 +39,7 @@ public final class QLSimulator {
 	/**
 	 * 見積りの安全率.
 	 */
-	 private double safetyRate = 1.0e0d;
+	 private double safetyRate = 1.2e0d;
 
 	/**
 	 * コンストラクタ. (プライベート化)
