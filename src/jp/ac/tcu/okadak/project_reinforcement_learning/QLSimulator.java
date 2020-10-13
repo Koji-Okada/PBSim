@@ -68,10 +68,10 @@ public final class QLSimulator {
 	private void qLearning() {
 
 		// 最良エージェント
-		LearningAgent bestAgent = null;
+		QLearningAgent bestAgent = null;
 
 		// 学習エージェントを生成する
-		LearningAgent agent = new LearningAgent();
+		QLearningAgent agent = new QLearningAgent();
 		agent.SetRandomSeed(agentID); // 再現性確保のため乱数種を固定する
 
 		// 報酬評価器を生成する
@@ -263,7 +263,7 @@ public final class QLSimulator {
 	 * @return 学習収束度パラメータ
 	 */
 	private double performProject(final ProjectModel project,
-			final LearningAgent agent, final RewardEvaluator evaluator,
+			final QLearningAgent agent, final RewardEvaluator evaluator,
 			final Boolean exploring, final Boolean learning) {
 
 		double learningIndex = 0.0e0D;
