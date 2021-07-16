@@ -19,13 +19,13 @@
   <dependencies>
   	<dependency>
   		<groupId>org.nd4j</groupId>
-  		<artifactId>nd4j-cuda-11.0</artifactId>
-  		<version>1.0.0-M1</version>
+  		<artifactId>nd4j-cuda-10.2</artifactId>
+  		<version>1.0.0-beta7</version>
   	</dependency>
   	<dependency>
   		<groupId>org.deeplearning4j</groupId>
   		<artifactId>deeplearning4j-core</artifactId>
-  		<version>1.0.0-M1</version>
+  		<version>1.0.0-beta7</version>
   	</dependency>
   	<dependency>
   		<groupId>org.apache.commons</groupId>
