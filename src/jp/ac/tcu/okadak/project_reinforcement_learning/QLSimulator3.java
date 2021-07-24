@@ -278,7 +278,7 @@ public final class QLSimulator3 {
 	 */
 	private double performProject(final ProjectModel project,
 			final QLearningAgent agent, final RewardEvaluator evaluator,
-			final Boolean exploring, final Boolean learning) {
+			final boolean exploring, final boolean learning) {
 
 		double learningIndex = 0.0e0D;
 

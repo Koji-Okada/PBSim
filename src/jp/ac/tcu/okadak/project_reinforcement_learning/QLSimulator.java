@@ -26,7 +26,6 @@ public final class QLSimulator {
 	/**
 	 * 学習結果評価用の反復数.
 	 */
-	// private static final int LAST_EVALUATIONS = 100;
 	private static final int LAST_EVALUATIONS = 1;
 
 	/**
@@ -71,9 +70,8 @@ public final class QLSimulator {
 		QLearningAgent bestAgent = null;
 
 		// 学習エージェントを生成する
-		QLearningAgent agent = new QLearningAgent();
-		agent.SetRandomSeed(agentID); // 再現性確保のため乱数種を固定する
-
+		QLearningAgent agent = new QLearningAgent(agentID); // 再現性確保のため乱数種を固定する
+		
 		// 報酬評価器を生成する
 		RewardEvaluator evaluator = new RewardEvaluator();
 
@@ -225,7 +223,7 @@ public final class QLSimulator {
 	 */
 	private double performProject(final ProjectModel project,
 			final QLearningAgent agent, final RewardEvaluator evaluator,
-			final Boolean exploring, final Boolean learning) {
+			final boolean exploring, final boolean learning) {
 
 		double learningIndex = 0.0e0D;
 
