@@ -53,45 +53,12 @@ public final class SimpleSimulator {
                     double costOverrun = postState.getCostOverrun();
                     double scopeChangeRate = postState.getScopeChangeRate();
 
-                    ServiceModel sModel0 = new ServiceModel(100.0e0D, 1.0e0D);
-                    ServiceModel sModel1 = new ServiceModel(50.0e0D, 1.0e0D);
-                    ServiceModel sModel2 = new ServiceModel(100.0e0D, 1.5e0D);
-
-                    double bizRes0 = sModel1.perform(scheduleDelay, costOverrun, scopeChangeRate);
-                    double bizRes1 = sModel1.perform(scheduleDelay, costOverrun, scopeChangeRate);
-                    double bizRes2 = sModel2.perform(scheduleDelay, costOverrun, scopeChangeRate);
-
-
-                    System.out.println("-終了結果-" + "\t" + applyingPressure + "\t"
+                    System.out.println(applyingPressure + "\t"
                             + increasingEffort + "\t" + scopeAdjust + "\t"
-                            + scheduleDelay + "\t" + costOverrun + "\t" + scopeChangeRate
-                            + "\t" + (bizRes0 / 1.0e6D) + "\t" + (bizRes1 / 1.0e6D) + "\t" + (bizRes2 / 1.0e6D));
+                            + scheduleDelay + "\t" + costOverrun + "\t" + scopeChangeRate);
                 }
             }
         }
-        System.out.println("... Fin.");
-
-        // 理想ケースとの一致をテストする
-        // 基準プロジェクトを生成する
-        ProjectModel project = new ProjectModel(1000.0e0, 20.0e0, 1.0e0, 1.0e0);
-        do {
-            ProjectManagementAction action = new ProjectManagementAction(99, 99,
-                    99);
-
-            project.perform(action);
-
-            // 行動後の状態を観測する
-            postState = project.observe();
-
-        } while (!postState.isComplete());
-
-         System.out.printf("理想モデルとの一致\t");
-         System.out.printf("%6.2f\t", postState.getScheduleDelay());
-         System.out.printf("%6.2f\t", postState.getCostOverrun());
-         System.out.printf("%6.2f\t", postState.getScheduleDelayRate());
-         System.out.printf("%6.2f\t", postState.getCostOverrunRate());
-         System.out.println();
-
         System.out.println("... Fin.");
     }
 }
