@@ -212,8 +212,9 @@ public class QLearningAgent {
 			for (int a0 = 0; a0 < 4; a0++) {
 				for (int a1 = 0; a1 < 4; a1++) {
 					for (int a2 = 0; a2 < 4; a2++) {
-						if (qTable[iPrgR][iSpi][iCpi][iAvgAppPrs][iAvgIncEff][iAvgScpAdj][a0][a1][a2] > maxQ) {
-							maxQ = qTable[iPrgR][iSpi][iCpi][iAvgAppPrs][iAvgIncEff][iAvgScpAdj][a0][a1][a2];
+						double qValue = qTable[iPrgR][iSpi][iCpi][iAvgAppPrs][iAvgIncEff][iAvgScpAdj][a0][a1][a2];
+						if (qValue > maxQ) {
+							maxQ = qValue;
 							maxArg0 = a0;
 							maxArg1 = a1;
 							maxArg2 = a2;
@@ -277,8 +278,9 @@ public class QLearningAgent {
 			for (int a1 = 0; a1 < 4; a1++) {
 				for (int a2 = 0; a2 < 4; a2++) {
 					try {
-						if (qTable[iPostPrgR][iPostSpi][iPostCpi][iPostAvgAppPrs][iPostAvgIncEff][iPostAvgScpAdj][a0][a1][a2] > maxQ) {
-							maxQ = qTable[iPostPrgR][iPostSpi][iPostCpi][iPostAvgAppPrs][iPostAvgIncEff][iPostAvgScpAdj][a0][a1][a2];
+						double qValue = qTable[iPostPrgR][iPostSpi][iPostCpi][iPostAvgAppPrs][iPostAvgIncEff][iPostAvgScpAdj][a0][a1][a2];
+						if (qValue > maxQ) {
+							maxQ = qValue;
 						}
 					} catch (Exception e) {
 						System.out.println(e);
