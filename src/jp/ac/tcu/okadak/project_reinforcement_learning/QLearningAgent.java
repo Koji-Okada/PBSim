@@ -324,8 +324,9 @@ public class QLearningAgent {
 		
 		double q0 = qTable[iPrePrgR][iPreSpi][iPreCpi][iPreAvgAppPrs][iPreAvgIncEff][iPreAvgScpAdj][iAppPrs][iIncEff][iScpAdj];
 		double q1 = reward + gamma * maxQ;
+		double updateQ = (1.0e0 - alpha) * q0 + alpha * q1;
 
-		qTable[iPrePrgR][iPreSpi][iPreCpi][iPreAvgAppPrs][iPreAvgIncEff][iPreAvgScpAdj][iAppPrs][iIncEff][iScpAdj] = (1.0e0 - alpha) * q0 + alpha * q1;
+		qTable[iPrePrgR][iPreSpi][iPreCpi][iPreAvgAppPrs][iPreAvgIncEff][iPreAvgScpAdj][iAppPrs][iIncEff][iScpAdj] = updateQ;
 
 		return (q1 - q0) * (q1 - q0);
 	}
