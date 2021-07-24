@@ -7,7 +7,7 @@ import java.util.Random;
  *
  * @author K.Okada T.Hayashi
  */
-public class LearningAgent {
+public class QLearningAgent {
 
 	/**
 	 * ε-Greedy 法 のε.
@@ -110,7 +110,7 @@ public class LearningAgent {
 	/**
 	 * コンストラクタ.
 	 */
-	LearningAgent() {
+	QLearningAgent() {
 		super();
 
 		// 乱数生成器を生成する
@@ -154,10 +154,10 @@ public class LearningAgent {
 	 *
 	 * @return 学習エージェントのクローン
 	 */
-	LearningAgent agentClone() {
+	QLearningAgent agentClone() {
 
 		// 学習エージェントを生成する
-		LearningAgent clonedAgent = new LearningAgent();
+		QLearningAgent clonedAgent = new QLearningAgent();
 
 		// Qテーブルを複写する
 		for (int i0 = 0; i0 < MAX_Q_PRG; i0++) {
@@ -565,7 +565,7 @@ public class LearningAgent {
 	 */
 	double getQV(int prg, int spi, int cpi, int avAP, int avIE, int avSA, int aP, int iE, int sA) {
 
-		// Qテーブルの構成は以下の 7次元配列
+		// Qテーブルの構成は以下の 9次元配列
 		// == STATE ==
 		// [progress]
 		// [spi]
