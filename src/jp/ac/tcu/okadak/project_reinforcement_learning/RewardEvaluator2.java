@@ -6,7 +6,7 @@ package jp.ac.tcu.okadak.project_reinforcement_learning;
  *
  * @author K.Okada
  */
-public class RewardEvaluator {
+public class RewardEvaluator2 {
 
 	private static double RWD_FN_SCH = 1.0e3D; // 1.0e3D
 	private static double RWD_FN_CST = 0.0e3D; // 0.0e3D
@@ -19,7 +19,7 @@ public class RewardEvaluator {
 	 * @param state 状態
 	 * @return 報酬値
 	 */
-	final double evaluate(final ProjectState state) {
+	final double evaluate(final ProjectState2 state) {
 
 		double reward;
 

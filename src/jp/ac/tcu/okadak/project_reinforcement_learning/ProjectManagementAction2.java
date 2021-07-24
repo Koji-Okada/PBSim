@@ -6,7 +6,7 @@ package jp.ac.tcu.okadak.project_reinforcement_learning;
  *
  * @author K.Okada
  */
-public class ProjectManagementAction {
+public class ProjectManagementAction2 {
 
 	/**
 	 * 計画遵守圧力指示.
@@ -62,7 +62,7 @@ public class ProjectManagementAction {
 	 * @param aPressure 計画遵守圧力指示(-1,0,1,2)
 	 * @param iEfforts 工数増加指示(-1,0,1,2)
 	 */
-	public ProjectManagementAction(final int aPressure,
+	public ProjectManagementAction2(final int aPressure,
 			final int iEfforts) {
 		super();
 

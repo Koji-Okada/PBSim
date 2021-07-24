@@ -6,12 +6,12 @@ package jp.ac.tcu.okadak.project_reinforcement_learning;
  *
  * @author K.Okada
  */
-public final class SimpleSimulator {
+public final class SimpleSimulator2 {
 
 	/**
 	 * コンストラクタ. (プライベート化)
 	 */
-	private SimpleSimulator() {
+	private SimpleSimulator2() {
 		super();
 		return;
 	}
@@ -26,16 +26,16 @@ public final class SimpleSimulator {
 
 		System.out.println("Start ...");
 
-		ProjectState postState;
+		ProjectState2 postState;
 
-		for (int applyingPressure = ProjectManagementAction.MIN_ACTION_AP; applyingPressure < ProjectManagementAction.MAX_ACTION_AP; applyingPressure++) {
-			for (int increasingEffort = ProjectManagementAction.MIN_ACTION_IE; increasingEffort < ProjectManagementAction.MAX_ACTION_IE; increasingEffort++) {
+		for (int applyingPressure = ProjectManagementAction2.MIN_ACTION_AP; applyingPressure < ProjectManagementAction2.MAX_ACTION_AP; applyingPressure++) {
+			for (int increasingEffort = ProjectManagementAction2.MIN_ACTION_IE; increasingEffort < ProjectManagementAction2.MAX_ACTION_IE; increasingEffort++) {
 
 				 System.out.printf("%4d\t", applyingPressure);
 				 System.out.printf("%4d\t", increasingEffort);
 
 				// 基準プロジェクトを生成する
-				ProjectModel project = new ProjectModel(1000.0e0, 20.0e0, 1.0e0,
+				ProjectModel2 project = new ProjectModel2(1000.0e0, 20.0e0, 1.0e0,
 						1.0e0);
 
 				int i = 0;
@@ -49,7 +49,7 @@ public final class SimpleSimulator {
 //						ie = 0;
 //					}
 
-					ProjectManagementAction action = new ProjectManagementAction(
+					ProjectManagementAction2 action = new ProjectManagementAction2(
 							ap, ie);
 
 					project.perform(action);
@@ -78,9 +78,9 @@ public final class SimpleSimulator {
 
 		// 理想ケースとの一致をテストする
 		// 基準プロジェクトを生成する
-		ProjectModel project = new ProjectModel(1000.0e0, 20.0e0, 1.0e0, 1.0e0);
+		ProjectModel2 project = new ProjectModel2(1000.0e0, 20.0e0, 1.0e0, 1.0e0);
 		do {
-			ProjectManagementAction action = new ProjectManagementAction(99,
+			ProjectManagementAction2 action = new ProjectManagementAction2(99,
 					99);
 
 			project.perform(action);

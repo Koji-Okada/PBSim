@@ -6,7 +6,7 @@ package jp.ac.tcu.okadak.project_reinforcement_learning;
  *
  * @author K.Okada
  */
-public final class QLSimulator {
+public final class QLSimulator2 {
 
 	/**
 	 * 全体の反復回数.
@@ -41,7 +41,7 @@ public final class QLSimulator {
 	/**
 	 * コンストラクタ. (プライベート化)
 	 */
-	private QLSimulator() {
+	private QLSimulator2() {
 		super();
 		return;
 	}
@@ -55,7 +55,7 @@ public final class QLSimulator {
 	public static void main(final String[] args) {
 
 		System.out.println("Start ...");
-		QLSimulator simulator = new QLSimulator();
+		QLSimulator2 simulator = new QLSimulator2();
 		simulator.qLearning();
 		System.out.println("... Fin.");
 
@@ -68,14 +68,14 @@ public final class QLSimulator {
 	private void qLearning() {
 
 		// 最良エージェント
-		QLearningAgent bestAgent = null;
+		QLearningAgent2 bestAgent = null;
 
 		// 学習エージェントを生成する
-		QLearningAgent agent = new QLearningAgent();
+		QLearningAgent2 agent = new QLearningAgent2();
 		agent.SetRandomSeed(agentID); // 再現性確保のため乱数種を固定する
 
 		// 報酬評価器を生成する
-		RewardEvaluator evaluator = new RewardEvaluator();
+		RewardEvaluator2 evaluator = new RewardEvaluator2();
 
 		for (int j = 0; j < ITERATION_ALL; j++) {
 			// 全体の反復ループ
@@ -86,7 +86,7 @@ public final class QLSimulator {
 				// プロジェクト反復のループ (探索学習モード(ε-Greedyオン))
 
 				// プロジェクトを生成する
-				ProjectModel project = new ProjectModel(1000.0e0D, 20.0e0D,
+				ProjectModel2 project = new ProjectModel2(1000.0e0D, 20.0e0D,
 						1.0e0D * this.safetyRate, 1.0e0D);
 
 				// プロジェクトを実施する
@@ -99,7 +99,7 @@ public final class QLSimulator {
 			for (int i = 0; i < ITERATION_WITHOUT_EXPLORING; i++) {
 				// プロジェクト反復のループ (収束学習モード(ε-Greedyオフ))
 
-				ProjectModel project = new ProjectModel(1000.0e0D, 20.0e0D,
+				ProjectModel2 project = new ProjectModel2(1000.0e0D, 20.0e0D,
 						1.0e0D * this.safetyRate, 1.0e0D);
 
 				// プロジェクトを実施する
@@ -130,7 +130,7 @@ public final class QLSimulator {
 			for (int i = 0; i < LAST_EVALUATIONS; i++) {
 
 				// プロジェクトを生成する
-				ProjectModel project = new ProjectModel(1000.0e0D, 20.0e0D,
+				ProjectModel2 project = new ProjectModel2(1000.0e0D, 20.0e0D,
 						1.0e0D * this.safetyRate, 1.0e0D);
 
 				// プロジェクトを実施する
@@ -149,7 +149,7 @@ public final class QLSimulator {
 				}
 
 				// プロジェクトを生成する(プロジェクト属性は同一)
-				ProjectModel project0 = new ProjectModel(1000.0e0D, 20.0e0D,
+				ProjectModel2 project0 = new ProjectModel2(1000.0e0D, 20.0e0D,
 						1.0e0D * this.safetyRate, 1.0e0D);
 
 				// プロジェクトを実施する
@@ -262,20 +262,20 @@ public final class QLSimulator {
 	 *
 	 * @return 学習収束度パラメータ
 	 */
-	private double performProject(final ProjectModel project,
-			final QLearningAgent agent, final RewardEvaluator evaluator,
+	private double performProject(final ProjectModel2 project,
+			final QLearningAgent2 agent, final RewardEvaluator2 evaluator,
 			final Boolean exploring, final Boolean learning) {
 
 		double learningIndex = 0.0e0D;
 
-		ProjectState postState;
+		ProjectState2 postState;
 		do {
 
 			// 行動前の状態を観測する
-			ProjectState preState = project.observe();
+			ProjectState2 preState = project.observe();
 
 			// エージェントに行動を決定させる
-			ProjectManagementAction action = agent.decideAction(preState,
+			ProjectManagementAction2 action = agent.decideAction(preState,
 					exploring);
 
 			// 環境に対して行動を行う

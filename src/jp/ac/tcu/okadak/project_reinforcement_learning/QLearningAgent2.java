@@ -8,7 +8,7 @@ import java.util.Random;
  *
  * @author K.Okada
  */
-public class QLearningAgent {
+public class QLearningAgent2 {
 
 	/**
 	 * ε-Greedy 法 のε.
@@ -102,7 +102,7 @@ public class QLearningAgent {
 	/**
 	 * コンストラクタ.
 	 */
-	QLearningAgent() {
+	QLearningAgent2() {
 		super();
 
 		// 乱数生成器を生成する
@@ -146,10 +146,10 @@ public class QLearningAgent {
 	 *
 	 * @return	学習エージェントのクローン
 	 */
-	QLearningAgent agentClone() {
+	QLearningAgent2 agentClone() {
 
 		// 学習エージェントを生成する
-		QLearningAgent clonedAgent = new QLearningAgent();
+		QLearningAgent2 clonedAgent = new QLearningAgent2();
 
 		// Qテーブルを複写する
 		for (int i0 = 0; i0 < MAX_Q_PRG; i0++) {
@@ -179,7 +179,7 @@ public class QLearningAgent {
 	 *
 	 * @return 決定された行動
 	 */
-	final ProjectManagementAction decideAction(final ProjectState state,
+	final ProjectManagementAction2 decideAction(final ProjectState2 state,
 			final Boolean exploring) {
 
 		int applyingPressure = 0;
@@ -226,7 +226,7 @@ public class QLearningAgent {
 					* (double) MAX_Q_IE)) - 1;
 		}
 
-		ProjectManagementAction action = new ProjectManagementAction(
+		ProjectManagementAction2 action = new ProjectManagementAction2(
 				applyingPressure, increasingEfforts);
 
 		if (recordAction) {
@@ -255,8 +255,8 @@ public class QLearningAgent {
 	 * @param postState	行動後の状態
 	 * @return				行動前Q値と行動後Q値の誤差平方
 	 */
-	double learn(ProjectState preState, ProjectManagementAction action,
-			double reward, ProjectState postState) {
+	double learn(ProjectState2 preState, ProjectManagementAction2 action,
+			double reward, ProjectState2 postState) {
 
 		// 状態量 progressRate の値を離散化する.
 		int postProgressRate = discretizeProgressRate(postState

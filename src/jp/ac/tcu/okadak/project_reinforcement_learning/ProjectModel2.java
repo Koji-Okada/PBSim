@@ -8,7 +8,7 @@ import jp.ac.tcu.okadak.project_attributes_generator.ProjectAttributes;
  *
  * @author K.Okada
  */
-class ProjectModel {
+class ProjectModel2 {
 
 	/**
 	 * シミュレーション時刻.
@@ -58,7 +58,7 @@ class ProjectModel {
 	/**
 	 * コンストラクタ.
 	 */
-	ProjectModel(ProjectAttributes pjAtr) {
+	ProjectModel2(ProjectAttributes pjAtr) {
 		super();
 
 		this.simTime = 0;
@@ -93,7 +93,7 @@ class ProjectModel {
 	 * @param est
 	 * @param idealEst
 	 */
-	ProjectModel(final double size, final double hr, final double est,
+	ProjectModel2(final double size, final double hr, final double est,
 			final double ideal) {
 		super();
 
@@ -129,7 +129,7 @@ class ProjectModel {
 	 *            プロジェクトマネジメント行動
 	 *
 	 */
-	void perform(final ProjectManagementAction action) {
+	void perform(final ProjectManagementAction2 action) {
 
 		simTime++;
 		this.accumlatedApplyingPressure += action.getApplyingPressure();
@@ -278,10 +278,10 @@ class ProjectModel {
 	 *
 	 * @return プロジェクト状態.
 	 */
-	ProjectState observe() {
+	ProjectState2 observe() {
 
 		// 状態の器を生成する
-		ProjectState state = new ProjectState();
+		ProjectState2 state = new ProjectState2();
 
 		// シミュレーション時刻を設定する
 		state.setSimTime(this.simTime);
