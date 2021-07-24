@@ -6,7 +6,7 @@ package jp.ac.tcu.okadak.project_reinforcement_learning;
  *
  * @author K.Okada
  */
-public final class QLSimulator {
+public final class QLSimulatorTrial {
 
 	/**
 	 * 全体の反復回数.
@@ -40,7 +40,7 @@ public final class QLSimulator {
 	/**
 	 * コンストラクタ. (プライベート化)
 	 */
-	private QLSimulator() {
+	private QLSimulatorTrial() {
 		super();
 		return;
 	}
@@ -54,7 +54,7 @@ public final class QLSimulator {
 	public static void main(final String[] args) {
 
 		System.out.println("Start ...");
-		QLSimulator simulator = new QLSimulator();
+		QLSimulatorTrial simulator = new QLSimulatorTrial();
 		simulator.qLearning();
 		System.out.println("... Fin.");
 
@@ -66,11 +66,9 @@ public final class QLSimulator {
 	 */
 	private void qLearning() {
 
-		// 最良エージェント
-		QLearningAgent bestAgent = null;
-
 		// 学習エージェントを生成する
-		QLearningAgent agent = new QLearningAgent(agentID); // 再現性確保のため乱数種を固定する
+		QLearningAgentTrial agent = new QLearningAgentTrial(agentID); // 再現性確保のため乱数種を固定する
+
 		
 		// 報酬評価器を生成する
 		RewardEvaluator evaluator = new RewardEvaluator();
@@ -106,23 +104,20 @@ public final class QLSimulator {
 			}
 
 			// 学習速度のコンソール出力
-			// System.out
-			// .printf("%8.4f\t", sumLearningIndex1
-			// / (double) ITERATION_WITH_EXPLORING);
-			// System.out.printf("%10.4f\t",
-			// sumLearningIndex2 / (double) ITERATION_WITHOUT_EXPLORING);
-			// System.out.println();
+			System.out.printf("%8.4f\t", sumLearningIndex1 / (double) ITERATION_WITH_EXPLORING);
+			System.out.printf("%10.4f\t", sumLearningIndex2 / (double) ITERATION_WITHOUT_EXPLORING);
+			System.out.printf(":\t");
 
 			double sumDelayRate = 0.0e0D;
 			double sumCostOverrunRate = 0.0e0D;
 			double sumDelay = 0.0e0D;
 			double sumCostOverrun = 0.0e0D;
 			double sumReward = 0.0e0D;
-			double sumDelayRate0 = 0.0e0D;
-			double sumCostOverrunRate0 = 0.0e0D;
-			double sumDelay0 = 0.0e0D;
-			double sumCostOverrun0 = 0.0e0D;
-			double sumReward0 = 0.0e0D;
+//			double sumDelayRate0 = 0.0e0D;
+//			double sumCostOverrunRate0 = 0.0e0D;
+//			double sumDelay0 = 0.0e0D;
+//			double sumCostOverrun0 = 0.0e0D;
+//			double sumReward0 = 0.0e0D;
 
 			// 学習結果の評価
 			for (int i = 0; i < LAST_EVALUATIONS; i++) {
@@ -141,56 +136,10 @@ public final class QLSimulator {
 				sumDelay += project.observe().getScheduleDelay();
 				sumCostOverrun += project.observe().getCostOverrun();
 
-				// 最良学習エージェントにもプロジェクトを実行させる
-				if (null == bestAgent) {
-					bestAgent = agent.agentClone();
-				}
-
-				// プロジェクトを生成する(プロジェクト属性は同一)
-				ProjectModel project0 = new ProjectModel(1000.0e0D, 20.0e0D,
-						1.0e0D * this.safetyRate, 1.0e0D);
-
-				// プロジェクトを実施する
-				performProject(project0, bestAgent, evaluator, false, false);
-
-				// 学習結果の評価を行う
-				sumReward0 += evaluator.evaluate(project0.observe());
-				sumDelayRate0 += project0.observe().getScheduleDelayRate();
-				sumCostOverrunRate0 += project0.observe().getCostOverrunRate();
-				sumDelay0 += project0.observe().getScheduleDelay();
-				sumCostOverrun0 += project0.observe().getCostOverrun();
 			}
 
 			// 評価結果のコンソール出力
 			System.out.print("\t");
-			System.out.printf("%10.4f\t",
-					sumDelayRate / (double) LAST_EVALUATIONS);
-			System.out.printf("%10.4f\t",
-					sumCostOverrunRate / (double) LAST_EVALUATIONS);
-			System.out.printf("%10.4f\t", sumDelay / (double) LAST_EVALUATIONS);
-			System.out.printf("%10.4f\t",
-					sumCostOverrun / (double) LAST_EVALUATIONS);
-			System.out.printf("%10.4f\t",
-					sumReward / (double) LAST_EVALUATIONS);
-
-			// 最良学習エージェントと結果を比較し淘汰する
-			if (sumReward0 < sumReward) {
-				// 現行エージェントの方が評価が高い場合
-				// 最良学習エージェントを置換する
-				bestAgent = agent.agentClone();
-				System.out.print("*\t");
-			} else {
-				// 現行エージェントの方が評価が低い場合
-				// 最良学習エージェントの結果に置換する
-				sumReward = sumReward0;
-				sumDelayRate = sumDelayRate0;
-				sumCostOverrunRate = sumCostOverrunRate0;
-				sumDelay = sumDelay0;
-				sumCostOverrun = sumCostOverrun0;
-				System.out.print("\t");
-			}
-
-			// 評価結果のコンソール出力
 			System.out.printf("%10.4f\t",
 					sumDelayRate / (double) LAST_EVALUATIONS);
 			System.out.printf("%10.4f\t",
@@ -222,7 +171,7 @@ public final class QLSimulator {
 	 * @return 学習収束度パラメータ
 	 */
 	private double performProject(final ProjectModel project,
-			final QLearningAgent agent, final RewardEvaluator evaluator,
+			final QLearningAgentTrial agent, final RewardEvaluator evaluator,
 			final boolean exploring, final boolean learning) {
 
 		double learningIndex = 0.0e0D;
@@ -253,7 +202,7 @@ public final class QLSimulator {
 			}
 
 		} while (!postState.isComplete());
-
+		
 		return learningIndex / (double) postState.getSimTime();
 	}
 }
