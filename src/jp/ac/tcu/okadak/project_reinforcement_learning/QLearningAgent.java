@@ -180,22 +180,28 @@ public class QLearningAgent {
 		int scopeAdjust = 0;
 
 		// 状態量 progressRate の値を離散化する.
-		int progressRate = discretizeProgressRate(state.getProgressRate());
+		double dPrgR = state.getProgressRate();
+		int iPrgR = discretizeProgressRate(dPrgR);
 
 		// 状態量 SPI の値を離散化する
-		int spi = discretizeSpi(state.getSPI());
+		double dSpi = state.getSPI();
+		int iSpi = discretizeSpi(dSpi);
 
 		// 状態量 CPI の値を離散化する
-		int cpi = discretizeCpi(state.getCPI());
+		double dCpi = state.getCPI();
+		int iCpi = discretizeCpi(dCpi);
 
 		// 状態量 averageApplyingPressure の値を離散化する
-		int averageApplyingPressure = discretizeAverageApplyingPressure(state.getAverageAP());
+		double dAvgAppPrs = state.getAverageAP();
+		int iAvgAppPrs = discretizeAverageApplyingPressure(dAvgAppPrs);
 
 		// 状態量 averageIncreasingEfforts の値を離散化する
-		int averageIncreasingEfforts = discretizeAverageIncreasingEfforts(state.getAverageIE());
+		double dAvgIncEff = state.getAverageIE();
+		int iAvgIncEff = discretizeAverageIncreasingEfforts(dAvgIncEff);
 
 		// 状態量 averageScopeAdjust の値を離散化する
-		int averageScopeAdjust = discretizeAverageScopeAdjust(state.getAverageSA());
+		double dAvgScpAdj = state.getAverageSA();
+		int iAvgScpAdj = discretizeAverageScopeAdjust(dAvgScpAdj);
 
 		if ((epsilon < this.randomizer.nextDouble()) || (!exploring)) {
 			// 最適値を適用する
@@ -206,8 +212,8 @@ public class QLearningAgent {
 			for (int a0 = 0; a0 < 4; a0++) {
 				for (int a1 = 0; a1 < 4; a1++) {
 					for (int a2 = 0; a2 < 4; a2++) {
-						if (qTable[progressRate][spi][cpi][averageApplyingPressure][averageIncreasingEfforts][averageScopeAdjust][a0][a1][a2] > maxQ) {
-							maxQ = qTable[progressRate][spi][cpi][averageApplyingPressure][averageIncreasingEfforts][averageScopeAdjust][a0][a1][a2];
+						if (qTable[iPrgR][iSpi][iCpi][iAvgAppPrs][iAvgIncEff][iAvgScpAdj][a0][a1][a2] > maxQ) {
+							maxQ = qTable[iPrgR][iSpi][iCpi][iAvgAppPrs][iAvgIncEff][iAvgScpAdj][a0][a1][a2];
 							maxArg0 = a0;
 							maxArg1 = a1;
 							maxArg2 = a2;
@@ -242,28 +248,28 @@ public class QLearningAgent {
 	double learn(ProjectState preState, ProjectManagementAction action, double reward, ProjectState postState) {
 
 		// 変化後状態量 progressRate の値を離散化する.
-		double postProgressRate = postState.getProgressRate();
-		int iPostPrgR = discretizeProgressRate(postProgressRate);
+		double dPostPrgR = postState.getProgressRate();
+		int iPostPrgR = discretizeProgressRate(dPostPrgR);
 
 		// 変化後状態量 SPI の値を離散化する
-		double postSpi = postState.getSPI();
-		int iPostSpi = discretizeSpi(postSpi);
+		double dPostSpi = postState.getSPI();
+		int iPostSpi = discretizeSpi(dPostSpi);
 
 		// 変化後状態量 CPI の値を離散化する
-		double postCpi = postState.getCPI();
-		int iPostCpi = discretizeCpi(postCpi);
+		double dPostCpi = postState.getCPI();
+		int iPostCpi = discretizeCpi(dPostCpi);
 
 		// 変化後状態量 averageApplyingPressure の値を離散化する
-		double postAverageApplyingPressure = postState.getAverageAP();
-		int iPostAvgAppPrs = discretizeAverageApplyingPressure(postAverageApplyingPressure);
+		double dPostAvgAppPrs = postState.getAverageAP();
+		int iPostAvgAppPrs = discretizeAverageApplyingPressure(dPostAvgAppPrs);
 
 		// 変化後状態量 averageIncreasingEfforts の値を離散化する
-		double postAverageIncreasingEfforts = postState.getAverageIE();
-		int iPostAvgIncEff = discretizeAverageIncreasingEfforts(postAverageIncreasingEfforts);
+		double dPostAvgIncEff = postState.getAverageIE();
+		int iPostAvgIncEff = discretizeAverageIncreasingEfforts(dPostAvgIncEff);
 
 		// 変化後状態量 averageScopeAdjust の値を離散化する
-		double postAverageScopeAdjust = postState.getAverageSA();
-		int iPostAvgScpAdj = discretizeAverageScopeAdjust(postAverageScopeAdjust);
+		double dPostAvgScpAdj = postState.getAverageSA();
+		int iPostAvgScpAdj = discretizeAverageScopeAdjust(dPostAvgScpAdj);
 
 		// 状態変化後の最適値を検索
 		double maxQ = -1.0e8;
