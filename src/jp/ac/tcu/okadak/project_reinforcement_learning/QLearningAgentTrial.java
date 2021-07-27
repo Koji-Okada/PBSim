@@ -1,6 +1,12 @@
 package jp.ac.tcu.okadak.project_reinforcement_learning;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Random;
+
+import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.dataset.DataSet;
+import org.nd4j.linalg.factory.Nd4j;
 
 /**
  * 学習エージェント.
@@ -32,12 +38,12 @@ public class QLearningAgentTrial {
 	// ======================================================
 	
 	
-	private int maxRec = 256 * 64;
+	private int maxRec = 256 * 4;
 	
 	/**
 	 * 記録. 
 	 */
-	private double recordsIn[][] = new double[9][maxRec];
+	private double recordsIn[][] = new double[maxRec][9];
 	private double recordsOut[] = new double[maxRec];
 	
 	private int recCounter = 0;
@@ -52,15 +58,15 @@ public class QLearningAgentTrial {
 			double iPreAvgIncEff, double iPreAvgScpAdj, double iAppPrs, double iIncEff, double iScpAdj) {
 			
 		recordsOut[recCounter] = updateQ;
-		recordsIn[0][recCounter] = iPrePrgR;
-		recordsIn[1][recCounter] = iPreSpi;
-		recordsIn[2][recCounter] = iPreCpi;
-		recordsIn[3][recCounter] = iPreAvgAppPrs;
-		recordsIn[4][recCounter] = iPreAvgIncEff;
-		recordsIn[5][recCounter] = iPreAvgScpAdj;
-		recordsIn[6][recCounter] = iAppPrs;
-		recordsIn[7][recCounter] = iIncEff;
-		recordsIn[8][recCounter] = iScpAdj;
+		recordsIn[recCounter][0] = iPrePrgR;
+		recordsIn[recCounter][1] = iPreSpi;
+		recordsIn[recCounter][2] = iPreCpi;
+		recordsIn[recCounter][3] = iPreAvgAppPrs;
+		recordsIn[recCounter][4] = iPreAvgIncEff;
+		recordsIn[recCounter][5] = iPreAvgScpAdj;
+		recordsIn[recCounter][6] = iAppPrs;
+		recordsIn[recCounter][7] = iIncEff;
+		recordsIn[recCounter][8] = iScpAdj;
 		
 		if (maxRec == ++recCounter) {
 			clearRecords();
@@ -68,6 +74,25 @@ public class QLearningAgentTrial {
 		
 		return;
 	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	List<DataSet> getRecords() {
+	
+		Random rdm = new Random();
+		
+		INDArray in = Nd4j.create(recordsIn);
+		INDArray out = Nd4j.create(recordsOut);
+		
+		DataSet allData = new DataSet(in, out);
+		List<DataSet> list = allData.asList();
+		Collections.shuffle(list, rdm);
+
+		return list;
+	}
+	
 	
 	/**
 	 * 記録を消去する.
@@ -78,8 +103,6 @@ public class QLearningAgentTrial {
 		recCounter = 0;
 		return;
 	}
-	
-	
 	
 	// ======================================================	
 	/**
