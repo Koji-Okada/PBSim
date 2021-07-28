@@ -8,7 +8,6 @@ import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
-import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
@@ -17,6 +16,10 @@ import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
+/**
+ *
+ * @author K.Okada
+ */
 public class QNet {
 
 	/**
@@ -27,8 +30,12 @@ public class QNet {
 	 */
 	public static void main(final String[] args) {
 
-		QNet tr = new QNet();
-		tr.perform();
+		System.out.println("Start QNet ...");
+
+		QNet qNetObj = new QNet();
+		qNetObj.generateQNet();
+
+		System.out.println("... Fin.");
 
 		return;
 	}
@@ -36,48 +43,51 @@ public class QNet {
 	/**
 	 *
 	 */
-	Random rdm = new Random();
+
+	private MultiLayerNetwork qNet;
+	private Random rdm = new Random();
 
 	/**
 	 *
+	 * Q-Netを生成する.
+	 *
+	 * @return QNet本体
 	 */
-	void perform() {
-		System.out.println("Trial start ...");
+	MultiLayerNetwork generateQNet() {
 
 		// ニューラルネット構成を定義する
 		MultiLayerConfiguration nnConf = nnConfiguration();
 
 		// ニューラルネットを生成する
-		MultiLayerNetwork nn = new MultiLayerNetwork(nnConf);
-		nn.init();
-		nn.setListeners(new ScoreIterationListener(1));
+		qNet = new MultiLayerNetwork(nnConf);
+		qNet.init();
+//		qNet.setListeners(new ScoreIterationListener(1));
 
 		// データセットを生成する
 		DataSet allData = generateData();
 
-
-		// 学習させる
+		// 学習する
 		int nEpochs = 256;
 		for (int i = 0; i < nEpochs; i++) {
 
-			SplitTestAndTrain tat = allData.splitTestAndTrain(256 * 7, rdm);
-			DataSet train = tat.getTrain();
-			DataSet test = tat.getTest();
+			// 訓練用データとテスト用データに分割する
+			SplitTestAndTrain splitData = allData.splitTestAndTrain(256 * 7, rdm);
+			DataSet trainData = splitData.getTrain();
+			DataSet testData = splitData.getTest();
 
-//			System.out.println(test);
-
-			nn.fit(train);
-			double score = nn.score(test);
+			qNet.fit(trainData);	// 学習する
+			double score = qNet.score(testData);	// テストする
 
 			System.out.println("---- " + i + " :\t" + score);
-
 		}
-		System.out.println("... Fin.");
+		return qNet;
 	}
 
 	/**
 	 *
-	 * @return
+	 * ネットトポロジーの定義.
+	 *
+	 * @return ネットトポロジー.
 	 */
 	private MultiLayerConfiguration nnConfiguration() {
 		double learningRate = 0.01e0D;
@@ -108,18 +118,20 @@ public class QNet {
 
 		MultiLayerConfiguration nnConf = nBldr.list().layer(layer1).layer(layer2).build();
 
-
 		return nnConf;
 	}
 
+
 	/**
+	 *
 	 * データセットの生成.
+	 *
+	 * @return データセット
 	 */
 	private DataSet generateData() {
 
 		int cMax = 9;
 		int rMax = 256 * 8;
-
 
 		// 入力側データを設定する
 		double[][] data = new double[rMax][cMax];
@@ -141,26 +153,5 @@ public class QNet {
 		DataSet allData = new DataSet(in, out);
 
 		return allData;
-	}
-
-	/**
-	 *
-	 * @return
-	 */
-	private INDArray generateX() {
-
-		int cMax = 9;
-		int rMax = 16;
-
-		// 入力側データを設定する
-		double[][] data = new double[rMax][cMax];
-		for (int i = 0; i < rMax; i++) {
-			for (int j = 0; j < cMax; j++) {
-				data[i][j] = (double) rdm.nextDouble();
-			}
-		}
-		INDArray in = Nd4j.create(data);
-
-		return in;
 	}
 }
