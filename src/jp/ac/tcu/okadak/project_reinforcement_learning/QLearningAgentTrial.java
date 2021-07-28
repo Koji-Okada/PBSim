@@ -1,7 +1,5 @@
 package jp.ac.tcu.okadak.project_reinforcement_learning;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Random;
 
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -36,27 +34,27 @@ public class QLearningAgentTrial {
 	private Random randomizer;
 
 	// ======================================================
-	
-	
+
+
 	private int maxRec = 256 * 4;
-	
+
 	/**
-	 * 記録. 
+	 * 記録.
 	 */
 	private double recordsIn[][] = new double[maxRec][9];
 	private double recordsOut[] = new double[maxRec];
-	
+
 	private int recCounter = 0;
-	
+
 	/**
 	 * 記録を追加する.
-	 * 
+	 *
 	 * @param in
 	 * @param out
 	 */
-	private void addRecords(double updateQ, double iPrePrgR, double iPreSpi, double iPreCpi, double iPreAvgAppPrs, 
+	private void addRecords(double updateQ, double iPrePrgR, double iPreSpi, double iPreCpi, double iPreAvgAppPrs,
 			double iPreAvgIncEff, double iPreAvgScpAdj, double iAppPrs, double iIncEff, double iScpAdj) {
-			
+
 		recordsOut[recCounter] = updateQ;
 		recordsIn[recCounter][0] = iPrePrgR;
 		recordsIn[recCounter][1] = iPreSpi;
@@ -67,44 +65,40 @@ public class QLearningAgentTrial {
 		recordsIn[recCounter][6] = iAppPrs;
 		recordsIn[recCounter][7] = iIncEff;
 		recordsIn[recCounter][8] = iScpAdj;
-		
+
 		if (maxRec == ++recCounter) {
 			clearRecords();
 		}
-		
+
 		return;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return
 	 */
-	List<DataSet> getRecords() {
-	
-		Random rdm = new Random();
-		
+	DataSet getRecords() {
+
 		INDArray in = Nd4j.create(recordsIn);
 		INDArray out = Nd4j.create(recordsOut);
-		
-		DataSet allData = new DataSet(in, out);
-		List<DataSet> list = allData.asList();
-		Collections.shuffle(list, rdm);
 
-		return list;
+		DataSet allData = new DataSet(in, out);
+
+		return allData;
 	}
-	
-	
+
+
 	/**
 	 * 記録を消去する.
 	 */
 	private void clearRecords() {
 		System.out.println("! " + recCounter + " records are clear.");
-		
+
 		recCounter = 0;
 		return;
 	}
-	
-	// ======================================================	
+
+	// ======================================================
 	/**
 	 * Qテーブル. Qテーブルの構成は以下の 9次元配列 == STATE == [progress] [spi] [cpi] [averageAP]
 	 * [averageIE] [averageSA] == ACTION == [applyingPressure] [IncreasingEffort]
@@ -191,15 +185,15 @@ public class QLearningAgentTrial {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param agentID
 	 */
 	QLearningAgentTrial(int agentID) {
-		
+
 		this();
 		this.SetRandomSeed(agentID);
 	}
-	
+
 	/**
 	 * 乱数生成器の乱数種を設定する (再現性確保のため)
 	 */
@@ -393,19 +387,19 @@ public class QLearningAgentTrial {
 
 		// 制御行動 applyingPressure の値を離散化(テーブル用)する
 		int iAppPrs = action.getApplyingPressure() + 1;
-		
+
 		// 制御行動 applyingPressure の値を離散化(テーブル用)する
 		int iIncEff = action.getIncreasingEffort() + 1;
 
 		// 制御行動 scopeAdjust の値を離散化(テーブル用)する
-		int iScpAdj = action.getScopeAdjust() + 1;		
-		
+		int iScpAdj = action.getScopeAdjust() + 1;
+
 		double q0 = qTable[iPrePrgR][iPreSpi][iPreCpi][iPreAvgAppPrs][iPreAvgIncEff][iPreAvgScpAdj][iAppPrs][iIncEff][iScpAdj];
 		double q1 = reward + gamma * maxQ;
 		double updateQ = (1.0e0 - alpha) * q0 + alpha * q1;
 
 		addRecords(updateQ, dPrePrgR, dPreSpi, dPreCpi, dPreAvgAppPrs, dPreAvgIncEff, dPreAvgScpAdj, (double)iAppPrs, (double)iIncEff, (double)iScpAdj);
-		
+
 		qTable[iPrePrgR][iPreSpi][iPreCpi][iPreAvgAppPrs][iPreAvgIncEff][iPreAvgScpAdj][iAppPrs][iIncEff][iScpAdj] = updateQ;
 
 		return (q1 - q0) * (q1 - q0);

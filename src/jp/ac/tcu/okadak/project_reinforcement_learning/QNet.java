@@ -1,10 +1,7 @@
 package jp.ac.tcu.okadak.project_reinforcement_learning;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Random;
 
-import org.deeplearning4j.datasets.iterator.impl.ListDataSetIterator;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
@@ -15,7 +12,7 @@ import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
-import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
+import org.nd4j.linalg.dataset.SplitTestAndTrain;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
@@ -23,8 +20,8 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
 public class QNet {
 
 	/**
-	 * 
-	 * 
+	 *
+	 *
 	 * @param args
 	 * @author K.Okada
 	 */
@@ -32,17 +29,17 @@ public class QNet {
 
 		QNet tr = new QNet();
 		tr.perform();
-		
+
 		return;
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	Random rdm = new Random();
 
 	/**
-	 * 
+	 *
 	 */
 	void perform() {
 		System.out.println("Trial start ...");
@@ -54,31 +51,32 @@ public class QNet {
 		MultiLayerNetwork nn = new MultiLayerNetwork(nnConf);
 		nn.init();
 		nn.setListeners(new ScoreIterationListener(1));
-		
+
 		// データセットを生成する
-		List<DataSet> list = generateData();
+		DataSet allData = generateData();
+
 
 		// 学習させる
-		int nEpochs = 10;
-		DataSetIterator it = new ListDataSetIterator<DataSet>(list);
+		int nEpochs = 256;
 		for (int i = 0; i < nEpochs; i++) {
-			it.reset();
-			nn.fit(it);
 
-			System.out.println("---- " + i);
+			SplitTestAndTrain tat = allData.splitTestAndTrain(256 * 7, rdm);
+			DataSet train = tat.getTrain();
+			DataSet test = tat.getTest();
 
-			// 学習結果を確認する
-			INDArray smpl = generateX();
-//			List<INDArray> y = nn.feedForward(smpl);
-			INDArray y = nn.output(smpl);
+//			System.out.println(test);
 
-			System.out.println(y);
+			nn.fit(train);
+			double score = nn.score(test);
+
+			System.out.println("---- " + i + " :\t" + score);
+
 		}
 		System.out.println("... Fin.");
 	}
 
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	private MultiLayerConfiguration nnConfiguration() {
@@ -110,16 +108,18 @@ public class QNet {
 
 		MultiLayerConfiguration nnConf = nBldr.list().layer(layer1).layer(layer2).build();
 
+
 		return nnConf;
 	}
 
 	/**
 	 * データセットの生成.
 	 */
-	private List<DataSet> generateData() {
+	private DataSet generateData() {
 
 		int cMax = 9;
-		int rMax = 1024;
+		int rMax = 256 * 8;
+
 
 		// 入力側データを設定する
 		double[][] data = new double[rMax][cMax];
@@ -139,14 +139,12 @@ public class QNet {
 
 		// データセットとして整える
 		DataSet allData = new DataSet(in, out);
-		List<DataSet> list = allData.asList();
-		Collections.shuffle(list, rdm);
 
-		return list;
+		return allData;
 	}
 
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	private INDArray generateX() {
