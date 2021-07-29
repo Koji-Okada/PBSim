@@ -2,10 +2,6 @@ package jp.ac.tcu.okadak.project_reinforcement_learning;
 
 import java.util.Random;
 
-import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.dataset.DataSet;
-import org.nd4j.linalg.factory.Nd4j;
-
 /**
  * 学習エージェント.
  *
@@ -34,14 +30,15 @@ public class QLearningAgentTrial {
 	private Random randomizer;
 
 	// ======================================================
-
-
-	private int maxRec = 256 * 4;
-
+	private int maxRec = 256 * 8;
+	private int nStParam = 6;
+	private int nAcParam = 3;
+	private int nParam = nStParam + nAcParam;
+	
 	/**
 	 * 記録.
 	 */
-	private double recordsIn[][] = new double[maxRec][9];
+	private double recordsIn[][] = new double[maxRec][nParam];
 	private double recordsOut[] = new double[maxRec];
 
 	private int recCounter = 0;
@@ -52,19 +49,19 @@ public class QLearningAgentTrial {
 	 * @param in
 	 * @param out
 	 */
-	private void addRecords(double updateQ, double iPrePrgR, double iPreSpi, double iPreCpi, double iPreAvgAppPrs,
-			double iPreAvgIncEff, double iPreAvgScpAdj, double iAppPrs, double iIncEff, double iScpAdj) {
+	private void addRecords(double updateQ, double dPrePrgR, double dPreSpi, double dPreCpi, double dPreAvgAppPrs,
+			double dPreAvgIncEff, double dPreAvgScpAdj, int iAppPrs, int iIncEff, int iScpAdj) {
 
 		recordsOut[recCounter] = updateQ;
-		recordsIn[recCounter][0] = iPrePrgR;
-		recordsIn[recCounter][1] = iPreSpi;
-		recordsIn[recCounter][2] = iPreCpi;
-		recordsIn[recCounter][3] = iPreAvgAppPrs;
-		recordsIn[recCounter][4] = iPreAvgIncEff;
-		recordsIn[recCounter][5] = iPreAvgScpAdj;
-		recordsIn[recCounter][6] = iAppPrs;
-		recordsIn[recCounter][7] = iIncEff;
-		recordsIn[recCounter][8] = iScpAdj;
+		recordsIn[recCounter][0] = dPrePrgR;
+		recordsIn[recCounter][1] = dPreSpi;
+		recordsIn[recCounter][2] = dPreCpi;
+		recordsIn[recCounter][3] = dPreAvgAppPrs;
+		recordsIn[recCounter][4] = dPreAvgIncEff;
+		recordsIn[recCounter][5] = dPreAvgScpAdj;
+		recordsIn[recCounter][6] = (double)iAppPrs;
+		recordsIn[recCounter][7] = (double)iIncEff;
+		recordsIn[recCounter][8] = (double)iScpAdj;
 
 		if (maxRec == ++recCounter) {
 			clearRecords();
@@ -72,21 +69,6 @@ public class QLearningAgentTrial {
 
 		return;
 	}
-
-	/**
-	 *
-	 * @return
-	 */
-	DataSet getRecords() {
-
-		INDArray in = Nd4j.create(recordsIn);
-		INDArray out = Nd4j.create(recordsOut);
-
-		DataSet allData = new DataSet(in, out);
-
-		return allData;
-	}
-
 
 	/**
 	 * 記録を消去する.
@@ -97,7 +79,7 @@ public class QLearningAgentTrial {
 		recCounter = 0;
 		return;
 	}
-
+	
 	// ======================================================
 	/**
 	 * Qテーブル. Qテーブルの構成は以下の 9次元配列 == STATE == [progress] [spi] [cpi] [averageAP]
@@ -192,6 +174,8 @@ public class QLearningAgentTrial {
 
 		this();
 		this.SetRandomSeed(agentID);
+		
+		return;
 	}
 
 	/**
@@ -385,20 +369,20 @@ public class QLearningAgentTrial {
 		double dPreAvgScpAdj = preState.getAverageSA();
 		int iPreAvgScpAdj = discretizeAverageScopeAdjust(dPreAvgScpAdj);
 
-		// 制御行動 applyingPressure の値を離散化(テーブル用)する
+		// 制御行動 applyingPressure の値を変換(テーブル用)する
 		int iAppPrs = action.getApplyingPressure() + 1;
 
-		// 制御行動 applyingPressure の値を離散化(テーブル用)する
+		// 制御行動 applyingPressure の値を変換(テーブル用)する
 		int iIncEff = action.getIncreasingEffort() + 1;
 
-		// 制御行動 scopeAdjust の値を離散化(テーブル用)する
+		// 制御行動 scopeAdjust の値を変換(テーブル用)する
 		int iScpAdj = action.getScopeAdjust() + 1;
 
 		double q0 = qTable[iPrePrgR][iPreSpi][iPreCpi][iPreAvgAppPrs][iPreAvgIncEff][iPreAvgScpAdj][iAppPrs][iIncEff][iScpAdj];
 		double q1 = reward + gamma * maxQ;
 		double updateQ = (1.0e0 - alpha) * q0 + alpha * q1;
 
-		addRecords(updateQ, dPrePrgR, dPreSpi, dPreCpi, dPreAvgAppPrs, dPreAvgIncEff, dPreAvgScpAdj, (double)iAppPrs, (double)iIncEff, (double)iScpAdj);
+		addRecords(updateQ, dPrePrgR, dPreSpi, dPreCpi, dPreAvgAppPrs, dPreAvgIncEff, dPreAvgScpAdj, iAppPrs, iIncEff, iScpAdj);
 
 		qTable[iPrePrgR][iPreSpi][iPreCpi][iPreAvgAppPrs][iPreAvgIncEff][iPreAvgScpAdj][iAppPrs][iIncEff][iScpAdj] = updateQ;
 

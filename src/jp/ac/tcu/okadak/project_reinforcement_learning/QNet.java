@@ -22,6 +22,14 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
  */
 public class QNet {
 
+	
+	/**
+	 *
+	 */
+	private MultiLayerNetwork qNet;
+	private Random rdm = new Random();
+
+	
 	/**
 	 *
 	 *
@@ -33,30 +41,23 @@ public class QNet {
 		System.out.println("Start QNet ...");
 
 		QNet qNetObj = new QNet();
-		qNetObj.generateQNet();
-
+		qNetObj.init(9);
+		
 		System.out.println("... Fin.");
 
 		return;
 	}
-
+	
+	
 	/**
-	 *
-	 */
-
-	private MultiLayerNetwork qNet;
-	private Random rdm = new Random();
-
-	/**
-	 *
 	 * Q-Netを生成する.
 	 *
 	 * @return QNet本体
 	 */
-	MultiLayerNetwork generateQNet() {
+	void init(int dimensions) {
 
 		// ニューラルネット構成を定義する
-		MultiLayerConfiguration nnConf = nnConfiguration();
+		MultiLayerConfiguration nnConf = nnConfiguration(dimensions);
 
 		// ニューラルネットを生成する
 		qNet = new MultiLayerNetwork(nnConf);
@@ -64,7 +65,7 @@ public class QNet {
 //		qNet.setListeners(new ScoreIterationListener(1));
 
 		// データセットを生成する
-		DataSet allData = generateData();
+		DataSet allData = initialData(dimensions);
 
 		// 学習する
 		int nEpochs = 256;
@@ -80,7 +81,7 @@ public class QNet {
 
 			System.out.println("---- " + i + " :\t" + score);
 		}
-		return qNet;
+		return;
 	}
 
 	/**
@@ -89,21 +90,24 @@ public class QNet {
 	 *
 	 * @return ネットトポロジー.
 	 */
-	private MultiLayerConfiguration nnConfiguration() {
+	private MultiLayerConfiguration nnConfiguration(int dimensions) {
 		double learningRate = 0.01e0D;
 		double momentum = 0.90e0D;
-
+		int nInNodes = dimensions;
+		int nMidNodes = nInNodes % 2 + 1;	// 半分に絞る
+		int nOutNodes = 1;
+		
 		// 中間層を定義する
 		DenseLayer.Builder ly1Bldr = new DenseLayer.Builder();
-		ly1Bldr.nIn(9);
-		ly1Bldr.nOut(5);
+		ly1Bldr.nIn(nInNodes);
+		ly1Bldr.nOut(nMidNodes);
 		ly1Bldr.activation(Activation.TANH);
 		DenseLayer layer1 = ly1Bldr.build();
 
 		// 出力層を定義する
 		OutputLayer.Builder ly2Bldr = new OutputLayer.Builder();
-		ly2Bldr.nIn(5);
-		ly2Bldr.nOut(1);
+		ly2Bldr.nIn(nMidNodes);
+		ly2Bldr.nOut(nOutNodes);
 		ly2Bldr.activation(Activation.IDENTITY);
 		ly2Bldr.lossFunction(LossFunctions.LossFunction.MSE);
 		OutputLayer layer2 = ly2Bldr.build();
@@ -128,9 +132,9 @@ public class QNet {
 	 *
 	 * @return データセット
 	 */
-	private DataSet generateData() {
+	private DataSet initialData(int dimensions) {
 
-		int cMax = 9;
+		int cMax = dimensions;
 		int rMax = 256 * 8;
 
 		// 入力側データを設定する
