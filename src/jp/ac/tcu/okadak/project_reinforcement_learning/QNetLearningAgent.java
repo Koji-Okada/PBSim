@@ -243,9 +243,10 @@ public class QNetLearningAgent {
 	 * @return
 	 */
 	private double transRatio(double ratio) {
+		double weight = 5.0e0D;
 		
 		double logValue = Math.log(ratio);
-		double value = 1.0e0D / (1.0e0D + Math.exp(-logValue));		
+		double value = 1.0e0D / (1.0e0D + Math.exp(-logValue * weight));		
 
 		return value;
 	}
@@ -262,6 +263,16 @@ public class QNetLearningAgent {
 		return value;
 	}
 
+	private double transLinear(int input, double max) {
+		
+		double value = (double)input / max;
+		value += (randomizer.nextDouble() - 0.5e0D) / (max * 10.0e0);
+
+		return value;
+	}
+	
+	
+	
 	// ======================================================
 	// ここからバッチ更新に関連する処理
 	
@@ -296,9 +307,9 @@ public class QNetLearningAgent {
 		recordsIn[recCounter][3] = transLinear(dPreAvgAppPrs, 4.0e0D);
 		recordsIn[recCounter][4] = transLinear(dPreAvgIncEff, 4.0e0D);
 		recordsIn[recCounter][5] = transLinear(dPreAvgScpAdj, 4.0e0D);
-		recordsIn[recCounter][6] = transLinear((double)iAppPrs, 4.0e0D);
-		recordsIn[recCounter][7] = transLinear((double)iIncEff, 4.0e0D);
-		recordsIn[recCounter][8] = transLinear((double)iScpAdj, 4.0e0D);
+		recordsIn[recCounter][6] = transLinear(iAppPrs, 4.0e0D);
+		recordsIn[recCounter][7] = transLinear(iIncEff, 4.0e0D);
+		recordsIn[recCounter][8] = transLinear(iScpAdj, 4.0e0D);
 		recordsOut[recCounter][0] = updateQ;
 
 		// ダミーのデータセットを加える

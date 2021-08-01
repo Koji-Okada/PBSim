@@ -74,7 +74,7 @@ public class QLearningAgentTrial {
 	 * 記録を消去する.
 	 */
 	private void clearRecords() {
-		System.out.println("! " + recCounter + " records are clear.");
+//		System.out.println("! " + recCounter + " records are clear.");
 
 		recCounter = 0;
 		return;

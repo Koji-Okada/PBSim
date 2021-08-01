@@ -232,7 +232,7 @@ public class QNet {
 			score = qNet.score(testData);	// テストする
 			
 			i++;
-		} while (((score > 0.1e0D) && (i < 1000)) || (i < 10));
+		} while (((score > 0.1e0D) && (i < 10000)) || (i < 10));
 			
 			System.out.println("---- " + i + " :\t" + score);
 //		}
