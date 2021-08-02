@@ -89,7 +89,7 @@ public final class QNetLSimulator {
 				sumLearningIndex1 += performProject(project, agent, evaluator,
 						true, true);
 				
-				System.out.println(" Project L" + j + "-"+ i + " completed.");
+				System.out.println(" Project " + j + "L-"+ i + " completed.");
 			}
 
 			// 学習収束度パラメータを初期化する
@@ -104,11 +104,11 @@ public final class QNetLSimulator {
 				sumLearningIndex2 += performProject(project, agent, evaluator,
 						false, true);
 				
-				System.out.println(" Project E" + j + "-"+ i + " completed.");
+				System.out.println(" Project " + j + "E-"+ i + " completed.");
 			}
 
 			// 学習速度のコンソール出力
-			System.out.printf("%8.4f\t", sumLearningIndex1 / (double) ITERATION_WITH_EXPLORING);
+			System.out.printf("* %8.4f\t", sumLearningIndex1 / (double) ITERATION_WITH_EXPLORING);
 			System.out.printf("%10.4f\t", sumLearningIndex2 / (double) ITERATION_WITHOUT_EXPLORING);
 			System.out.printf(":\t");
 
