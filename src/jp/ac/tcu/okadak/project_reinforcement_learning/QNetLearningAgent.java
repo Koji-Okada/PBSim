@@ -12,7 +12,7 @@ import org.nd4j.linalg.factory.Nd4j;
  * @author K.Okada
  */
 public class QNetLearningAgent {
-	
+
 	/**
 	 * ε-Greedy 法 の ε. この値の率で探索
 	 */
@@ -40,7 +40,7 @@ public class QNetLearningAgent {
 		// 新たな乱数生成器を生成する
 		this.randomizer = new Random(randomSeed);
 	}
-	
+
 	/**
 	 * Q-Network 関数.
 	 */
@@ -58,7 +58,7 @@ public class QNetLearningAgent {
 		// Qネット関数を生成する
 		qNet = new QNet();
 		qNet.init(9);
-		
+
 		return;
 	}
 
@@ -71,13 +71,13 @@ public class QNetLearningAgent {
 
 		this();
 		this.SetRandomSeed(agentID);
-		
+
 		return;
 	}
 
 
 	// ======================================================
-		
+
 	/**
 	 * Qテーブル配列 applyingPressure軸の上限値.
 	 */
@@ -92,8 +92,8 @@ public class QNetLearningAgent {
 	 * Qテーブル配列 scopeAdjust軸の上限値.
 	 */
 	private static final int MAX_Q_SA = 4;
-	
-	
+
+
 	/**
 	 * 行動を決定する. (ε-Greedy 法)
 	 *
@@ -124,9 +124,9 @@ public class QNetLearningAgent {
 			for (int a0 = 0; a0 < 4; a0++) {
 				for (int a1 = 0; a1 < 4; a1++) {
 					for (int a2 = 0; a2 < 4; a2++) {
-						
+
 						double qValue = getQV(dPrgR, dSpi, dCpi, dAvgAppPrs, dAvgIncEff, dAvgScpAdj, a0, a1, a2);
-						
+
 						if (qValue > maxQ) {
 							maxQ = qValue;
 							maxArg0 = a0;
@@ -168,7 +168,7 @@ public class QNetLearningAgent {
 		double dPostAvgAppPrs = postState.getAverageAP();
 		double dPostAvgIncEff = postState.getAverageIE();
 		double dPostAvgScpAdj = postState.getAverageSA();
-				
+
 		// 状態変化後の最適値を検索
 		double maxQ = -1.0e8;
 		for (int a0 = 0; a0 < 4; a0++) {
@@ -195,7 +195,7 @@ public class QNetLearningAgent {
 		double dPreAvgAppPrs = preState.getAverageAP();
 		double dPreAvgIncEff = preState.getAverageIE();
 		double dPreAvgScpAdj = preState.getAverageSA();
-				
+
 		// 制御行動 applyingPressure の値を離散化(テーブル用)する
 		int iAppPrs = action.getApplyingPressure() + 1;
 
@@ -205,7 +205,7 @@ public class QNetLearningAgent {
 		// 制御行動 scopeAdjust の値を離散化(テーブル用)する
 		int iScpAdj = action.getScopeAdjust() + 1;
 
-		double q0 = getQV(dPrePrgR, dPreSpi, dPreCpi, dPreAvgAppPrs, dPreAvgIncEff, dPreAvgScpAdj, iAppPrs, iIncEff, iScpAdj);		
+		double q0 = getQV(dPrePrgR, dPreSpi, dPreCpi, dPreAvgAppPrs, dPreAvgIncEff, dPreAvgScpAdj, iAppPrs, iIncEff, iScpAdj);
 		double q1 = reward + gamma * maxQ;
 		double updateQ = (1.0e0 - alpha) * q0 + alpha * q1;
 
@@ -214,8 +214,8 @@ public class QNetLearningAgent {
 		return (q1 - q0) * (q1 - q0);
 	}
 
-	
-	// ======================================================	
+
+	// ======================================================
 	/**
 	 * Q-Net関数により Q値を取得する.
 	 *
@@ -235,55 +235,55 @@ public class QNetLearningAgent {
 		tmp[0][8] = transLinear((double)sA, 4.0e0D);
 		INDArray index = Nd4j.create(tmp);
 		return qNet.getValue(index);
-	}	
-	
+	}
+
 	/**
-	 * 
+	 *
 	 * @param ratio
 	 * @return
 	 */
 	private double transRatio(double ratio) {
 		double weight = 5.0e0D;
-		
+
 		double logValue = Math.log(ratio);
-		double value = 1.0e0D / (1.0e0D + Math.exp(-logValue * weight));		
+		double value = 1.0e0D / (1.0e0D + Math.exp(-logValue * weight));
 
 		return value;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param input
 	 * @return
 	 */
 	private double transLinear(double input, double max) {
-		
-		double value = input / max;		
+
+		double value = input / max;
 
 		return value;
 	}
 
 	private double transLinear(int input, double max) {
-		
+
 		double value = (double)input / max;
 		value += (randomizer.nextDouble() - 0.5e0D) / (max * 10.0e0);
 
 		return value;
 	}
-	
-	
-	
+
+
+
 	// ======================================================
 	// ここからバッチ更新に関連する処理
-	
+
 	private int batchSize = 256 * 2;		// バッチサイズ.
 	private int dummyRate = 3;				// ダミーの比率.
-	
-	private int maxRec = batchSize + (1 + dummyRate);
+
+	private int maxRec = batchSize * (1 + dummyRate);
 	private int nStParam = 6;
 	private int nAcParam = 3;
 	private int nParam = nStParam + nAcParam;
-	
+
 	/**
 	 * 記録保持領域.
 	 */
@@ -299,7 +299,7 @@ public class QNetLearningAgent {
 	 */
 	private void addRecords(double updateQ, double dPrePrgR, double dPreSpi, double dPreCpi, double dPreAvgAppPrs,
 			double dPreAvgIncEff, double dPreAvgScpAdj, int iAppPrs, int iIncEff, int iScpAdj) {
-		
+
 		// データセットを加える
 		recordsIn[recCounter][0] = transLinear(dPrePrgR, 10.0e0D);
 		recordsIn[recCounter][1] = transRatio(dPreSpi);
@@ -315,28 +315,28 @@ public class QNetLearningAgent {
 		// ダミーのデータセットを加える
 		for (int i = 0; i < dummyRate ; i++) {
 			++ recCounter;
-			
+
 			double[][] tmp = new double[1][9];
-			
+
 			for (int j = 0; j < 9; j++) {
 				recordsIn[recCounter][j] = tmp[0][j] = qNet.sampleX();
 			}
 			INDArray index = Nd4j.create(tmp);
-			recordsOut[recCounter][0] = qNet.getValue(index);		
+			recordsOut[recCounter][0] = qNet.getValue(index);
 		}
 
-		
+
 		if (maxRec == ++recCounter) {
 			// バッチサイズ上限に達した場合
-			
+
 			INDArray in = Nd4j.create(recordsIn);
 			INDArray out = Nd4j.create(recordsOut);
 
 			DataSet allData = new DataSet(in, out);
-			
+
 			double v = qNet.update(allData);	// 更新処理.
 			recCounter = 0;						// 記録消去.
-			
+
 			System.out.println("! Update : " + v);
 		}
 
