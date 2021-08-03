@@ -16,12 +16,12 @@ public final class QNetLSimulator {
 	/**
 	 * 探索学習モードでの反復回数.
 	 */
-	private static final int ITERATION_WITH_EXPLORING = 80;
+	private static final int ITERATION_WITH_EXPLORING = 800;
 
 	/**
 	 * 収束学習モードでの反復回数.
 	 */
-	private static final int ITERATION_WITHOUT_EXPLORING = 20;
+	private static final int ITERATION_WITHOUT_EXPLORING = 200;
 
 	/**
 	 * 学習結果評価用の反復数.
@@ -69,7 +69,7 @@ public final class QNetLSimulator {
 		// 学習エージェントを生成する
 		QNetLearningAgent agent = new QNetLearningAgent(agentID); // 再現性確保のため乱数種を固定する
 
-		
+
 		// 報酬評価器を生成する
 		RewardEvaluator evaluator = new RewardEvaluator();
 
@@ -88,7 +88,7 @@ public final class QNetLSimulator {
 				// プロジェクトを実施する
 				sumLearningIndex1 += performProject(project, agent, evaluator,
 						true, true);
-				
+
 				System.out.println(" Project " + j + "L-"+ i + " completed.");
 			}
 
@@ -103,7 +103,7 @@ public final class QNetLSimulator {
 				// プロジェクトを実施する
 				sumLearningIndex2 += performProject(project, agent, evaluator,
 						false, true);
-				
+
 				System.out.println(" Project " + j + "E-"+ i + " completed.");
 			}
 
@@ -190,6 +190,11 @@ public final class QNetLSimulator {
 			ProjectManagementAction action = agent.decideAction(preState,
 					exploring);
 
+//			if ((!exploring) && (!learning)) {
+//			System.out.println(" act = " +
+//			action.getApplyingPressure() + ":" + action.getIncreasingEffort() + ":" + action.getScopeAdjust());
+//			}
+
 			// 環境に対して行動を行う
 			project.perform(action);
 
@@ -206,7 +211,7 @@ public final class QNetLSimulator {
 			}
 
 		} while (!postState.isComplete());
-		
+
 		return learningIndex / (double) postState.getSimTime();
 	}
 }

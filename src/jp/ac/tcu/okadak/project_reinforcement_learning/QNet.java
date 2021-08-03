@@ -38,7 +38,8 @@ public class QNet {
 
 	// エポック数
 	private int nEpochsInitialize = 256;
-	private int nEpochsUpdate = 256;
+//	private int nEpochsUpdate = 256;
+	private int nEpochsUpdate = 1024;
 
 	/**
 	 *
@@ -118,14 +119,14 @@ public class QNet {
 
 	/**
 	 * ネットワーク構成を定義する.
-	 * 
+	 *
 	 * @return ネット構成の定義.
 	 */
 	private MultiLayerConfiguration nnConfiguration() {
 		double learningRate = 0.01e0D;
 		double momentum = 0.90e0D;
 		int nInNodes = dimensions;
-				int nMidNodes = nInNodes % 2 + 1; // 半分に絞る
+		int nMidNodes = nInNodes % 2 + 1; // 半分に絞る
 		int nOutNodes = 1;
 
 		// 中間層を定義する
@@ -181,9 +182,9 @@ public class QNet {
 		for (int i = 0; i < rMax; i++) {
 			res[i][0] = 0.0e0D;
 
-			if (10 == i) {
-				res[i][0] = 1.0e3D;
-			}
+//			if (10 == i) {
+//				res[i][0] = 1.0e3D;
+//			}
 
 		}
 		INDArray out = Nd4j.create(res);
@@ -196,7 +197,7 @@ public class QNet {
 
 	/**
 	 * 広がりを考慮してサンプル値(スカラー)を取得する.
-	 * 
+	 *
 	 * @param ext
 	 * @return
 	 */
@@ -208,7 +209,7 @@ public class QNet {
 
 	/**
 	 * データを与え Q-Netを更新する.
-	 * 
+	 *
 	 * @param data
 	 * @return
 	 */
@@ -217,8 +218,8 @@ public class QNet {
 //		System.out.println(data);
 
 		// 学習する
-//		int nEpochs = nEpochsUpdate;
-		int nEpochs = 1;
+		int nEpochs = nEpochsUpdate;
+//		int nEpochs = 1;
 
 		double score = 1.0e3D; // 大きめの値から
 		for (int i = 0; i < nEpochs; i++) {
@@ -244,7 +245,7 @@ public class QNet {
 
 	/**
 	 * Q関数を使って値を求める.
-	 * 
+	 *
 	 * @param in 入力値
 	 * @return 出力値
 	 */
