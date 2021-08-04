@@ -224,7 +224,7 @@ public class QNetLearningAgent {
 	private double getQV(double dPrgR, double dSpi, double dCpi, double dAvgAppPrs, double dAvgIncEff, double dAvgScpAdj, int aP, int iE, int sA) {
 
 		double[][] tmp = new double[1][9];
-		tmp[0][0] = transLinear(dPrgR, 10.0e0D);
+		tmp[0][0] = transLinear(dPrgR, 1.0e0D);
 		tmp[0][1] = transRatio(dSpi);
 		tmp[0][2] = transRatio(dCpi);
 		tmp[0][3] = transLinear(dAvgAppPrs, 4.0e0D);
@@ -260,17 +260,11 @@ public class QNetLearningAgent {
 
 		double value = input / max;
 
-		return value;
-	}
-
-	private double transLinear(int input, double max) {
-
-		double value = (double)input / max;
-		value += (randomizer.nextDouble() - 0.5e0D) / (max * 10.0e0);
+		// 揺らぎを加える
+		value += (randomizer.nextDouble() - 0.5e0D) * 1.0e-3D;
 
 		return value;
 	}
-
 
 
 	// ======================================================
@@ -301,15 +295,15 @@ public class QNetLearningAgent {
 			double dPreAvgIncEff, double dPreAvgScpAdj, int iAppPrs, int iIncEff, int iScpAdj) {
 
 		// データセットを加える
-		recordsIn[recCounter][0] = transLinear(dPrePrgR, 10.0e0D);
+		recordsIn[recCounter][0] = transLinear(dPrePrgR, 1.0e0D);
 		recordsIn[recCounter][1] = transRatio(dPreSpi);
 		recordsIn[recCounter][2] = transRatio(dPreCpi);
 		recordsIn[recCounter][3] = transLinear(dPreAvgAppPrs, 4.0e0D);
 		recordsIn[recCounter][4] = transLinear(dPreAvgIncEff, 4.0e0D);
 		recordsIn[recCounter][5] = transLinear(dPreAvgScpAdj, 4.0e0D);
-		recordsIn[recCounter][6] = transLinear(iAppPrs, 4.0e0D);
-		recordsIn[recCounter][7] = transLinear(iIncEff, 4.0e0D);
-		recordsIn[recCounter][8] = transLinear(iScpAdj, 4.0e0D);
+		recordsIn[recCounter][6] = transLinear((double)iAppPrs, 4.0e0D);
+		recordsIn[recCounter][7] = transLinear((double)iIncEff, 4.0e0D);
+		recordsIn[recCounter][8] = transLinear((double)iScpAdj, 4.0e0D);
 		recordsOut[recCounter][0] = updateQ;
 
 		// ダミーのデータセットを加える
