@@ -33,8 +33,8 @@ public class QNet {
 	private int initDataSize = 256 * 8;
 
 	// 入力値の広さ
-//	private double extSpace = 2.0e0D;
-	private double extSpace = 1.0e0D;
+	private double extSpace = 2.0e0D;
+//	private double extSpace = 1.0e0D;
 
 	// エポック数
 	private int nEpochsInitialize = 256;
@@ -111,7 +111,7 @@ public class QNet {
 			qNet.fit(trainData); // 学習する
 			score = qNet.score(testData); // テストする
 
-			System.out.println("---- " + i + " :\t" + score);
+//			System.out.println("---- " + i + " :\t" + score);
 		}
 		System.out.println("QNet Initializing complete.");
 		return score;
