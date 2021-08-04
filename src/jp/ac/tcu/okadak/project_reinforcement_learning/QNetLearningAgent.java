@@ -21,8 +21,10 @@ public class QNetLearningAgent {
 	/**
 	 * 学習率 α. この値の率で Q値を更新
 	 */
-	private double alpha = 0.10e0D;
+//	private double alpha = 0.10e0D;
+	private double alpha = 0.50e0D;
 
+	
 	/**
 	 * 割引率 γ. この値の率を乗算
 	 */

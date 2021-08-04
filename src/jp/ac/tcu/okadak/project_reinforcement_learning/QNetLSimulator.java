@@ -108,7 +108,7 @@ public final class QNetLSimulator {
 			}
 
 			// 学習速度のコンソール出力
-			System.out.printf("* %8.4f\t", sumLearningIndex1 / (double) ITERATION_WITH_EXPLORING);
+			System.out.printf("*%3d %8.4f\t", j, sumLearningIndex1 / (double) ITERATION_WITH_EXPLORING);
 			System.out.printf("%10.4f\t", sumLearningIndex2 / (double) ITERATION_WITHOUT_EXPLORING);
 			System.out.printf(":\t");
 
