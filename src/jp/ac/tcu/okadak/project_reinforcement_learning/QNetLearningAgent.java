@@ -272,8 +272,8 @@ public class QNetLearningAgent {
 	// ======================================================
 	// ここからバッチ更新に関連する処理
 
-	private int batchSize = 256 * 2;		// バッチサイズ.
-	private int dummyRate = 3;				// ダミーの比率.
+	private int batchSize = 256;		// バッチサイズ.
+	private int dummyRate = 7;				// ダミーの比率.
 
 	private int maxRec = batchSize * (1 + dummyRate);
 	private int nStParam = 6;

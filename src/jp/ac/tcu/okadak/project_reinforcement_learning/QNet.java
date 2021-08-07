@@ -33,8 +33,8 @@ public class QNet {
 	private int initDataSize = 256 * 8;
 
 	// 入力値の広さ
-	private double extSpace = 2.0e0D;
-//	private double extSpace = 1.0e0D;
+//	private double extSpace = 2.0e0D;
+	private double extSpace = 1.0e0D;
 
 	// エポック数
 	private int nEpochsInitialize = 256;
@@ -123,8 +123,8 @@ public class QNet {
 	 * @return ネット構成の定義.
 	 */
 	private MultiLayerConfiguration nnConfiguration() {
-		double learningRate = 0.01e0D;
-		double momentum = 0.90e0D;
+//		double learningRate = 0.01e0D;
+//		double momentum = 0.90e0D;
 		int nInNodes = dimensions;
 		int nMidNodes = nInNodes % 2 + 1; // 半分に絞る
 		int nOutNodes = 1;
@@ -181,11 +181,6 @@ public class QNet {
 		double[][] res = new double[rMax][1];
 		for (int i = 0; i < rMax; i++) {
 			res[i][0] = 0.0e0D;
-
-//			if (10 == i) {
-//				res[i][0] = 1.0e3D;
-//			}
-
 		}
 		INDArray out = Nd4j.create(res);
 
