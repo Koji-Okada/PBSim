@@ -139,7 +139,6 @@ public final class QNetLSimulator {
 				sumCostOverrunRate += project.observe().getCostOverrunRate();
 				sumDelay += project.observe().getScheduleDelay();
 				sumCostOverrun += project.observe().getCostOverrun();
-
 			}
 
 			// 評価結果のコンソール出力
@@ -154,6 +153,8 @@ public final class QNetLSimulator {
 			System.out.printf("%10.4f\t",
 					sumReward / (double) LAST_EVALUATIONS);
 			System.out.println();
+			
+			agent.checkQ();
 		}
 		return;
 	}

@@ -11,7 +11,6 @@ import org.deeplearning4j.nn.weights.WeightInit;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
-import org.nd4j.linalg.dataset.SplitTestAndTrain;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
@@ -59,13 +58,13 @@ public class QNet {
 		double[][] tmp10 = { { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 } };
 
 		INDArray index0 = Nd4j.create(tmp00);
-		double ans0 = qNetObj.getValue(index0);
+		double ans0 = qNetObj.getValues(index0).getDouble(0, 0);
 
 		INDArray index5 = Nd4j.create(tmp05);
-		double ans5 = qNetObj.getValue(index5);
+		double ans5 = qNetObj.getValues(index5).getDouble(0, 0);
 
 		INDArray index10 = Nd4j.create(tmp10);
-		double ans10 = qNetObj.getValue(index10);
+		double ans10 = qNetObj.getValues(index10).getDouble(0, 0);
 
 		System.out.println("ans0  = " + ans0);
 		System.out.println("ans5  = " + ans5);
@@ -102,14 +101,15 @@ public class QNet {
 		double score = 0.0e0D;
 		for (int i = 0; i < nEpochs; i++) {
 
+			allData.shuffle();
 			// 訓練用データとテスト用データに分割する
-//			SplitTestAndTrain splitData = allData.splitTestAndTrain(256 * 7, rdm);
-			SplitTestAndTrain splitData = allData.splitTestAndTrain(0.8e0D);
-			DataSet trainData = splitData.getTrain();
-			DataSet testData = splitData.getTest();
 
-			qNet.fit(trainData); // 学習する
-			score = qNet.score(testData); // テストする
+//			SplitTestAndTrain splitData = allData.splitTestAndTrain(0.8e0D);
+//			DataSet trainData = splitData.getTrain();
+//			DataSet testData = splitData.getTest();
+
+			qNet.fit(allData); // 学習する
+			score = qNet.score(allData); // テストする
 
 //			System.out.println("---- " + i + " :\t" + score);
 		}
@@ -126,6 +126,7 @@ public class QNet {
 //		double learningRate = 0.01e0D;
 //		double momentum = 0.90e0D;
 		int nInNodes = dimensions;
+//		int nMidNodes = nInNodes;
 		int nMidNodes = nInNodes % 2 + 1; // 半分に絞る
 		int nOutNodes = 1;
 
@@ -212,27 +213,26 @@ public class QNet {
 
 //		System.out.println(data);
 
+		
 		// 学習する
 		int nEpochs = nEpochsUpdate;
-//		int nEpochs = 1;
 
 		double score = 1.0e3D; // 大きめの値から
-		for (int i = 0; i < nEpochs; i++) {
+		double preScore = 1.2e3D;
+		while ((score > 1.0e0D) && (preScore - score > 0.01e0D)) {
+			for (int i = 0; i < nEpochs; i++) {
 
-//		int i = 0;
-//		do {
-			// 訓練用データとテスト用データに分割する
-			SplitTestAndTrain splitData = data.splitTestAndTrain(0.8e0D);
-			DataSet trainData = splitData.getTrain();
-			DataSet testData = splitData.getTest();
+				data.shuffle();
+				// 訓練用データとテスト用データに分割する
+//			SplitTestAndTrain splitData = data.splitTestAndTrain(0.8e0D);
+//			DataSet trainData = splitData.getTrain();
+//			DataSet testData = splitData.getTest();
 
-			qNet.fit(trainData); // 学習する
-			score = qNet.score(testData); // テストする
-
-//			i++;
-//		} while (((score > 0.1e0D) && (i < 10000)) || (i < 10));
-
-//			System.out.println("---- " + i + " :\t" + score);
+				qNet.fit(data); // 学習する
+			}
+			preScore = score;
+			score = qNet.score(data); // テストする
+			System.out.println(score);
 		}
 
 		return score;
@@ -244,9 +244,9 @@ public class QNet {
 	 * @param in 入力値
 	 * @return 出力値
 	 */
-	double getValue(INDArray in) {
+	INDArray getValues(INDArray in) {
 
 		INDArray out = qNet.output(in);
-		return out.getDouble(0, 0);
+		return out;
 	}
 }
