@@ -51,7 +51,8 @@ public class QNet {
 		System.out.println("Start QNet ...");
 
 		QNet qNetObj = new QNet();
-		qNetObj.init(9);
+		qNetObj.generate(9);
+		qNetObj.initialize();
 
 		double[][] tmp00 = { { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 } };
 		double[][] tmp05 = { { 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5 } };
@@ -80,7 +81,7 @@ public class QNet {
 	 *
 	 * @return QNet本体
 	 */
-	double init(int dimensions) {
+	void generate(int dimensions) {
 
 		this.dimensions = dimensions;
 
@@ -92,6 +93,9 @@ public class QNet {
 		qNet.init();
 //		qNet.setListeners(new ScoreIterationListener(1));
 
+	}
+	
+	double initialize() {
 		// データセットを生成する
 		DataSet allData = initialData();
 
@@ -113,7 +117,7 @@ public class QNet {
 
 //			System.out.println("---- " + i + " :\t" + score);
 		}
-		System.out.println("QNet Initializing complete.");
+//		System.out.println("QNet Initializing complete.");
 		return score;
 	}
 
@@ -213,6 +217,7 @@ public class QNet {
 
 //		System.out.println(data);
 
+		initialize();	//**************** 初期化する
 		
 		// 学習する
 		int nEpochs = nEpochsUpdate;
@@ -227,7 +232,6 @@ public class QNet {
 //			SplitTestAndTrain splitData = data.splitTestAndTrain(0.8e0D);
 //			DataSet trainData = splitData.getTrain();
 //			DataSet testData = splitData.getTest();
-
 				qNet.fit(data); // 学習する
 			}
 			preScore = score;

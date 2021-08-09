@@ -59,8 +59,9 @@ public class QNetLearningAgent {
 
 		// Qネット関数を生成する
 		qNet = new QNet();
-		qNet.init(9);
-
+		qNet.generate(9);
+		qNet.initialize();
+		
 		return;
 	}
 
@@ -339,11 +340,11 @@ public class QNetLearningAgent {
 
 			DataSet allData = new DataSet(allIn, allOut);
 
-			checkRec(allIn, allOut);
+//			checkRec(allIn, allOut);
 			double v = qNet.update(allData); // 更新処理.
 			recCounter = 0; // 記録消去.
 
-			checkQ();
+//			checkQ();
 			System.out.println("! Update : " + v);
 		}
 
