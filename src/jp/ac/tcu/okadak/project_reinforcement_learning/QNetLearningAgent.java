@@ -23,7 +23,7 @@ public class QNetLearningAgent {
 	 * 学習率 α. この値の率で Q値を更新
 	 */
 	private double alpha = 0.10e0D;
-//	private double alpha = 0.20e0D;
+//	private double alpha = 0.25e0D;
 
 	/**
 	 * 割引率 γ. この値の率を乗算
@@ -60,7 +60,7 @@ public class QNetLearningAgent {
 		// Qネット関数を生成する
 		qNet = new QNet();
 		qNet.generate(9);
-		qNet.initialize();
+//		qNet.initialize();
 		
 		return;
 	}

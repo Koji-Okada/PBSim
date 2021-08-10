@@ -217,7 +217,8 @@ public class QNet {
 
 //		System.out.println(data);
 
-		initialize();	//**************** 初期化する
+//		initialize();	//**************** 初期化する
+		qNet.init();
 		
 		// 学習する
 		int nEpochs = nEpochsUpdate;
