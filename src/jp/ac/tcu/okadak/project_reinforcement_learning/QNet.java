@@ -51,7 +51,8 @@ public class QNet {
 		System.out.println("Start QNet ...");
 
 		QNet qNetObj = new QNet();
-		qNetObj.generate(9);
+		int[] inNodes = {1, 1, 1, 1, 1, 1, 1, 1, 1};
+		qNetObj.generate(inNodes);
 		qNetObj.initialize();
 
 		double[][] tmp00 = { { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 } };
@@ -81,9 +82,9 @@ public class QNet {
 	 *
 	 * @return QNet本体
 	 */
-	void generate(int dimensions) {
+	void generate(int[] dimensions) {
 
-		this.dimensions = dimensions;
+		this.dimensions = dimensions.length;
 
 		// ニューラルネット構成を定義する
 		MultiLayerConfiguration nnConf = nnConfiguration();
@@ -213,8 +214,9 @@ public class QNet {
 	 * @param data
 	 * @return
 	 */
-	double update(DataSet data) {
+	double update(INDArray in, INDArray out) {
 
+		DataSet data = new DataSet(in, out);
 //		System.out.println(data);
 
 //		initialize();	//**************** 初期化する

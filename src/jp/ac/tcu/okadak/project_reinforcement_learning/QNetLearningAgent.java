@@ -4,7 +4,6 @@ import java.util.Random;
 
 import org.nd4j.linalg.api.buffer.DataType;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
 
 /**
@@ -59,7 +58,8 @@ public class QNetLearningAgent {
 
 		// Qネット関数を生成する
 		qNet = new QNet();
-		qNet.generate(9);
+		int[] inNodes = {1, 1, 1, 1, 1, 1, 1, 1, 1};
+		qNet.generate(inNodes);
 //		qNet.initialize();
 		
 		return;
@@ -369,10 +369,8 @@ public class QNetLearningAgent {
 //			System.out.println("allIn  = [" + allIn.size(0) + " : " +allIn.size(1) + " ]");
 //			System.out.println("allOut = [" + allOut.size(0) + " : " +allOut.size(1) + " ]");
 
-			DataSet allData = new DataSet(allIn, allOut);
-
 //			checkRec(allIn, allOut);
-			double v = qNet.update(allData); // 更新処理.
+			double v = qNet.update(allIn, allOut); // 更新処理.
 			recCounter = 0; // 記録消去.
 
 			checkQ();
