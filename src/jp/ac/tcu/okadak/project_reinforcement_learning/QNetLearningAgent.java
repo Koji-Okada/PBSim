@@ -58,10 +58,12 @@ public class QNetLearningAgent {
 
 		// Qネット関数を生成する
 		qNet = new QNet();
-		int[] inNodes = {1, 1, 1, 1, 1, 1, 1, 1, 1};
+//		int[] inNodes = {10, 5, 5, 5, 5, 5, 5, 5, 5};
+		int[] inNodes = { 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+
 		qNet.generate(inNodes);
-//		qNet.initialize();
-		
+		qNet.initialize();
+
 		return;
 	}
 
@@ -294,8 +296,7 @@ public class QNetLearningAgent {
 
 		return value;
 	}
-	
-	
+
 	/**
 	 *
 	 * @param input
@@ -303,19 +304,19 @@ public class QNetLearningAgent {
 	 */
 	private double transAction(int input) {
 
-		double value = ((double)input + 0.5e0D) / 4.0e0D;
+		double value = ((double) input + 0.5e0D) / 4.0e0D;
 
 		// 揺らぎを加える
 		value += (randomizer.nextDouble() - 0.5e0D) * 1.0e-3D;
 
 		return value;
 	}
-	
+
 	// ======================================================
 	// ここからバッチ更新に関連する処理
 
 	private int batchSize = 256; // バッチサイズ.
-	private int dummyRate = 7; // ダミーの比率.
+	private int dummyRate = 3; // ダミーの比率.
 	private int dummySize = batchSize * dummyRate;
 	private int nParam = 9;
 
@@ -352,19 +353,30 @@ public class QNetLearningAgent {
 
 			INDArray in = Nd4j.create(recordsIn);
 			INDArray out = Nd4j.create(recordsOut);
+			INDArray allIn;
+			INDArray allOut;
+			
+			if (0 != dummySize) {
+				// ダミーのデータセットを加える
+				double[][] tmp = new double[dummySize][nParam];
+				for (int i = 0; i < dummySize; i++) {
+					for (int j = 0; j < nParam; j++) {
+						tmp[i][j] = qNet.sampleX();
 
-			// ダミーのデータセットを加える
-			double[][] tmp = new double[dummySize][nParam];
-			for (int i = 0; i < dummySize; i++) {
-				for (int j = 0; j < nParam; j++) {
-					tmp[i][j] = qNet.sampleX();
+						if (0 == j) { // お試し
+							tmp[i][j] *= 0.75e0D;
+						}
+					}
 				}
-			}
 
-			INDArray dummyIn = Nd4j.create(tmp);
-			INDArray dummyOut = qNet.getValues(dummyIn);
-			INDArray allIn = Nd4j.vstack(dummyIn, in);
-			INDArray allOut = Nd4j.vstack(dummyOut.castTo(DataType.DOUBLE), out);
+				INDArray dummyIn = Nd4j.create(tmp);
+				INDArray dummyOut = qNet.getValues(dummyIn);
+				allIn = Nd4j.vstack(dummyIn, in);
+				allOut = Nd4j.vstack(dummyOut.castTo(DataType.DOUBLE), out);
+			} else {
+				allIn = in;
+				allOut = out;
+			}
 
 //			System.out.println("allIn  = [" + allIn.size(0) + " : " +allIn.size(1) + " ]");
 //			System.out.println("allOut = [" + allOut.size(0) + " : " +allOut.size(1) + " ]");
@@ -406,12 +418,12 @@ public class QNetLearningAgent {
 	void checkQ() {
 
 		double[][] tmp = new double[11 * 4][9];
-		int cnt; 
+		int cnt;
 
 		System.out.println("Q Learnt --");
 
 		System.out.println("  Applying Pressure.");
-		
+
 		cnt = 0;
 		for (int a0 = 0; a0 < 4; a0++) {
 			for (int i = 0; i <= 10; i++) {
@@ -421,7 +433,7 @@ public class QNetLearningAgent {
 				tmp[cnt][3] = 0.5e0D;
 				tmp[cnt][4] = 0.5e0D;
 				tmp[cnt][5] = 0.5e0D;
-				tmp[cnt][6] = (double)a0 / 4.0e0D;
+				tmp[cnt][6] = (double) a0 / 4.0e0D;
 				tmp[cnt][7] = 0.5e0D;
 				tmp[cnt][8] = 0.5e0D;
 				cnt++;
@@ -441,7 +453,7 @@ public class QNetLearningAgent {
 		}
 
 		System.out.println("  Increasing Resource.");
-		
+
 		cnt = 0;
 		for (int a0 = 0; a0 < 4; a0++) {
 			for (int i = 0; i <= 10; i++) {
@@ -452,7 +464,7 @@ public class QNetLearningAgent {
 				tmp[cnt][4] = 0.5e0D;
 				tmp[cnt][5] = 0.5e0D;
 				tmp[cnt][6] = 0.5e0D;
-				tmp[cnt][7] = (double)a0 / 4.0e0D;
+				tmp[cnt][7] = (double) a0 / 4.0e0D;
 				tmp[cnt][8] = 0.5e0D;
 				cnt++;
 			}
@@ -469,7 +481,7 @@ public class QNetLearningAgent {
 			}
 			System.out.println();
 		}
-		
+
 		System.out.println("  Scope Adjustment.");
 
 		cnt = 0;
@@ -483,7 +495,7 @@ public class QNetLearningAgent {
 				tmp[cnt][5] = 0.5e0D;
 				tmp[cnt][6] = 0.5e0D;
 				tmp[cnt][7] = 0.5e0D;
-				tmp[cnt][8] = (double)a0 / 4.0e0D;
+				tmp[cnt][8] = (double) a0 / 4.0e0D;
 				cnt++;
 			}
 		}
@@ -499,7 +511,7 @@ public class QNetLearningAgent {
 			}
 			System.out.println();
 		}
-				
+
 		System.out.println("-- Q Learnt");
 	}
 
