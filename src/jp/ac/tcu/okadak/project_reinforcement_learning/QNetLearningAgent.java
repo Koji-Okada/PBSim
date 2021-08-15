@@ -315,16 +315,15 @@ public class QNetLearningAgent {
 	// ======================================================
 	// ここからバッチ更新に関連する処理
 
-	private int batchSize = 256; // バッチサイズ.
+	private int maxBatchSize = 512; // バッチサイズ.
 	private int dummyRate = 3; // ダミーの比率.
-	private int dummySize = batchSize * dummyRate;
 	private int nParam = 9;
 
 	/**
 	 * 記録保持領域.
 	 */
-	private double recordsIn[][] = new double[batchSize][nParam];
-	private double recordsOut[][] = new double[batchSize][1];
+	private double recordsIn[][] = new double[maxBatchSize][nParam];
+	private double recordsOut[][] = new double[maxBatchSize][1];
 	private int recCounter = 0;
 
 	/**
@@ -348,45 +347,10 @@ public class QNetLearningAgent {
 		recordsIn[recCounter][8] = transAction(iScpAdj);
 		recordsOut[recCounter][0] = updateQ;
 
-		if (batchSize == ++recCounter) {
+		if (maxBatchSize == ++recCounter) {
 			// バッチサイズ上限に達した場合
 
-			INDArray in = Nd4j.create(recordsIn);
-			INDArray out = Nd4j.create(recordsOut);
-			INDArray allIn;
-			INDArray allOut;
-			
-			if (0 != dummySize) {
-				// ダミーのデータセットを加える
-				double[][] tmp = new double[dummySize][nParam];
-				for (int i = 0; i < dummySize; i++) {
-					for (int j = 0; j < nParam; j++) {
-						tmp[i][j] = qNet.sampleX();
-
-						if (0 == j) { // お試し
-							tmp[i][j] *= 0.75e0D;
-						}
-					}
-				}
-
-				INDArray dummyIn = Nd4j.create(tmp);
-				INDArray dummyOut = qNet.getValues(dummyIn);
-				allIn = Nd4j.vstack(dummyIn, in);
-				allOut = Nd4j.vstack(dummyOut.castTo(DataType.DOUBLE), out);
-			} else {
-				allIn = in;
-				allOut = out;
-			}
-
-//			System.out.println("allIn  = [" + allIn.size(0) + " : " +allIn.size(1) + " ]");
-//			System.out.println("allOut = [" + allOut.size(0) + " : " +allOut.size(1) + " ]");
-
-//			checkRec(allIn, allOut);
-			double v = qNet.update(allIn, allOut); // 更新処理.
-			recCounter = 0; // 記録消去.
-
-			checkQ();
-			System.out.println("! Update : " + v);
+			leanRecords();
 		}
 
 		return;
@@ -394,13 +358,80 @@ public class QNetLearningAgent {
 
 	/**
 	 * 
+	 * @return
+	 */
+	double leanRecords() {
+		
+		System.out.println("counter = " + recCounter);
+
+		INDArray allIn;
+		INDArray allOut;
+
+		// 必要な部分だけ取り出す
+		double[][] sIn = new double[recCounter][nParam]; 
+		double[][] sOut = new double[recCounter][1];
+		for (int i=0; i < recCounter; i++) {
+			for (int j=0; j < nParam; j++) {
+				sIn[i][j] = recordsIn[i][j];
+			}
+			sOut[i][0] = recordsOut[i][0];
+		}
+		INDArray samplesIn = Nd4j.create(sIn);
+		INDArray samplesOut = Nd4j.create(sOut);
+
+		// ダミーを追加する
+		int dummySize = recCounter * dummyRate;
+		if (0 != dummySize) {
+			// ダミーのデータセットを加える
+			double[][] dIn = new double[dummySize][nParam];
+			for (int i = 0; i < dummySize; i++) {
+				for (int j = 0; j < nParam; j++) {
+					dIn[i][j] = qNet.sampleX();
+
+					if (0 == j) { // 局面平準化制御のお試し
+						dIn[i][j] *= 0.75e0D;
+					}
+				}
+			}
+			INDArray dummyIn = Nd4j.create(dIn);
+			INDArray dummyOut = qNet.getValues(dummyIn);
+			allIn = Nd4j.vstack(dummyIn, samplesIn);
+			allOut = Nd4j.vstack(dummyOut.castTo(DataType.DOUBLE), samplesOut);
+		} else {
+			allIn = samplesIn;
+			allOut = samplesOut;
+		}
+
+//		System.out.println("allIn  = [" + allIn.size(0) + " : " +allIn.size(1) + " ]");
+//		System.out.println("allOut = [" + allOut.size(0) + " : " +allOut.size(1) + " ]");
+
+//		checkRec(allIn, allOut);
+		double v = qNet.update(allIn, allOut); // 更新処理.
+
+		// 確認
+		INDArray confirm = qNet.getValues(samplesIn);
+		for (int i = 0; i < confirm.size(0); i++) {
+			System.out.printf("!%3d %7.4f <-> %7.4f \n", i, samplesOut.getDouble(i,0), confirm.getDouble(i,0));
+		}
+		
+		
+		checkQ();
+		System.out.println("! Update : " + recCounter + " : " + v);
+		
+		recCounter = 0; // 記録消去.
+		return v;
+	}
+	
+	/**
+	 * 
 	 * @param in
 	 * @param out
 	 */
 	void checkRec(INDArray in, INDArray out) {
 
-		System.out.println("-- " + in.size(0) + ":" + in.size(1));
-		for (int i = 0; i < in.size(0); i++) {
+		int size = recCounter * (1 + dummyRate);
+		System.out.println("-- " + size + ":" + in.size(1));
+		for (int i = 0; i < size; i++) {
 			System.out.printf(" %4d\t:\t", i);
 			for (int j = 0; j < in.size(1); j++) {
 				System.out.printf("%10.4f\t", in.getDouble(i, j));

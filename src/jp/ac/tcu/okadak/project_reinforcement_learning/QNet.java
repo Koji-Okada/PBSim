@@ -244,7 +244,7 @@ public class QNet {
 	 */
 	double update(INDArray in, INDArray out) {
 
-//		qNet.init();
+		qNet.init();
 		
 		INDArray transIn = transInData(in);
 		double score = planeUpdate(transIn, out);
