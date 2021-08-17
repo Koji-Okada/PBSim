@@ -28,6 +28,7 @@ public class QNet {
 	private int[] inNodeLevels; // 入力データの次元数
 	int nInNodes; // 入力ノード数(内部)
 	private Random rdm = new Random();
+	MultiLayerConfiguration nnConf;
 
 	private int initDataSize = 256 * 8;
 
@@ -75,7 +76,7 @@ public class QNet {
 		inNodeLevels = levels;
 
 		// ニューラルネット構成を定義する
-		MultiLayerConfiguration nnConf = nnConfiguration(levels);
+		nnConf = nnConfiguration(levels);
 
 		// ニューラルネットを生成する
 		qNet = new MultiLayerNetwork(nnConf);
@@ -180,8 +181,6 @@ public class QNet {
 	 * @return ネット構成の定義.
 	 */
 	private MultiLayerConfiguration nnConfiguration(int[] levels) {
-//		double learningRate = 0.01e0D;
-//		double momentum = 0.90e0D;
 
 		// 入力分解レベルを考慮する
 		nInNodes = 0;
@@ -191,6 +190,7 @@ public class QNet {
 
 		System.out.println("Input nodes = " + nInNodes);
 
+//		int nMidNodes = nInNodes;
 		int nMidNodes = nInNodes % 2 + 1; // 半分に絞る
 		int nOutNodes = 1;
 
@@ -199,7 +199,7 @@ public class QNet {
 		ly1Bldr.nIn(nInNodes);
 		ly1Bldr.nOut(nMidNodes);
 		ly1Bldr.activation(Activation.TANH);
-//		ly1Bldr.activation(Activation.RELU);
+//		ly1Bldr.activation(Activation.LEAKYRELU);
 		DenseLayer layer1 = ly1Bldr.build();
 
 		// 出力層を定義する
@@ -216,7 +216,6 @@ public class QNet {
 		nBldr.seed(0);
 //		nBldr.weightInit(WeightInit.RELU);
 		nBldr.weightInit(WeightInit.XAVIER);
-//		nBldr.updater(new Nesterovs(learningRate, momentum));
 		nBldr.updater(new Adam());
 
 		MultiLayerConfiguration nnConf = nBldr.list().layer(layer1).layer(layer2).build();
@@ -244,10 +243,12 @@ public class QNet {
 	 */
 	double update(INDArray in, INDArray out) {
 
+		qNet = new MultiLayerNetwork(nnConf);
 		qNet.init();
 		
 		INDArray transIn = transInData(in);
-		double score = planeUpdate(transIn, out);
+		INDArray transOut = transOutData(out);
+		double score = planeUpdate(transIn, transOut);
 
 		return score;
 	}
@@ -266,14 +267,14 @@ public class QNet {
 
 		double score = 1.0e3D; // 大きめの値から
 		double preScore = 1.2e3D;
-		while ((score > 1.0e0D) && (preScore - score > 0.01e0D)) {
-			for (int i = 0; i < nEpochs; i++) {
+		while ((score > 1.0e-4D) && (preScore - score > 1.0e-6D)) {
+		for (int i = 0; i < nEpochs; i++) {
 				data.shuffle();
 				qNet.fit(data); // 学習する
 			}
 			preScore = score;
 			score = qNet.score(data); // テストする
-			System.out.println(score);
+			System.out.println(score);			
 		}
 
 		return score;
@@ -339,5 +340,21 @@ public class QNet {
 		
 	}
 	
+	/*
+	 * 
+	 */
+	private INDArray transOutData(INDArray out) {
 	
+		int nSamples = (int) out.size(0);
+		double[][] transData = new double[nSamples][1];
+		
+		for (int i = 0; i < nSamples; i++) {
+			double v = out.getDouble(i, 0);
+			transData[i][0] = Math.tanh(v * 0.01e0D);
+		}		
+		INDArray transOut = Nd4j.create(transData);
+
+		return transOut;
+		
+	}
 }

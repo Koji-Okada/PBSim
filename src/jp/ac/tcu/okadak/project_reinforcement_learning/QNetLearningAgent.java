@@ -22,7 +22,7 @@ public class QNetLearningAgent {
 	 * 学習率 α. この値の率で Q値を更新
 	 */
 	private double alpha = 0.10e0D;
-//	private double alpha = 0.05e0D;
+//	private double alpha = 0.10e0D;
 
 	/**
 	 * 割引率 γ. この値の率を乗算
@@ -147,15 +147,21 @@ public class QNetLearningAgent {
 		// 制御行動 scopeAdjust の値を離散化(テーブル用)する
 		int iScpAdj = action.getScopeAdjust() + 1;
 
-		double q0 = getQV(dPrePrgR, dPreSpi, dPreCpi, dPreAvgAppPrs, dPreAvgIncEff, dPreAvgScpAdj, iAppPrs, iIncEff,
-				iScpAdj);
-		double q1 = reward + gamma * maxQ;
-		double updateQ = (1.0e0 - alpha) * q0 + alpha * q1;
+		
+		int iStep = preState.getSimTime();
+		if ((iStep % 8 == 7) || postState.isComplete()){
+			double q0 = getQV(dPrePrgR, dPreSpi, dPreCpi, dPreAvgAppPrs, dPreAvgIncEff, dPreAvgScpAdj, iAppPrs, iIncEff,
+					iScpAdj);
+			double q1 = reward + gamma * maxQ;
+			double updateQ = (1.0e0 - alpha) * q0 + alpha * q1;
 
-		addRecords(updateQ, dPrePrgR, dPreSpi, dPreCpi, dPreAvgAppPrs, dPreAvgIncEff, dPreAvgScpAdj, iAppPrs, iIncEff,
-				iScpAdj);
-
-		return (q1 - q0) * (q1 - q0);
+			addRecords(updateQ, dPrePrgR, dPreSpi, dPreCpi, dPreAvgAppPrs, dPreAvgIncEff, dPreAvgScpAdj, iAppPrs,
+					iIncEff, iScpAdj);
+			
+			return (q1 - q0) * (q1 - q0);
+		}
+		
+		return 0.0e0D;
 	}
 
 	/**
@@ -345,11 +351,11 @@ public class QNetLearningAgent {
 		recordsIn[recCounter][6] = transAction(iAppPrs);
 		recordsIn[recCounter][7] = transAction(iIncEff);
 		recordsIn[recCounter][8] = transAction(iScpAdj);
+
 		recordsOut[recCounter][0] = updateQ;
 
 		if (maxBatchSize == ++recCounter) {
 			// バッチサイズ上限に達した場合
-
 			leanRecords();
 		}
 
@@ -361,17 +367,17 @@ public class QNetLearningAgent {
 	 * @return
 	 */
 	double leanRecords() {
-		
+
 		System.out.println("counter = " + recCounter);
 
 		INDArray allIn;
 		INDArray allOut;
 
 		// 必要な部分だけ取り出す
-		double[][] sIn = new double[recCounter][nParam]; 
+		double[][] sIn = new double[recCounter][nParam];
 		double[][] sOut = new double[recCounter][1];
-		for (int i=0; i < recCounter; i++) {
-			for (int j=0; j < nParam; j++) {
+		for (int i = 0; i < recCounter; i++) {
+			for (int j = 0; j < nParam; j++) {
 				sIn[i][j] = recordsIn[i][j];
 			}
 			sOut[i][0] = recordsOut[i][0];
@@ -411,17 +417,20 @@ public class QNetLearningAgent {
 		// 確認
 		INDArray confirm = qNet.getValues(samplesIn);
 		for (int i = 0; i < confirm.size(0); i++) {
-			System.out.printf("!%3d %7.4f <-> %7.4f \n", i, samplesOut.getDouble(i,0), confirm.getDouble(i,0));
+			double v0 = Math.tanh(samplesOut.getDouble(i, 0) * 0.01e0D);
+			double v1 = confirm.getDouble(i, 0);
+			if (((v0 - v1) * (v0 - v1) > 0.1e0D) || (v0 <= -0.1e0D)) {
+				System.out.printf("!%3d %7.4f <-> %7.4f \n", i, v0, v1);
+			}
 		}
-		
-		
+
 		checkQ();
 		System.out.println("! Update : " + recCounter + " : " + v);
-		
+
 		recCounter = 0; // 記録消去.
 		return v;
 	}
-	
+
 	/**
 	 * 
 	 * @param in
