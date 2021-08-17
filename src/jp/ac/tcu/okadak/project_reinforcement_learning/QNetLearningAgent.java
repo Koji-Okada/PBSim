@@ -2,7 +2,6 @@ package jp.ac.tcu.okadak.project_reinforcement_learning;
 
 import java.util.Random;
 
-import org.nd4j.linalg.api.buffer.DataType;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
@@ -245,7 +244,7 @@ public class QNetLearningAgent {
 	private double getQV(double dPrgR, double dSpi, double dCpi, double dAvgAppPrs, double dAvgIncEff,
 			double dAvgScpAdj, int aP, int iE, int sA) {
 
-		double[][] tmp = new double[1][9];
+		float[][] tmp = new float[1][9];
 		tmp[0][0] = transProgress(dPrgR);
 		tmp[0][1] = transRatio(dSpi);
 		tmp[0][2] = transRatio(dCpi);
@@ -264,13 +263,13 @@ public class QNetLearningAgent {
 	 * @param ratio
 	 * @return
 	 */
-	private double transRatio(double ratio) {
+	private float transRatio(double ratio) {
 		double weight = 5.0e0D;
 
 		double logValue = Math.log(ratio);
 		double value = 1.0e0D / (1.0e0D + Math.exp(-logValue * weight));
 
-		return value;
+		return (float)value;
 	}
 
 	/**
@@ -278,14 +277,14 @@ public class QNetLearningAgent {
 	 * @param input
 	 * @return
 	 */
-	private double transProgress(double input) {
+	private float transProgress(double input) {
 
 		double value = input;
 
 		// 揺らぎを加える
 		value += (randomizer.nextDouble() - 0.5e0D) * 1.0e-3D;
 
-		return value;
+		return (float)value;
 	}
 
 	/**
@@ -293,14 +292,14 @@ public class QNetLearningAgent {
 	 * @param input
 	 * @return
 	 */
-	private double transActionMemory(double input) {
+	private float transActionMemory(double input) {
 
 		double value = (input + 1.5e0D) / 4.0e0D;
 
 		// 揺らぎを加える
 		value += (randomizer.nextDouble() - 0.5e0D) * 1.0e-3D;
 
-		return value;
+		return (float)value;
 	}
 
 	/**
@@ -308,14 +307,14 @@ public class QNetLearningAgent {
 	 * @param input
 	 * @return
 	 */
-	private double transAction(int input) {
+	private float transAction(int input) {
 
 		double value = ((double) input + 0.5e0D) / 4.0e0D;
 
 		// 揺らぎを加える
 		value += (randomizer.nextDouble() - 0.5e0D) * 1.0e-3D;
 
-		return value;
+		return (float)value;
 	}
 
 	// ======================================================
@@ -328,8 +327,8 @@ public class QNetLearningAgent {
 	/**
 	 * 記録保持領域.
 	 */
-	private double recordsIn[][] = new double[maxBatchSize][nParam];
-	private double recordsOut[][] = new double[maxBatchSize][1];
+	private float recordsIn[][] = new float[maxBatchSize][nParam];
+	private float recordsOut[][] = new float[maxBatchSize][1];
 	private int recCounter = 0;
 
 	/**
@@ -352,7 +351,7 @@ public class QNetLearningAgent {
 		recordsIn[recCounter][7] = transAction(iIncEff);
 		recordsIn[recCounter][8] = transAction(iScpAdj);
 
-		recordsOut[recCounter][0] = updateQ;
+		recordsOut[recCounter][0] = (float)updateQ;
 
 		if (maxBatchSize == ++recCounter) {
 			// バッチサイズ上限に達した場合
@@ -374,8 +373,8 @@ public class QNetLearningAgent {
 		INDArray allOut;
 
 		// 必要な部分だけ取り出す
-		double[][] sIn = new double[recCounter][nParam];
-		double[][] sOut = new double[recCounter][1];
+		float[][] sIn = new float[recCounter][nParam];
+		float[][] sOut = new float[recCounter][1];
 		for (int i = 0; i < recCounter; i++) {
 			for (int j = 0; j < nParam; j++) {
 				sIn[i][j] = recordsIn[i][j];
@@ -389,20 +388,20 @@ public class QNetLearningAgent {
 		int dummySize = recCounter * dummyRate;
 		if (0 != dummySize) {
 			// ダミーのデータセットを加える
-			double[][] dIn = new double[dummySize][nParam];
+			float[][] dIn = new float[dummySize][nParam];
 			for (int i = 0; i < dummySize; i++) {
 				for (int j = 0; j < nParam; j++) {
 					dIn[i][j] = qNet.sampleX();
 
 					if (0 == j) { // 局面平準化制御のお試し
-						dIn[i][j] *= 0.75e0D;
+						dIn[i][j] *= 0.75e0F;
 					}
 				}
 			}
 			INDArray dummyIn = Nd4j.create(dIn);
 			INDArray dummyOut = qNet.getValues(dummyIn);
 			allIn = Nd4j.vstack(dummyIn, samplesIn);
-			allOut = Nd4j.vstack(dummyOut.castTo(DataType.DOUBLE), samplesOut);
+			allOut = Nd4j.vstack(dummyOut, samplesOut);
 		} else {
 			allIn = samplesIn;
 			allOut = samplesOut;
@@ -457,7 +456,7 @@ public class QNetLearningAgent {
 	 */
 	void checkQ() {
 
-		double[][] tmp = new double[11 * 4][9];
+		float[][] tmp = new float[11 * 4][9];
 		int cnt;
 
 		System.out.println("Q Learnt --");
@@ -467,15 +466,15 @@ public class QNetLearningAgent {
 		cnt = 0;
 		for (int a0 = 0; a0 < 4; a0++) {
 			for (int i = 0; i <= 10; i++) {
-				tmp[cnt][0] = (double) i / 10.0e0D;
-				tmp[cnt][1] = 0.5e0D;
-				tmp[cnt][2] = 0.5e0D;
-				tmp[cnt][3] = 0.5e0D;
-				tmp[cnt][4] = 0.5e0D;
-				tmp[cnt][5] = 0.5e0D;
-				tmp[cnt][6] = (double) a0 / 4.0e0D;
-				tmp[cnt][7] = 0.5e0D;
-				tmp[cnt][8] = 0.5e0D;
+				tmp[cnt][0] = (float) i / 10.0e0F;
+				tmp[cnt][1] = 0.5e0F;
+				tmp[cnt][2] = 0.5e0F;
+				tmp[cnt][3] = 0.5e0F;
+				tmp[cnt][4] = 0.5e0F;
+				tmp[cnt][5] = 0.5e0F;
+				tmp[cnt][6] = (float) a0 / 4.0e0F;
+				tmp[cnt][7] = 0.5e0F;
+				tmp[cnt][8] = 0.5e0F;
 				cnt++;
 			}
 		}
@@ -497,15 +496,15 @@ public class QNetLearningAgent {
 		cnt = 0;
 		for (int a0 = 0; a0 < 4; a0++) {
 			for (int i = 0; i <= 10; i++) {
-				tmp[cnt][0] = (double) i / 10.0e0D;
-				tmp[cnt][1] = 0.5e0D;
-				tmp[cnt][2] = 0.5e0D;
-				tmp[cnt][3] = 0.5e0D;
-				tmp[cnt][4] = 0.5e0D;
-				tmp[cnt][5] = 0.5e0D;
-				tmp[cnt][6] = 0.5e0D;
-				tmp[cnt][7] = (double) a0 / 4.0e0D;
-				tmp[cnt][8] = 0.5e0D;
+				tmp[cnt][0] = (float) i / 10.0e0F;
+				tmp[cnt][1] = 0.5e0F;
+				tmp[cnt][2] = 0.5e0F;
+				tmp[cnt][3] = 0.5e0F;
+				tmp[cnt][4] = 0.5e0F;
+				tmp[cnt][5] = 0.5e0F;
+				tmp[cnt][6] = 0.5e0F;
+				tmp[cnt][7] = (float) a0 / 4.0e0F;
+				tmp[cnt][8] = 0.5e0F;
 				cnt++;
 			}
 		}
@@ -527,15 +526,15 @@ public class QNetLearningAgent {
 		cnt = 0;
 		for (int a0 = 0; a0 < 4; a0++) {
 			for (int i = 0; i <= 10; i++) {
-				tmp[cnt][0] = (double) i / 10.0e0D;
-				tmp[cnt][1] = 0.5e0D;
-				tmp[cnt][2] = 0.5e0D;
-				tmp[cnt][3] = 0.5e0D;
-				tmp[cnt][4] = 0.5e0D;
-				tmp[cnt][5] = 0.5e0D;
-				tmp[cnt][6] = 0.5e0D;
-				tmp[cnt][7] = 0.5e0D;
-				tmp[cnt][8] = (double) a0 / 4.0e0D;
+				tmp[cnt][0] = (float) i / 10.0e0F;
+				tmp[cnt][1] = 0.5e0F;
+				tmp[cnt][2] = 0.5e0F;
+				tmp[cnt][3] = 0.5e0F;
+				tmp[cnt][4] = 0.5e0F;
+				tmp[cnt][5] = 0.5e0F;
+				tmp[cnt][6] = 0.5e0F;
+				tmp[cnt][7] = 0.5e0F;
+				tmp[cnt][8] = (float) a0 / 4.0e0F;
 				cnt++;
 			}
 		}

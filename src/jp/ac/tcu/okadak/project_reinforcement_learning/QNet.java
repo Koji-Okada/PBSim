@@ -33,8 +33,8 @@ public class QNet {
 	private int initDataSize = 256 * 8;
 
 	// 入力値の広さ
-//	private double extSpace = 2.0e0D;
-	private double extSpace = 1.0e0D;
+//	private float extSpace = 2.0e0F;
+	private float extSpace = 1.0e0F;
 
 	// エポック数
 //	private int nEpochsInitialize = 256;
@@ -54,10 +54,8 @@ public class QNet {
 		QNet qNetObj = new QNet();
 //		int[] inNodeLevels = { 10, 4, 4, 4, 4, 4, 4, 4, 4 };
 		int[] inNodeLevels = { 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-
 		
 		qNetObj.generate(inNodeLevels); // ニューラルネットの生成
-		
 		
 		qNetObj.initializeAndTest(); // 初期化
 
@@ -97,7 +95,7 @@ public class QNet {
 		int rMax = initDataSize;
 
 		// 入力側データを設定する
-		double[][] data = new double[rMax][cMax];
+		float[][] data = new float[rMax][cMax];
 		for (int i = 0; i < rMax; i++) {
 			for (int j = 0; j < cMax; j++) {
 				data[i][j] = sampleX();
@@ -106,9 +104,9 @@ public class QNet {
 		INDArray inData = Nd4j.create(data);
 
 		// 出力側データを設定する
-		double[][] res = new double[rMax][1];
+		float[][] res = new float[rMax][1];
 		for (int i = 0; i < rMax; i++) {
-			res[i][0] = 0.0e0D;
+			res[i][0] = 0.0e0F;
 		}
 		INDArray outData = Nd4j.create(res);
 		
@@ -129,7 +127,7 @@ public class QNet {
 		int rMax = initDataSize;
 
 		// 入力側データを設定する
-		double[][] data = new double[rMax][cMax];
+		float[][] data = new float[rMax][cMax];
 		for (int i = 0; i < rMax; i++) {
 			for (int j = 0; j < cMax; j++) {
 				data[i][j] = sampleX();
@@ -138,16 +136,16 @@ public class QNet {
 		INDArray inData = Nd4j.create(data);
 
 		// 出力側データを設定する
-		double[][] res = new double[rMax][1];
+		float[][] res = new float[rMax][1];
 		for (int i = 0; i < rMax; i++) {
-			res[i][0] = 0.0e0D;
+			res[i][0] = 0.0e0F;
 		}
 //		INDArray outData = Nd4j.create(res);
 		
 		// テスト用
 		int num = 12;
 		int num2 = 3;
-		double[][] test = new double[num][9];
+		float[][] test = new float[num][9];
 		for (int i = 0; i < num; i++) {
 			for (int j = 0; j < 9; j++) {
 				test[i][j] = sampleX();
@@ -156,7 +154,7 @@ public class QNet {
 				}
 			}
 			if (i < num2) {
-				res[i][0] = -500.0e0;
+				res[i][0] = -500.0e0F;
 			}
 		}
 		INDArray outData = Nd4j.create(res);
@@ -168,7 +166,7 @@ public class QNet {
 		INDArray testData = Nd4j.create(test);
 		INDArray confirm = getValues(testData);
 		for (int i = 0; i < num; i++) {
-			System.out.println(" -- " + confirm.getDouble(i, 0));
+			System.out.println(" -- " + confirm.getFloat(i, 0));
 		}
 		
 		return score;
@@ -229,9 +227,9 @@ public class QNet {
 	 * @param ext
 	 * @return
 	 */
-	double sampleX() {
+	float sampleX() {
 
-		return rdm.nextDouble() * extSpace - ((extSpace - 1.0e0D) / 2.0e0D);
+		return rdm.nextFloat() * extSpace - ((extSpace - 1.0e0F) / 2.0e0F);
 
 	}
 
@@ -301,7 +299,7 @@ public class QNet {
 	private INDArray transInData(INDArray in) {
 	
 		int nSamples = (int) in.size(0);
-		double[][] transData = new double[nSamples][nInNodes];
+		float[][] transData = new float[nSamples][nInNodes];
 
 //		System.out.println("[ " + nInNodes + " : " + nSamples + " ]");
 
@@ -309,22 +307,22 @@ public class QNet {
 		for (int i = 0; i < nSamples; i++) {
 			cnt = 0;
 			for (int j = 0; j < inNodeLevels.length; j++) {
-				double v = in.getDouble(i, j);
+				float v = in.getFloat(i, j);
 				int sep = inNodeLevels[j];
 //				System.out.printf("%5.4f: ", v);
 				
 				// エンコーディング
-				double st = 1.0e0D / (double)sep;
+				float st = 1.0e0F / (float)sep;
 				for (int k = 0; k < sep ; k++) {
-					double tr;
-					double s0 = (double)k * st;
-					double s1 = (double)(k+1) * st; 
+					float tr;
+					float s0 = (float)k * st;
+					float s1 = (float)(k+1) * st; 
 					if (v < s0) {
-						tr = 0.0e0D;
+						tr = 0.0e0F;
 					} else if (v > s1) {
-						tr = 1.0e0D;
+						tr = 1.0e0F;
 					} else {
-						tr = (v - s0) * (double)sep;
+						tr = (v - s0) * (float)sep;
 					}
 					transData[i][cnt++] = tr;
 					
@@ -346,11 +344,11 @@ public class QNet {
 	private INDArray transOutData(INDArray out) {
 	
 		int nSamples = (int) out.size(0);
-		double[][] transData = new double[nSamples][1];
+		float[][] transData = new float[nSamples][1];
 		
 		for (int i = 0; i < nSamples; i++) {
 			double v = out.getDouble(i, 0);
-			transData[i][0] = Math.tanh(v * 0.01e0D);
+			transData[i][0] = (float)Math.tanh(v * 0.01e0D);
 		}		
 		INDArray transOut = Nd4j.create(transData);
 
