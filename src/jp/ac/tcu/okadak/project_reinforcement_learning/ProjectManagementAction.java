@@ -15,7 +15,7 @@ public class ProjectManagementAction {
 	/**
 	 * 計画遵守圧力指示の最大値.
 	 */
-	static final int MAX_ACTION_AP = 3;
+	static final int MAX_ACTION_AP = 2;
 
 	/**
 	 * 計画遵守圧力指示の最小値.
@@ -39,7 +39,7 @@ public class ProjectManagementAction {
 	/**
 	 * 工数増加指示の最大値.
 	 */
-	static final int MAX_ACTION_IE = 3;
+	static final int MAX_ACTION_IE = 2;
 
 	/**
 	 * 工数増加指示の最小値.
@@ -63,7 +63,7 @@ public class ProjectManagementAction {
 	/**
 	 * スコープ調整指示の最大値.
 	 */
-	static final int MAX_ACTION_SA = 3;
+	static final int MAX_ACTION_SA = 2;
 
 	/**
 	 * スコープ調整指示の最小値.
