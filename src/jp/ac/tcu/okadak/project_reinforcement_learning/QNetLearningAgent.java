@@ -21,7 +21,7 @@ public class QNetLearningAgent {
 	 * 学習率 α. この値の率で Q値を更新
 	 */
 	private double alpha = 0.10e0D;
-//	private double alpha = 0.10e0D;
+//	private double alpha = 1.00e0D;
 
 	/**
 	 * 割引率 γ. この値の率を乗算
@@ -105,6 +105,7 @@ public class QNetLearningAgent {
 
 		} else {
 			// 乱数で行動を選択する
+
 			int applyingPressure = (int) (Math.floor(this.randomizer.nextDouble() * (double) MAX_Q_AP)) - 1;
 			int increasingEfforts = (int) (Math.floor(this.randomizer.nextDouble() * (double) MAX_Q_IE)) - 1;
 			int scopeAdjust = (int) (Math.floor(this.randomizer.nextDouble() * (double) MAX_Q_SA)) - 1;
@@ -129,7 +130,7 @@ public class QNetLearningAgent {
 		QAction qAc = getMaxQ(postState);
 		double maxQ = qAc.qValue;
 
-		// Ｑテーブルを更新する
+		// 行動前の状態量を得る
 		double dPrePrgR = preState.getProgressRate();
 		double dPreSpi = preState.getSPI();
 		double dPreCpi = preState.getCPI();
@@ -137,18 +138,15 @@ public class QNetLearningAgent {
 		double dPreAvgIncEff = preState.getAverageIE();
 		double dPreAvgScpAdj = preState.getAverageSA();
 
-		// 制御行動 applyingPressure の値を離散化(テーブル用)する
-		int iAppPrs = action.getApplyingPressure() + 1;
+		// 制御行動の値を離散化(テーブル用)する
+		int iAppPrs = action.getApplyingPressure();
+		int iIncEff = action.getIncreasingEffort();
+		int iScpAdj = action.getScopeAdjust();
 
-		// 制御行動 applyingPressure の値を離散化(テーブル用)する
-		int iIncEff = action.getIncreasingEffort() + 1;
-
-		// 制御行動 scopeAdjust の値を離散化(テーブル用)する
-		int iScpAdj = action.getScopeAdjust() + 1;
-
-		
 		int iStep = preState.getSimTime();
-		if ((iStep % 8 == 7) || postState.isComplete()){
+		if ((iStep % 8 == 7) || postState.isComplete()) {
+
+			// 更新前の Q値を求める
 			double q0 = getQV(dPrePrgR, dPreSpi, dPreCpi, dPreAvgAppPrs, dPreAvgIncEff, dPreAvgScpAdj, iAppPrs, iIncEff,
 					iScpAdj);
 			double q1 = reward + gamma * maxQ;
@@ -156,10 +154,10 @@ public class QNetLearningAgent {
 
 			addRecords(updateQ, dPrePrgR, dPreSpi, dPreCpi, dPreAvgAppPrs, dPreAvgIncEff, dPreAvgScpAdj, iAppPrs,
 					iIncEff, iScpAdj);
-			
+
 			return (q1 - q0) * (q1 - q0);
 		}
-		
+
 		return 0.0e0D;
 	}
 
@@ -185,18 +183,18 @@ public class QNetLearningAgent {
 		// 取り得る全ての行動のデータを生成する
 		double[][] tmp = new double[4 * 4 * 4][9];
 		int cnt = 0;
-		for (int a0 = 0; a0 < 4; a0++) {
-			for (int a1 = 0; a1 < 4; a1++) {
-				for (int a2 = 0; a2 < 4; a2++) {
-					tmp[cnt][0] = transProgress(dPrgR);
+		for (int a0 = ProjectManagementAction.MIN_ACTION_AP; a0 <= ProjectManagementAction.MAX_ACTION_AP; a0++) {
+			for (int a1 = ProjectManagementAction.MIN_ACTION_IE; a1 <= ProjectManagementAction.MAX_ACTION_IE; a1++) {
+				for (int a2 = ProjectManagementAction.MIN_ACTION_SA; a2 <= ProjectManagementAction.MAX_ACTION_SA; a2++) {
+					tmp[cnt][0] = transProgress(dPrgR, true);
 					tmp[cnt][1] = transRatio(dSpi);
 					tmp[cnt][2] = transRatio(dCpi);
-					tmp[cnt][3] = transActionMemory(dAvgAppPrs);
-					tmp[cnt][4] = transActionMemory(dAvgIncEff);
-					tmp[cnt][5] = transActionMemory(dAvgScpAdj);
-					tmp[cnt][6] = transAction(a0);
-					tmp[cnt][7] = transAction(a1);
-					tmp[cnt][8] = transAction(a2);
+					tmp[cnt][3] = transActionMemory(dAvgAppPrs, true);
+					tmp[cnt][4] = transActionMemory(dAvgIncEff, true);
+					tmp[cnt][5] = transActionMemory(dAvgScpAdj, true);
+					tmp[cnt][6] = transAction(a0, true);
+					tmp[cnt][7] = transAction(a1, true);
+					tmp[cnt][8] = transAction(a2, true);
 					cnt++;
 				}
 			}
@@ -212,9 +210,9 @@ public class QNetLearningAgent {
 		int maxArg1 = 1;
 		int maxArg2 = 1;
 		cnt = 0;
-		for (int a0 = 0; a0 < 4; a0++) {
-			for (int a1 = 0; a1 < 4; a1++) {
-				for (int a2 = 0; a2 < 4; a2++) {
+		for (int a0 = ProjectManagementAction.MIN_ACTION_AP; a0 <= ProjectManagementAction.MAX_ACTION_AP; a0++) {
+			for (int a1 = ProjectManagementAction.MIN_ACTION_IE; a1 <= ProjectManagementAction.MAX_ACTION_IE; a1++) {
+				for (int a2 = ProjectManagementAction.MIN_ACTION_SA; a2 <= ProjectManagementAction.MAX_ACTION_SA; a2++) {
 					double qValue = out.getDouble(cnt++);
 					if (qValue > maxQ) {
 						maxQ = qValue;
@@ -226,9 +224,9 @@ public class QNetLearningAgent {
 			}
 		}
 
-		applyingPressure = maxArg0 - 1;
-		increasingEfforts = maxArg1 - 1;
-		scopeAdjust = maxArg2 - 1;
+		applyingPressure = maxArg0;
+		increasingEfforts = maxArg1;
+		scopeAdjust = maxArg2;
 
 		QAction qAc = new QAction(maxQ, applyingPressure, increasingEfforts, scopeAdjust);
 
@@ -245,15 +243,15 @@ public class QNetLearningAgent {
 			double dAvgScpAdj, int aP, int iE, int sA) {
 
 		float[][] tmp = new float[1][9];
-		tmp[0][0] = transProgress(dPrgR);
+		tmp[0][0] = transProgress(dPrgR, false);
 		tmp[0][1] = transRatio(dSpi);
 		tmp[0][2] = transRatio(dCpi);
-		tmp[0][3] = transActionMemory(dAvgAppPrs);
-		tmp[0][4] = transActionMemory(dAvgIncEff);
-		tmp[0][5] = transActionMemory(dAvgScpAdj);
-		tmp[0][6] = transAction(aP);
-		tmp[0][7] = transAction(iE);
-		tmp[0][8] = transAction(sA);
+		tmp[0][3] = transActionMemory(dAvgAppPrs, false);
+		tmp[0][4] = transActionMemory(dAvgIncEff, false);
+		tmp[0][5] = transActionMemory(dAvgScpAdj, false);
+		tmp[0][6] = transAction(aP, false);
+		tmp[0][7] = transAction(iE, false);
+		tmp[0][8] = transAction(sA, false);
 		INDArray index = Nd4j.create(tmp);
 		return qNet.getValues(index).getDouble(0, 0);
 	}
@@ -269,52 +267,62 @@ public class QNetLearningAgent {
 		double logValue = Math.log(ratio);
 		double value = 1.0e0D / (1.0e0D + Math.exp(-logValue * weight));
 
-		return (float)value;
+		return (float) value;
 	}
 
 	/**
 	 *
-	 * @param input
+	 * @param input	(0.0 ～ 1.0)
 	 * @return
 	 */
-	private float transProgress(double input) {
+	private float transProgress(double input, boolean dFlag) {
 
+		double diversity = 1.0e-3D;	// 揺らぎの大きさ
+		
 		double value = input;
 
-		// 揺らぎを加える
-		value += (randomizer.nextDouble() - 0.5e0D) * 1.0e-3D;
+		if (dFlag) {
+			// 小さな揺らぎを加える
+			value += (randomizer.nextDouble() - 0.5e0D) * diversity;
+		}
 
-		return (float)value;
+		return (float) value;
 	}
 
 	/**
 	 *
-	 * @param input
+	 * @param input (-1.0 ～ 2.0)
 	 * @return
 	 */
-	private float transActionMemory(double input) {
+	private float transActionMemory(double input, boolean dFlag) {
 
+		double diversity = 1.0e-3D;	// 揺らぎの大きさ
 		double value = (input + 1.5e0D) / 4.0e0D;
 
-		// 揺らぎを加える
-		value += (randomizer.nextDouble() - 0.5e0D) * 1.0e-3D;
+		if (dFlag) {
+			// 揺らぎを加える
+			value += (randomizer.nextDouble() - 0.5e0D) * diversity;
+		}
 
-		return (float)value;
+		return (float) value;
 	}
 
 	/**
 	 *
-	 * @param input
-	 * @return
+	 * @param input {-1, 0, 1, 2}
+	 * @return 0.0 ～ 1.0
 	 */
-	private float transAction(int input) {
+	private float transAction(int input, boolean dFlag) {
 
-		double value = ((double) input + 0.5e0D) / 4.0e0D;
+		double diversity = 1.0e-3D;	// 揺らぎの大きさ
+		double value = ((double) input + 1.5e0D) / 4.0e0D;
 
-		// 揺らぎを加える
-		value += (randomizer.nextDouble() - 0.5e0D) * 1.0e-3D;
+		if (dFlag) {
+			// 揺らぎを加える
+			value += (randomizer.nextDouble() - 0.5e0D) * diversity;
+		}
 
-		return (float)value;
+		return (float) value;
 	}
 
 	// ======================================================
@@ -341,17 +349,17 @@ public class QNetLearningAgent {
 			double dPreAvgIncEff, double dPreAvgScpAdj, int iAppPrs, int iIncEff, int iScpAdj) {
 
 		// データセットを加える
-		recordsIn[recCounter][0] = transProgress(dPrePrgR);
+		recordsIn[recCounter][0] = transProgress(dPrePrgR, true);
 		recordsIn[recCounter][1] = transRatio(dPreSpi);
 		recordsIn[recCounter][2] = transRatio(dPreCpi);
-		recordsIn[recCounter][3] = transActionMemory(dPreAvgAppPrs);
-		recordsIn[recCounter][4] = transActionMemory(dPreAvgIncEff);
-		recordsIn[recCounter][5] = transActionMemory(dPreAvgScpAdj);
-		recordsIn[recCounter][6] = transAction(iAppPrs);
-		recordsIn[recCounter][7] = transAction(iIncEff);
-		recordsIn[recCounter][8] = transAction(iScpAdj);
+		recordsIn[recCounter][3] = transActionMemory(dPreAvgAppPrs, true);
+		recordsIn[recCounter][4] = transActionMemory(dPreAvgIncEff, true);
+		recordsIn[recCounter][5] = transActionMemory(dPreAvgScpAdj, true);
+		recordsIn[recCounter][6] = transAction(iAppPrs, true);
+		recordsIn[recCounter][7] = transAction(iIncEff, true);
+		recordsIn[recCounter][8] = transAction(iScpAdj, true);
 
-		recordsOut[recCounter][0] = (float)updateQ;
+		recordsOut[recCounter][0] = (float) updateQ;
 
 		if (maxBatchSize == ++recCounter) {
 			// バッチサイズ上限に達した場合
@@ -431,9 +439,10 @@ public class QNetLearningAgent {
 	}
 
 	/**
+	 * 学習のためのサンプル記録を表示する
 	 * 
-	 * @param in
-	 * @param out
+	 * @param in  入力値
+	 * @param out 出力値
 	 */
 	void checkRec(INDArray in, INDArray out) {
 
@@ -448,7 +457,6 @@ public class QNetLearningAgent {
 			System.out.println();
 		}
 		System.out.println("--");
-
 	}
 
 	/**
@@ -464,7 +472,7 @@ public class QNetLearningAgent {
 		System.out.println("  Applying Pressure.");
 
 		cnt = 0;
-		for (int a0 = 0; a0 < 4; a0++) {
+		for (int a = ProjectManagementAction.MIN_ACTION_AP; a <= ProjectManagementAction.MAX_ACTION_AP; a++) {
 			for (int i = 0; i <= 10; i++) {
 				tmp[cnt][0] = (float) i / 10.0e0F;
 				tmp[cnt][1] = 0.5e0F;
@@ -472,7 +480,7 @@ public class QNetLearningAgent {
 				tmp[cnt][3] = 0.5e0F;
 				tmp[cnt][4] = 0.5e0F;
 				tmp[cnt][5] = 0.5e0F;
-				tmp[cnt][6] = (float) a0 / 4.0e0F;
+				tmp[cnt][6] = transAction(a, false);
 				tmp[cnt][7] = 0.5e0F;
 				tmp[cnt][8] = 0.5e0F;
 				cnt++;
@@ -483,7 +491,7 @@ public class QNetLearningAgent {
 		INDArray out1 = qNet.getValues(in1);
 
 		cnt = 0;
-		for (int a0 = 0; a0 < 4; a0++) {
+		for (int a = ProjectManagementAction.MIN_ACTION_AP; a <= ProjectManagementAction.MAX_ACTION_AP; a++) {
 			for (int i = 0; i <= 10; i++) {
 				double val = out1.getDouble(cnt++);
 				System.out.printf("%10.4f\t", val);
@@ -491,10 +499,10 @@ public class QNetLearningAgent {
 			System.out.println();
 		}
 
-		System.out.println("  Increasing Resource.");
+		System.out.println("  Increasing Effort.");
 
 		cnt = 0;
-		for (int a0 = 0; a0 < 4; a0++) {
+		for (int a = ProjectManagementAction.MIN_ACTION_IE; a <= ProjectManagementAction.MAX_ACTION_IE; a++) {
 			for (int i = 0; i <= 10; i++) {
 				tmp[cnt][0] = (float) i / 10.0e0F;
 				tmp[cnt][1] = 0.5e0F;
@@ -503,7 +511,7 @@ public class QNetLearningAgent {
 				tmp[cnt][4] = 0.5e0F;
 				tmp[cnt][5] = 0.5e0F;
 				tmp[cnt][6] = 0.5e0F;
-				tmp[cnt][7] = (float) a0 / 4.0e0F;
+				tmp[cnt][7] = transAction(a, false);
 				tmp[cnt][8] = 0.5e0F;
 				cnt++;
 			}
@@ -513,7 +521,7 @@ public class QNetLearningAgent {
 		INDArray out2 = qNet.getValues(in2);
 
 		cnt = 0;
-		for (int a0 = 0; a0 < 4; a0++) {
+		for (int a = ProjectManagementAction.MIN_ACTION_IE; a <= ProjectManagementAction.MAX_ACTION_IE; a++) {
 			for (int i = 0; i <= 10; i++) {
 				double val = out2.getDouble(cnt++);
 				System.out.printf("%10.4f\t", val);
@@ -524,7 +532,7 @@ public class QNetLearningAgent {
 		System.out.println("  Scope Adjustment.");
 
 		cnt = 0;
-		for (int a0 = 0; a0 < 4; a0++) {
+		for (int a = ProjectManagementAction.MIN_ACTION_SA; a <= ProjectManagementAction.MAX_ACTION_SA; a++) {
 			for (int i = 0; i <= 10; i++) {
 				tmp[cnt][0] = (float) i / 10.0e0F;
 				tmp[cnt][1] = 0.5e0F;
@@ -534,7 +542,7 @@ public class QNetLearningAgent {
 				tmp[cnt][5] = 0.5e0F;
 				tmp[cnt][6] = 0.5e0F;
 				tmp[cnt][7] = 0.5e0F;
-				tmp[cnt][8] = (float) a0 / 4.0e0F;
+				tmp[cnt][8] = transAction(a, false);
 				cnt++;
 			}
 		}
@@ -543,7 +551,7 @@ public class QNetLearningAgent {
 		INDArray out3 = qNet.getValues(in3);
 
 		cnt = 0;
-		for (int a0 = 0; a0 < 4; a0++) {
+		for (int a = ProjectManagementAction.MIN_ACTION_SA; a <= ProjectManagementAction.MAX_ACTION_SA; a++) {
 			for (int i = 0; i <= 10; i++) {
 				double val = out3.getDouble(cnt++);
 				System.out.printf("%10.4f\t", val);

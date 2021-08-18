@@ -8,72 +8,72 @@ package jp.ac.tcu.okadak.project_reinforcement_learning;
 public class ProjectManagementAction {
 
 	/**
-	 * 計画遵守圧力指示.
-	 */
-	private int applyingPressure;
-
-	/**
 	 * 計画遵守圧力指示の最大値.
 	 */
-	static final int MAX_ACTION_AP = 3;
+	static final int MAX_ACTION_AP = 2;
 
 	/**
 	 * 計画遵守圧力指示の最小値.
 	 */
 	static final int MIN_ACTION_AP = -1;
+	/**
+	 * 計画遵守圧力指示.
+	 */
+	private int applyingPressure;
 
 	/**
 	 * 計画遵守圧力指示の値を取得する.
 	 *
-	 * @return 計画遵守圧力指示の値
+	 * @return 計画遵守圧力指示の値 (-1, 0, 1, 2)
 	 */
 	final int getApplyingPressure() {
 		return this.applyingPressure;
 	}
 
 	/**
-	 * 工数増加指示.
-	 */
-	private int increasingEffort;
-
-	/**
 	 * 工数増加指示の最大値.
 	 */
-	static final int MAX_ACTION_IE = 3;
+	static final int MAX_ACTION_IE = 2;
 
 	/**
 	 * 工数増加指示の最小値.
 	 */
 	static final int MIN_ACTION_IE = -1;
+	
+	/**
+	 * 工数増加指示.
+	 */
+	private int increasingEffort;
 
 	/**
 	 * 工数増加指示の値を取得する.
 	 *
-	 * @return 工数増加指示の値
+	 * @return 工数増加指示の値 (-1, 0, 1, 2)
 	 */
 	final int getIncreasingEffort() {
 		return this.increasingEffort;
 	}
 
 	/**
-	 * スコープ調整指示.
-	 */
-	private int scopeAdjust;
-
-	/**
 	 * スコープ調整指示の最大値.
 	 */
-	static final int MAX_ACTION_SA = 3;
+	static final int MAX_ACTION_SA = 2;
 
 	/**
 	 * スコープ調整指示の最小値.
 	 */
 	static final int MIN_ACTION_SA = -1;
+	
+	
+	/**
+	 * スコープ調整指示.
+	 */
+	private int scopeAdjust;
 
 	/**
 	 * スコープ調整指示の値を取得する.
 	 *
-	 * @return スコープ調整指示の値
+	 * @return スコープ調整指示の値 (-1, 0, 1, 2)
 	 */
 	final int getScopeAdjust() {
 		return this.scopeAdjust;

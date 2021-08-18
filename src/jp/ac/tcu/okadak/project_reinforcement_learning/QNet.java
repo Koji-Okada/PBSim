@@ -25,7 +25,7 @@ public class QNet {
 	 *
 	 */
 	private MultiLayerNetwork qNet;
-	private int[] inNodeLevels; // 入力データの次元数
+	private int[] inNodeLevels; // 入力ノードの分解能の定義
 	int nInNodes; // 入力ノード数(内部)
 	private Random rdm = new Random();
 	MultiLayerConfiguration nnConf;
@@ -54,9 +54,9 @@ public class QNet {
 		QNet qNetObj = new QNet();
 //		int[] inNodeLevels = { 10, 4, 4, 4, 4, 4, 4, 4, 4 };
 		int[] inNodeLevels = { 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-		
+
 		qNetObj.generate(inNodeLevels); // ニューラルネットの生成
-		
+
 		qNetObj.initializeAndTest(); // 初期化
 
 		System.out.println("... Fin.");
@@ -69,15 +69,21 @@ public class QNet {
 	 *
 	 * @return QNet本体
 	 */
-	void generate(int[] levels) {
 
-		inNodeLevels = levels;
+	/**
+	 * Q-Netを生成する.
+	 * 
+	 * @param inNodes 入力ノードの分解能の定義
+	 */
+	void generate(int[] inNodes) {
+
+		this.inNodeLevels = inNodes;
 
 		// ニューラルネット構成を定義する
-		nnConf = nnConfiguration(levels);
+		this.nnConf = nnConfiguration();
 
 		// ニューラルネットを生成する
-		qNet = new MultiLayerNetwork(nnConf);
+		this.qNet = new MultiLayerNetwork(nnConf);
 		qNet.init();
 //		qNet.setListeners(new ScoreIterationListener(1));
 
@@ -109,10 +115,10 @@ public class QNet {
 			res[i][0] = 0.0e0F;
 		}
 		INDArray outData = Nd4j.create(res);
-		
+
 		// 初期化用データを使って学習する
 		double score = update(inData, outData);
-		
+
 		return score;
 	}
 
@@ -141,7 +147,7 @@ public class QNet {
 			res[i][0] = 0.0e0F;
 		}
 //		INDArray outData = Nd4j.create(res);
-		
+
 		// テスト用
 		int num = 12;
 		int num2 = 3;
@@ -159,7 +165,6 @@ public class QNet {
 		}
 		INDArray outData = Nd4j.create(res);
 
-		
 		// 初期化用データを使って学習する
 		double score = update(inData, outData);
 
@@ -168,22 +173,21 @@ public class QNet {
 		for (int i = 0; i < num; i++) {
 			System.out.println(" -- " + confirm.getFloat(i, 0));
 		}
-		
+
 		return score;
 	}
-	
-	
+
 	/**
 	 * ネットワーク構成を定義する.
 	 *
 	 * @return ネット構成の定義.
 	 */
-	private MultiLayerConfiguration nnConfiguration(int[] levels) {
+	private MultiLayerConfiguration nnConfiguration() {
 
-		// 入力分解レベルを考慮する
+		// 入力分解能を考慮する
 		nInNodes = 0;
-		for (int i = 0; i < levels.length; i++) {
-			nInNodes += levels[i];
+		for (int i = 0; i < inNodeLevels.length; i++) {
+			nInNodes += inNodeLevels[i];
 		}
 
 		System.out.println("Input nodes = " + nInNodes);
@@ -241,9 +245,9 @@ public class QNet {
 	 */
 	double update(INDArray in, INDArray out) {
 
-		qNet = new MultiLayerNetwork(nnConf);
+		qNet = new MultiLayerNetwork(nnConf);	// init()が効いていないようなので、作り直している
 		qNet.init();
-		
+
 		INDArray transIn = transInData(in);
 		INDArray transOut = transOutData(out);
 		double score = planeUpdate(transIn, transOut);
@@ -266,13 +270,13 @@ public class QNet {
 		double score = 1.0e3D; // 大きめの値から
 		double preScore = 1.2e3D;
 		while ((score > 1.0e-4D) && (preScore - score > 1.0e-6D)) {
-		for (int i = 0; i < nEpochs; i++) {
+			for (int i = 0; i < nEpochs; i++) {
 				data.shuffle();
 				qNet.fit(data); // 学習する
 			}
 			preScore = score;
 			score = qNet.score(data); // テストする
-			System.out.println(score);			
+			System.out.println(score);
 		}
 
 		return score;
@@ -290,14 +294,14 @@ public class QNet {
 		INDArray out = qNet.output(transIn);
 		return out;
 	}
-	
+
 	/**
 	 * 
 	 * @param in
 	 * @return
 	 */
 	private INDArray transInData(INDArray in) {
-	
+
 		int nSamples = (int) in.size(0);
 		float[][] transData = new float[nSamples][nInNodes];
 
@@ -310,22 +314,22 @@ public class QNet {
 				float v = in.getFloat(i, j);
 				int sep = inNodeLevels[j];
 //				System.out.printf("%5.4f: ", v);
-				
+
 				// エンコーディング
-				float st = 1.0e0F / (float)sep;
-				for (int k = 0; k < sep ; k++) {
+				float st = 1.0e0F / (float) sep;
+				for (int k = 0; k < sep; k++) {
 					float tr;
-					float s0 = (float)k * st;
-					float s1 = (float)(k+1) * st; 
+					float s0 = (float) k * st;
+					float s1 = (float) (k + 1) * st;
 					if (v < s0) {
 						tr = 0.0e0F;
 					} else if (v > s1) {
 						tr = 1.0e0F;
 					} else {
-						tr = (v - s0) * (float)sep;
+						tr = (v - s0) * (float) sep;
 					}
 					transData[i][cnt++] = tr;
-					
+
 //					System.out.printf("%5.4f, ", tr);
 				}
 //				System.out.println();
@@ -333,26 +337,26 @@ public class QNet {
 		}
 
 		INDArray transIn = Nd4j.create(transData);
-		
+
 		return transIn;
-		
+
 	}
-	
+
 	/*
 	 * 
 	 */
 	private INDArray transOutData(INDArray out) {
-	
+
 		int nSamples = (int) out.size(0);
 		float[][] transData = new float[nSamples][1];
-		
+
 		for (int i = 0; i < nSamples; i++) {
 			double v = out.getDouble(i, 0);
-			transData[i][0] = (float)Math.tanh(v * 0.01e0D);
-		}		
+			transData[i][0] = (float) Math.tanh(v * 0.01e0D);
+		}
 		INDArray transOut = Nd4j.create(transData);
 
 		return transOut;
-		
+
 	}
 }
