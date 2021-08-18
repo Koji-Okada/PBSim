@@ -186,15 +186,15 @@ public class QNetLearningAgent {
 		for (int a0 = ProjectManagementAction.MIN_ACTION_AP; a0 <= ProjectManagementAction.MAX_ACTION_AP; a0++) {
 			for (int a1 = ProjectManagementAction.MIN_ACTION_IE; a1 <= ProjectManagementAction.MAX_ACTION_IE; a1++) {
 				for (int a2 = ProjectManagementAction.MIN_ACTION_SA; a2 <= ProjectManagementAction.MAX_ACTION_SA; a2++) {
-					tmp[cnt][0] = transProgress(dPrgR, true);
+					tmp[cnt][0] = transProgress(dPrgR, false);
 					tmp[cnt][1] = transRatio(dSpi, 5.0e0D);
 					tmp[cnt][2] = transRatio(dCpi, 5.0e0D);
-					tmp[cnt][3] = transActionMemory(dAvgAppPrs, true);
-					tmp[cnt][4] = transActionMemory(dAvgIncEff, true);
-					tmp[cnt][5] = transActionMemory(dAvgScpAdj, true);
-					tmp[cnt][6] = transAction(a0, true);
-					tmp[cnt][7] = transAction(a1, true);
-					tmp[cnt][8] = transAction(a2, true);
+					tmp[cnt][3] = transActionMemory(dAvgAppPrs, false);
+					tmp[cnt][4] = transActionMemory(dAvgIncEff, false);
+					tmp[cnt][5] = transActionMemory(dAvgScpAdj, false);
+					tmp[cnt][6] = transAction(a0, false);
+					tmp[cnt][7] = transAction(a1, false);
+					tmp[cnt][8] = transAction(a2, false);
 					cnt++;
 				}
 			}
