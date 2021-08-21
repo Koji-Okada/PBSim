@@ -39,7 +39,7 @@ public class QNet {
 	// エポック数
 //	private int nEpochsInitialize = 256;
 //	private int nEpochsUpdate = 256;
-	private int nEpochsUpdate = 1024;
+	private int nEpochsUpdate = 1024 * 2;
 
 	/**
 	 *
@@ -53,20 +53,15 @@ public class QNet {
 
 		QNet qNetObj = new QNet();
 		
-		qNetObj.test();
-		
 //		int[] inNodeLevels = { 10, 4, 4, 4, 4, 4, 4, 4, 4 };
 		int[] inNodeLevels = { 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 
 		qNetObj.generate(inNodeLevels); // ニューラルネットの生成
 
-		qNetObj.initializeAndTest(); // 初期化
+		qNetObj.initialize(); // 初期化
 
 		System.out.println("... Fin.");
 
-
-		
-		
 		return;
 	}
 
@@ -151,64 +146,6 @@ public class QNet {
 	}
 
 	/**
-	 * 
-	 * @param dimensions
-	 * @return
-	 */
-	double initializeAndTest() {
-
-		int cMax = inNodeLevels.length;
-		int rMax = initDataSize;
-
-		// 入力側データを設定する
-		float[][] data = new float[rMax][cMax];
-		for (int i = 0; i < rMax; i++) {
-			data[i][0] = sampleX() * 0.7e0F;
-			for (int j = 1; j < cMax; j++) {
-				data[i][j] = sampleX();
-			}
-		}
-		INDArray inData = Nd4j.create(data);
-
-		// 出力側データを設定する
-		float[][] res = new float[rMax][1];
-		for (int i = 0; i < rMax; i++) {
-			res[i][0] = 0.0e0F;
-		}
-//		INDArray outData = Nd4j.create(res);
-
-		// テスト用
-		int num = 10;
-		int num2 = 2;
-		float[][] test = new float[num][9];
-		for (int i = 0; i < num; i++) {
-			for (int j = 0; j < 9; j++) {
-				test[i][j] = sampleX();
-				if (i < num2) {
-					test[i][j] = data[i][j];
-				}
-			}
-			if (i < num2) {
-				test[i][0] = 1.0e0F;
-				data[i][0] = 1.0e0F;
-				res[i][0] = -50.0e0F;
-			}
-		}
-		INDArray outData = Nd4j.create(res);
-
-		// 初期化用データを使って学習する
-		double score = update(inData, outData);
-
-		INDArray testData = Nd4j.create(test);
-		INDArray confirm = getValues(testData);
-		for (int i = 0; i < num; i++) {
-			System.out.println(" -- " + confirm.getFloat(i, 0));
-		}
-
-		return score;
-	}
-
-	/**
 	 * ネットワーク構成を定義する.
 	 *
 	 * @return ネット構成の定義.
@@ -281,8 +218,9 @@ public class QNet {
 
 		INDArray transIn = transInData(in);
 		INDArray transOut = transOutData(out);
-//		double score = planeUpdate(transIn, transOut);
-		double score = planeUpdate(transIn, out);
+		double score = planeUpdate(transIn, transOut);
+//		double score = planeUpdate(transIn, out);
+//		double score = planeUpdate(in, out);
 
 		
 		return score;
@@ -295,14 +233,13 @@ public class QNet {
 	 * @return
 	 */
 	private double planeUpdate(INDArray in, INDArray out) {
-		DataSet data = new DataSet(in, out);
-
-		// 学習する
+	
 		int nEpochs = nEpochsUpdate;
-
+		DataSet data = new DataSet(in, out);
+		
 		double score = 1.0e3D; // 大きめの値から
 		double preScore = 1.2e3D;
-		while ((score > 1.0e-5D) && (preScore - score > 1.0e-6D)) {
+		while ((score > 1.0e-8D) && (preScore - score > 1.0e-10D)) {
 			for (int i = 0; i < nEpochs; i++) {
 				data.shuffle();
 				qNet.fit(data); // 学習する
@@ -326,9 +263,7 @@ public class QNet {
 		INDArray transIn = transInData(in);
 		INDArray out = qNet.output(transIn);
 		INDArray inv = invOutData(out);
-//		return inv;
-		
-		return out;
+		return inv;
 	}
 
 	/**
@@ -349,7 +284,7 @@ public class QNet {
 			for (int j = 0; j < inNodeLevels.length; j++) {
 				float v = in.getFloat(i, j);
 				int sep = inNodeLevels[j];
-//				System.out.printf("%5.4f: ", v);
+//				System.out.printf("%5.4f => ", v);
 
 				// エンコーディング
 				float st = 1.0e0F / (float) sep;
@@ -379,37 +314,28 @@ public class QNet {
 	}
 
 	
-	private double conv = 0.0e0D;
+	private float transRange;
+	private float transShift;
 	/*
 	 * 
 	 */
 	private INDArray transOutData(INDArray out) {
 
+		float max = out.max(0).getFloat(0, 0);
+		float min = out.min(0).getFloat(0, 0);
+		
+		transRange = (max - min) / 2.0e0F;
+		transShift = (max + min) / 2.0e0F;
+		
 		int nSamples = (int) out.size(0);
-
-		double min = 1.0e9D;	// 十分大きな値
-		double v;
-		for (int i = 0; i < nSamples; i++) {
-			v = out.getDouble(i, 0);
-			if (v < min) {
-				min = v;
-			}
-		}
-		conv = min;
-		
 		float[][] transData = new float[nSamples][1];
-		
 		for (int i = 0; i < nSamples; i++) {
-			double x = out.getDouble(i, 0);
-			double y = x - conv;
-			double z = 1.0e0D / (1.0e0D + Math.exp(-y * 0.01e0D)) - 1.0e0D;
-			
-			transData[i][0] = (float) z;
+			float x = out.getFloat(i, 0);
+			transData[i][0] = (x - transShift) / transRange;
 		}
 		INDArray transOut = Nd4j.create(transData);
 
 		return transOut;
-
 	}
 	
 	/*
@@ -421,15 +347,11 @@ public class QNet {
 		float[][] invData = new float[nSamples][1];
 		
 		for (int i = 0; i < nSamples; i++) {
-			double z = out.getDouble(i, 0);
-			double y = Math.log((1.0e0D / (z + 1.0e0D) - 1.0e0D));
-			double x = conv - y / 0.01e0D;
-			
-			invData[i][0] = (float) x;
+			float z = out.getFloat(i, 0);
+			invData[i][0] = z * transRange + transShift;
 		}
 		INDArray invOut = Nd4j.create(invData);
 
 		return invOut;
 	}
-	
 }
