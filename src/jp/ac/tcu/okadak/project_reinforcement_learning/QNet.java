@@ -284,7 +284,7 @@ public class QNet {
 			for (int j = 0; j < inNodeLevels.length; j++) {
 				float v = in.getFloat(i, j);
 				int sep = inNodeLevels[j];
-//				System.out.printf("%5.4f => ", v);
+				System.out.printf("%5.4f => ", v);
 
 				// エンコーディング
 				float st = 1.0e0F / (float) sep;
@@ -301,9 +301,9 @@ public class QNet {
 					}
 					transData[i][cnt++] = tr;
 
-//					System.out.printf("%5.4f, ", tr);
+					System.out.printf("%5.4f, ", tr);
 				}
-//				System.out.println();
+				System.out.println();
 			}
 		}
 
