@@ -313,6 +313,53 @@ public class QNet {
 
 	}
 
+	/**
+	 * 
+	 * @param n
+	 * @param in
+	 * @return
+	 */
+	float[] transInValue(int n, boolean flag, float in) {
+		
+		int size = n;
+		if (flag) {
+			size++;
+		}
+		float[] out = new float[size];
+		
+		// 上下限値を制限する
+		if (in < 0.0e0F) {
+			in = 0.0e0F;
+		} else if (in > 1.0e0F) {
+			in = 1.0e0F;
+		}
+		
+		
+		float m = (in * (float)n);
+		int k = (int)Math.floor(m);
+		System.out.printf(" (%3d) ", k);
+		
+		int cnt = 0;
+		if (flag) {
+			out[cnt++] = 1.0e0F;
+		}
+		
+		for (int i = 0; i < n; i++) {
+			float x;			
+			if (i < k) {
+				x = 1.0e0F;
+			} else if (i > k) {
+				x = 0.0e0F;
+			} else {
+				x = m - (float)k;
+			}
+			out[cnt++] = x;
+		}
+
+		return out;
+	}
+	
+	
 	
 	private float transRange;
 	private float transShift;

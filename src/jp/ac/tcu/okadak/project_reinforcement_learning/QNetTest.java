@@ -11,6 +11,21 @@ public class QNetTest {
 
 		QNet qNet = new QNet();
 
+//		int num = 10;
+//		for (int i = -2 ; i <= 102 ; i++) {
+//			float in = (float)i/(float)100;
+//			float[] out = qNet.transInValue(num, true, in);
+//			System.out.printf("%4.2f -> ", in);
+//			
+//			for (int j = 0; j < out.length; j++) {
+//				System.out.printf("\t%4.2f", out[j]);
+//			}
+//			System.out.println();
+//		}
+//		
+//		
+//		if (true) return;
+		
 //		int[] inNodeLevels = { 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 		int[] inNodeLevels = { 10, 4, 4, 4, 4, 4, 4, 4, 4 };
 //		int[] inNodeLevels = { 1, 1, 1 };
