@@ -20,7 +20,7 @@ public class QNetLearningAgent {
 	/**
 	 * 学習率 α. この値の率で Q値を更新
 	 */
-	private double alpha = 0.10e0D;
+	private double alpha = 0.20e0D;
 //	private double alpha = 1.00e0D;
 
 	/**
@@ -57,10 +57,14 @@ public class QNetLearningAgent {
 
 		// Qネット関数を生成する
 		qNet = new QNet();
-//		int[] inNodes = {10, 5, 5, 5, 5, 5, 5, 5, 5};
-		int[] inNodes = { 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 
-		qNet.generate(inNodes);
+//		int[] inNodes = { 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+		int[] inNodes = { 10, 4, 4, 4, 4, 4, 4, 4, 4 };
+		int tb = QNet.TOP_BOUNDARY_PLUS | QNet.DIFFERENTIAL;
+		int nr = QNet.NORMAL | QNet.DIFFERENTIAL;
+		int[] encodings = {tb, nr, nr, nr, nr, nr, nr, nr, nr};
+				
+		qNet.generate(inNodes, encodings);
 		qNet.initialize();
 
 		return;
@@ -350,15 +354,15 @@ public class QNetLearningAgent {
 			double dPreAvgIncEff, double dPreAvgScpAdj, int iAppPrs, int iIncEff, int iScpAdj) {
 
 		// データセットを加える
-		recordsIn[recCounter][0] = transProgress(dPrePrgR, true);
+		recordsIn[recCounter][0] = transProgress(dPrePrgR, false);
 		recordsIn[recCounter][1] = transRatio(dPreSpi, 5.0e0D);
 		recordsIn[recCounter][2] = transRatio(dPreCpi, 5.0e0D);
-		recordsIn[recCounter][3] = transActionMemory(dPreAvgAppPrs, true);
-		recordsIn[recCounter][4] = transActionMemory(dPreAvgIncEff, true);
-		recordsIn[recCounter][5] = transActionMemory(dPreAvgScpAdj, true);
-		recordsIn[recCounter][6] = transAction(iAppPrs, true);
-		recordsIn[recCounter][7] = transAction(iIncEff, true);
-		recordsIn[recCounter][8] = transAction(iScpAdj, true);
+		recordsIn[recCounter][3] = transActionMemory(dPreAvgAppPrs, false);
+		recordsIn[recCounter][4] = transActionMemory(dPreAvgIncEff, false);
+		recordsIn[recCounter][5] = transActionMemory(dPreAvgScpAdj, false);
+		recordsIn[recCounter][6] = transAction(iAppPrs, false);
+		recordsIn[recCounter][7] = transAction(iIncEff, false);
+		recordsIn[recCounter][8] = transAction(iScpAdj, false);
 
 		recordsOut[recCounter][0] = (float) updateQ;
 

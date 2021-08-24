@@ -26,15 +26,19 @@ public class QNet {
 	 */
 	private MultiLayerNetwork qNet;
 	private int[] inNodeLevels; // 入力ノードの分解能の定義
-	int nInNodes; // 入力ノード数(内部)
+	private int[] inNodeEncodings; // エンコード仕様の定義
+
+	// ビット演算可能な形式
+	static int NORMAL = 0;
+	static int TOP_BOUNDARY_PLUS = 1;
+	static int BOTTOM_BOUNDARY_PLUS = 2;
+	static int DIFFERENTIAL = 4;
+
+	private int nInNodes; // 入力ノード数(内部)
 	private Random rdm = new Random();
 	MultiLayerConfiguration nnConf;
 
 	private int initDataSize = 256 * 8;
-
-	// 入力値の広さ
-//	private float extSpace = 2.0e0F;
-	private float extSpace = 1.0e0F;
 
 	// エポック数
 //	private int nEpochsInitialize = 256;
@@ -52,41 +56,23 @@ public class QNet {
 		System.out.println("Start QNet ...");
 
 		QNet qNetObj = new QNet();
-		
-//		int[] inNodeLevels = { 10, 4, 4, 4, 4, 4, 4, 4, 4 };
-		int[] inNodeLevels = { 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 
-		qNetObj.generate(inNodeLevels); // ニューラルネットの生成
+		int[] nodeLevels = { 10, 4, 4, 4, 4, 4, 4, 4, 4 };
+//		int[] nodeLevels = { 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 
-		qNetObj.initialize(); // 初期化
+		int tb = TOP_BOUNDARY_PLUS;
+		int nr = NORMAL;
+		int[] encordings = { tb, nr, nr, nr, nr, nr, nr, nr, nr };
+
+		qNetObj.generate(nodeLevels, encordings); // ニューラルネットを生成する
+
+		qNetObj.initialize(); // 初期化する
 
 		System.out.println("... Fin.");
 
 		return;
 	}
 
-	/**
-	 * 
-	 */
-	void test() {
-		
-		double[][] a = new double[10][1];
-		for (int i = 1; i < 10; i++) {
-			a[i][0] = (double)i * -50e0D;
-		}
-		
-		INDArray b = Nd4j.create(a);		
-		System.out.println(b);
-		
-		INDArray c = transOutData(b);
-		System.out.println(c);
-
-		INDArray d = invOutData(c);
-		System.out.println(d);
-		
-	}
-	
-	
 	/**
 	 * Q-Netを生成する.
 	 *
@@ -98,9 +84,10 @@ public class QNet {
 	 * 
 	 * @param inNodes 入力ノードの分解能の定義
 	 */
-	void generate(int[] inNodes) {
+	void generate(int[] inNodes, int[] encodings) {
 
 		this.inNodeLevels = inNodes;
+		this.inNodeEncodings = encodings;
 
 		// ニューラルネット構成を定義する
 		this.nnConf = nnConfiguration();
@@ -155,13 +142,30 @@ public class QNet {
 		// 入力分解能を考慮する
 		nInNodes = 0;
 		for (int i = 0; i < inNodeLevels.length; i++) {
+			int en = inNodeEncodings[i];
 			nInNodes += inNodeLevels[i];
+
+			if (DIFFERENTIAL == (DIFFERENTIAL & en)) {
+				// 微分型(2-Hot)の場合
+				nInNodes++;
+			}
+			if (TOP_BOUNDARY_PLUS == (TOP_BOUNDARY_PLUS & en)) {
+				// 上限境界ノードを置く場合
+				nInNodes++;
+			}
+			if (BOTTOM_BOUNDARY_PLUS == (BOTTOM_BOUNDARY_PLUS & en)) {
+				// 下限境界ノードを置くの場合
+				nInNodes++;
+			}
+
 		}
 
 		System.out.println("Input nodes = " + nInNodes);
 
-//		int nMidNodes = nInNodes;
-		int nMidNodes = nInNodes % 2 + 1; // 半分に絞る
+		int nMidNodes = nInNodes;
+//		int nMidNodes = nInNodes % 2 + 1; // 半分に絞る
+//		int nMidNodes = nInNodes * 2; // 倍に拡げる
+
 		int nOutNodes = 1;
 
 		// 中間層を定義する
@@ -194,15 +198,13 @@ public class QNet {
 	}
 
 	/**
-	 * 広がりを考慮してサンプル値(スカラー)を取得する.
+	 * サンプル値(スカラー)を取得する.
 	 *
 	 * @param ext
 	 * @return
 	 */
 	float sampleX() {
-
-		return rdm.nextFloat() * extSpace - ((extSpace - 1.0e0F) / 2.0e0F);
-
+		return rdm.nextFloat();
 	}
 
 	/**
@@ -213,16 +215,13 @@ public class QNet {
 	 */
 	double update(INDArray in, INDArray out) {
 
-		qNet = new MultiLayerNetwork(nnConf);	// init()が効いていないようなので、作り直している
+		qNet = new MultiLayerNetwork(nnConf); // init()が効いていないようなので、作り直している
 		qNet.init();
 
 		INDArray transIn = transInData(in);
 		INDArray transOut = transOutData(out);
-		double score = planeUpdate(transIn, transOut);
-//		double score = planeUpdate(transIn, out);
-//		double score = planeUpdate(in, out);
+		double score = normarizedUpdate(transIn, transOut);
 
-		
 		return score;
 	}
 
@@ -232,21 +231,28 @@ public class QNet {
 	 * @param out
 	 * @return
 	 */
-	private double planeUpdate(INDArray in, INDArray out) {
-	
+	private double normarizedUpdate(INDArray in, INDArray out) {
+
 		int nEpochs = nEpochsUpdate;
 		DataSet data = new DataSet(in, out);
-		
+
 		double score = 1.0e3D; // 大きめの値から
-		double preScore = 1.2e3D;
-		while ((score > 1.0e-8D) && (preScore - score > 1.0e-10D)) {
+		double preScore = 2.0e3D;
+		while (score > 1.0e-5D) {
+
 			for (int i = 0; i < nEpochs; i++) {
 				data.shuffle();
 				qNet.fit(data); // 学習する
 			}
 			preScore = score;
 			score = qNet.score(data); // テストする
-			System.out.println(score);
+
+			System.out.println("sc = " + score);
+
+			if ((preScore - score) / score < 1.0e-3D) {
+				System.out.println("..Break");
+				break;
+			}
 		}
 
 		return score;
@@ -278,91 +284,112 @@ public class QNet {
 
 //		System.out.println("[ " + nInNodes + " : " + nSamples + " ]");
 
-		int cnt;
 		for (int i = 0; i < nSamples; i++) {
-			cnt = 0;
+			int cnt = 0;
 			for (int j = 0; j < inNodeLevels.length; j++) {
 				float v = in.getFloat(i, j);
 				int sep = inNodeLevels[j];
-				System.out.printf("%5.4f => ", v);
+				int encoding = inNodeEncodings[j];
 
-				// エンコーディング
-				float st = 1.0e0F / (float) sep;
-				for (int k = 0; k < sep; k++) {
-					float tr;
-					float s0 = (float) k * st;
-					float s1 = (float) (k + 1) * st;
-					if (v < s0) {
-						tr = 0.0e0F;
-					} else if (v > s1) {
-						tr = 1.0e0F;
-					} else {
-						tr = (v - s0) * (float) sep;
-					}
-					transData[i][cnt++] = tr;
+				float[] trans = transInValue(sep, encoding, v);
 
-					System.out.printf("%5.4f, ", tr);
+				for (int k = 0; k < trans.length; k++, cnt++) {
+					transData[i][cnt] = trans[k];
 				}
-				System.out.println();
 			}
 		}
 
 		INDArray transIn = Nd4j.create(transData);
 
 		return transIn;
-
 	}
 
 	/**
 	 * 
+	 * 
 	 * @param n
+	 * @param topSideFlag
 	 * @param in
 	 * @return
 	 */
-	float[] transInValue(int n, boolean flag, float in) {
-		
+	float[] transInValue(int n, int encoding, float in) {
+
+//		System.out.printf("%6.5f => ", in);
+
+		float th = 0.999999e0F; // 閾値
 		int size = n;
-		if (flag) {
+
+		if (DIFFERENTIAL == (DIFFERENTIAL & encoding)) {
+			// 微分型(2-Hot)の場合
 			size++;
 		}
+		if (TOP_BOUNDARY_PLUS == (TOP_BOUNDARY_PLUS & encoding)) {
+			// 上限境界ノードを置く場合
+			size++;
+		}
+		if (BOTTOM_BOUNDARY_PLUS == (BOTTOM_BOUNDARY_PLUS & encoding)) {
+			// 下限境界ノードを置くの場合
+			size++;
+		}
+
 		float[] out = new float[size];
-		
-		// 上下限値を制限する
+
+		// 入力値を上下限値で制限する
 		if (in < 0.0e0F) {
 			in = 0.0e0F;
 		} else if (in > 1.0e0F) {
 			in = 1.0e0F;
 		}
-		
-		
-		float m = (in * (float)n);
-		int k = (int)Math.floor(m);
-		System.out.printf(" (%3d) ", k);
-		
+
+		float m = (in * (float) n);
+		int k = (int) m;
+
 		int cnt = 0;
-		if (flag) {
+		if (BOTTOM_BOUNDARY_PLUS == (BOTTOM_BOUNDARY_PLUS & encoding)) {
+			cnt++;
+		}
+		if (DIFFERENTIAL == (DIFFERENTIAL & encoding)) {
 			out[cnt++] = 1.0e0F;
 		}
-		
-		for (int i = 0; i < n; i++) {
-			float x;			
+
+		for (int i = 0; i < n; i++, cnt++) {
+			float x;
 			if (i < k) {
 				x = 1.0e0F;
 			} else if (i > k) {
 				x = 0.0e0F;
 			} else {
-				x = m - (float)k;
+				x = m - (float) k;
 			}
-			out[cnt++] = x;
+			out[cnt] = x;
+
+			if (DIFFERENTIAL == (DIFFERENTIAL & encoding)) {
+				out[cnt - 1] -= x;
+			}
 		}
 
+		if (TOP_BOUNDARY_PLUS == (TOP_BOUNDARY_PLUS & encoding)) {
+			if (out[cnt - 1] > th) {
+				out[cnt] = 1.0e0F;
+			}
+		}
+		if (BOTTOM_BOUNDARY_PLUS == (BOTTOM_BOUNDARY_PLUS & encoding)) {
+			if (out[1] > th) {
+				out[0] = 1.0e0F;
+			}
+		}
+
+//		for (int i = 0; i < out.length; i++) {
+//			System.out.printf("%5.4f, ", out[i]);
+//		}
+//		System.out.println();
+		
 		return out;
 	}
-	
-	
-	
+
 	private float transRange;
 	private float transShift;
+
 	/*
 	 * 
 	 */
@@ -370,32 +397,40 @@ public class QNet {
 
 		float max = out.max(0).getFloat(0, 0);
 		float min = out.min(0).getFloat(0, 0);
-		
+
 		transRange = (max - min) / 2.0e0F;
 		transShift = (max + min) / 2.0e0F;
-		
+
 		int nSamples = (int) out.size(0);
 		float[][] transData = new float[nSamples][1];
 		for (int i = 0; i < nSamples; i++) {
 			float x = out.getFloat(i, 0);
-			transData[i][0] = (x - transShift) / transRange;
+			if (transRange >= 1.0e-6F) {
+				transData[i][0] = (x - transShift) / transRange;
+			} else {
+				transData[i][0] = 0.5e0F;
+			}
 		}
 		INDArray transOut = Nd4j.create(transData);
 
 		return transOut;
 	}
-	
+
 	/*
 	 * 
 	 */
 	private INDArray invOutData(INDArray out) {
-		
+
 		int nSamples = (int) out.size(0);
 		float[][] invData = new float[nSamples][1];
-		
+
 		for (int i = 0; i < nSamples; i++) {
 			float z = out.getFloat(i, 0);
-			invData[i][0] = z * transRange + transShift;
+			if (transRange >= 1.0e-6F) {
+				invData[i][0] = z * transRange + transShift;
+			} else {
+				invData[i][0] = transShift;
+			}
 		}
 		INDArray invOut = Nd4j.create(invData);
 
