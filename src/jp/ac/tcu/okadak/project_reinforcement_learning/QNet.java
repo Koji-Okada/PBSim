@@ -314,8 +314,6 @@ public class QNet {
 	 */
 	float[] transInValue(int n, int encoding, float in) {
 
-//		System.out.printf("%6.5f => ", in);
-
 		float th = 0.999999e0F; // 閾値
 		int size = n;
 
@@ -335,13 +333,14 @@ public class QNet {
 		float[] out = new float[size];
 
 		// 入力値を上下限値で制限する
+		float limitedIn = in;
 		if (in < 0.0e0F) {
-			in = 0.0e0F;
+			limitedIn = 0.0e0F;
 		} else if (in > 1.0e0F) {
-			in = 1.0e0F;
+			limitedIn = 1.0e0F;
 		}
 
-		float m = (in * (float) n);
+		float m = (limitedIn * (float) n);
 		int k = (int) m;
 
 		int cnt = 0;
@@ -379,11 +378,14 @@ public class QNet {
 			}
 		}
 
-//		for (int i = 0; i < out.length; i++) {
-//			System.out.printf("%5.4f, ", out[i]);
-//		}
-//		System.out.println();
-		
+		if (true) {
+			System.out.printf("%6.5f => ", in);
+			for (int i = 0; i < out.length; i++) {
+				System.out.printf("%5.4f, ", out[i]);
+			}
+			System.out.println();
+		}
+
 		return out;
 	}
 
