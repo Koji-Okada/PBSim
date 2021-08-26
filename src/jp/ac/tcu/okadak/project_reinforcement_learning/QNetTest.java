@@ -10,6 +10,8 @@ public class QNetTest {
 		System.out.println("Start QNetTest...");
 
 		QNet qNet = new QNet();
+
+		
 		
 //		int[] nodeLevels = { 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 		int[] nodeLevels = { 10, 4, 4, 4, 4, 4, 4, 4, 4 };
