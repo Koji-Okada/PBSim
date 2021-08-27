@@ -90,9 +90,6 @@ public final class QNetLSimulator {
 						true, true);
 
 				System.out.println(" Project " + j + "L-"+ i + " completed.");
-				if (i % 16 == 15) {
-					agent.leanRecords();
-				}
 			}
 
 			// 学習収束度パラメータを初期化する
@@ -108,9 +105,6 @@ public final class QNetLSimulator {
 						false, true);
 
 				System.out.println(" Project " + j + "E-"+ i + " completed.");
-				if (i % 16 == 15) {
-					agent.leanRecords();
-				}
 			}
 
 			// 学習速度のコンソール出力
@@ -213,7 +207,7 @@ public final class QNetLSimulator {
 
 			if (learning) {
 				// エージェントに学習させる
-				learningIndex += agent.learn(preState, action, reward,
+				learningIndex += agent.qLearn(preState, action, reward,
 						postState);
 			}
 

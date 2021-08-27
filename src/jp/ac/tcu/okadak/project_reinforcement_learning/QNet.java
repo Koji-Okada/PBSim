@@ -381,7 +381,7 @@ public class QNet {
 			}
 		}
 
-		if (true) {
+		if (false) {
 			System.out.printf("%6.5f => ", in);
 			for (int i = 0; i < out.length; i++) {
 				System.out.printf("%5.4f, ", out[i]);
