@@ -38,7 +38,7 @@ public class QNet {
 	private Random rdm = new Random();
 	MultiLayerConfiguration nnConf;
 
-	private int initDataSize = 256 * 8;
+	private int initDataSize = 256 * 4;
 
 	// エポック数
 //	private int nEpochsInitialize = 256;

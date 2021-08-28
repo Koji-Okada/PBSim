@@ -20,8 +20,8 @@ public class QNetLearningAgent {
 	/**
 	 * 学習率 α. この値の率で Q値を更新
 	 */
-	private double alpha = 0.20e0D;
-//	private double alpha = 1.00e0D;
+//	private double alpha = 0.20e0D;
+	private double alpha = 1.00e0D;
 
 	/**
 	 * 割引率 γ. この値の率を乗算
@@ -68,7 +68,8 @@ public class QNetLearningAgent {
 
 //		int[] inNodes = { 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 		int[] inNodes = { 10, 4, 4, 4, 4, 4, 4, 4, 4 };
-		int tb = QNet.TOP_BOUNDARY_PLUS | QNet.DIFFERENTIAL;
+//		int tb = QNet.TOP_BOUNDARY_PLUS | QNet.DIFFERENTIAL;
+		int tb = QNet.NORMAL | QNet.DIFFERENTIAL;
 		int nr = QNet.NORMAL | QNet.DIFFERENTIAL;
 		int[] encodings = { tb, nr, nr, nr, nr, nr, nr, nr, nr };
 
@@ -142,12 +143,16 @@ public class QNetLearningAgent {
 		double gap = 0.0e0D;
 		Experience exp = new Experience(preState, action, postState, reward);
 
-		Experience[] data = expMem.addExperience(exp);
-		if (null != data) {
-			// 経験記憶が溜まったら
-			gap = updateByBatch(data);	// Q関数をバッチ更新する
-		}
+		boolean t = qNet.isStateTransit(10, (float) preState.getProgressRate(), (float) postState.getProgressRate());
 
+//		if (t || (randomizer.nextDouble() < 0.5e0D)) {
+		if (t) {
+			Experience[] data = expMem.addExperience(exp);
+			if (null != data) {
+				// 経験記憶が溜まったら
+				gap = updateByBatch(data); // Q関数をバッチ更新する
+			}
+		}
 		return gap;
 	}
 
@@ -216,7 +221,7 @@ public class QNetLearningAgent {
 			data[cnt][8] = transAction(iScpAdj, false);
 
 			for (int j = 0; j < 9; j++) {
-				upIn[i][j] = data[cnt][j];				
+				upIn[i][j] = data[cnt][j];
 			}
 			cnt++;
 		}
@@ -257,18 +262,19 @@ public class QNetLearningAgent {
 			double reward = exp[i].getReward();
 			double q1 = reward + gamma * postQ[i];
 			double updateQ = (1.0e0D - alpha) * q0[i] + alpha * q1;
-			upOut[i][0] = (float)updateQ;
+			upOut[i][0] = (float) updateQ;
 			gap += (q1 - q0[i]) * (q1 - q0[i]);
 		}
 
 		INDArray updateIn = Nd4j.create(upIn);
 		INDArray updateOut = Nd4j.create(upOut);
 
+//		checkRec(updateIn, updateOut);
 		double v = qNet.update(updateIn, updateOut); // 更新処理.
+		checkQ();
 
 		return gap;
 	}
-
 
 	/**
 	 * 状態S において最大の Q値となる行動A を求める
@@ -349,23 +355,23 @@ public class QNetLearningAgent {
 	 *
 	 * @return Q値
 	 */
-	private double getQV(double dPrgR, double dSpi, double dCpi, double dAvgAppPrs, double dAvgIncEff,
-			double dAvgScpAdj, int aP, int iE, int sA) {
-
-		float[][] tmp = new float[1][9];
-		tmp[0][0] = transProgress(dPrgR, false);
-		tmp[0][1] = transRatio(dSpi, 5.0e0D);
-		tmp[0][2] = transRatio(dCpi, 5.0e0D);
-		tmp[0][3] = transActionMemory(dAvgAppPrs, false);
-		tmp[0][4] = transActionMemory(dAvgIncEff, false);
-		tmp[0][5] = transActionMemory(dAvgScpAdj, false);
-		tmp[0][6] = transAction(aP, false);
-		tmp[0][7] = transAction(iE, false);
-		tmp[0][8] = transAction(sA, false);
-
-		INDArray index = Nd4j.create(tmp);
-		return qNet.getValues(index).getDouble(0, 0);
-	}
+//	private double getQV(double dPrgR, double dSpi, double dCpi, double dAvgAppPrs, double dAvgIncEff,
+//			double dAvgScpAdj, int aP, int iE, int sA) {
+//
+//		float[][] tmp = new float[1][9];
+//		tmp[0][0] = transProgress(dPrgR, false);
+//		tmp[0][1] = transRatio(dSpi, 5.0e0D);
+//		tmp[0][2] = transRatio(dCpi, 5.0e0D);
+//		tmp[0][3] = transActionMemory(dAvgAppPrs, false);
+//		tmp[0][4] = transActionMemory(dAvgIncEff, false);
+//		tmp[0][5] = transActionMemory(dAvgScpAdj, false);
+//		tmp[0][6] = transAction(aP, false);
+//		tmp[0][7] = transAction(iE, false);
+//		tmp[0][8] = transAction(sA, false);
+//
+//		INDArray index = Nd4j.create(tmp);
+//		return qNet.getValues(index).getDouble(0, 0);
+//	}
 
 	/**
 	 *

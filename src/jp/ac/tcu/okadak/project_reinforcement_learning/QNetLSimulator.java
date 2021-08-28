@@ -186,7 +186,7 @@ public final class QNetLSimulator {
 
 			// 行動前の状態を観測する
 			ProjectState preState = project.observe();
-
+						
 			// エージェントに行動を決定させる
 			ProjectManagementAction action = agent.decideAction(preState,
 					exploring);

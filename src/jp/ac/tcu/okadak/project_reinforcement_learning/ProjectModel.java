@@ -163,7 +163,7 @@ class ProjectModel {
 		this.accumlatedApplyingPressure += action.getApplyingPressure();
 		this.accumlatedIncreasingEfforts += action.getIncreasingEffort();
 		this.accumlatedScopeAdjust += action.getScopeAdjust();
-
+		
 		// プロジェクトマネジメント行動により可変パラメータを設定する
 		setParameters(action);
 

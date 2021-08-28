@@ -351,7 +351,7 @@ class ProjectState {
 	final void setAverageAPIESA(final double avgAP, final double avgIE, final double avgSA) {
 		this.averageApplyingPressure = avgAP;
 		this.averageIncreasingEffort = avgIE;
-		this.averageIncreasingEffort = avgSA;
+		this.averageScopeAdjust = avgSA;
 
 		// 内部歪み推定を行わない場合は、全て 0 に設定し直す
 //		this.averageApplyingPressure = 0.0e0D;
