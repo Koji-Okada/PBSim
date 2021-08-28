@@ -145,8 +145,10 @@ public class QNetLearningAgent {
 
 		boolean t = qNet.isStateTransit(10, (float) preState.getProgressRate(), (float) postState.getProgressRate());
 
-//		if (t || (randomizer.nextDouble() < 0.5e0D)) {
-		if (t) {
+		if (t || (randomizer.nextDouble() < 2.0e0D)) {
+//		if (t) {
+//			System.out.println("!:" + preState.getProgressRate() + " => " + postState.getProgressRate());
+			
 			Experience[] data = expMem.addExperience(exp);
 			if (null != data) {
 				// 経験記憶が溜まったら
@@ -269,7 +271,7 @@ public class QNetLearningAgent {
 		INDArray updateIn = Nd4j.create(upIn);
 		INDArray updateOut = Nd4j.create(upOut);
 
-//		checkRec(updateIn, updateOut);
+		checkRec(updateIn, updateOut);
 		double v = qNet.update(updateIn, updateOut); // 更新処理.
 		checkQ();
 

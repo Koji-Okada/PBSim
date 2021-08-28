@@ -272,7 +272,6 @@ public class QNet {
 		return inv;
 	}
 
-	
 	/**
 	 * 入力ベクトルをエンコーディングする
 	 * 
@@ -306,14 +305,14 @@ public class QNet {
 		return transIn;
 	}
 
-	
 	float th = 0.999999e0F; // 閾値
+
 	/**
 	 * 入力値をエンコーディングする
 	 * 
-	 * @param n	離散化数
+	 * @param n        離散化数
 	 * @param encoding エンコーディング方式
-	 * @param in 入力値
+	 * @param in       入力値
 	 * @return エンコーディングされたベクトル
 	 */
 	private float[] transInValue(int n, int encoding, float in) {
@@ -395,7 +394,7 @@ public class QNet {
 	/**
 	 * 離散化したとき、状態推移するか否か
 	 * 
-	 * @param pre 前の状態
+	 * @param pre  前の状態
 	 * @param post 後の状態
 	 * @return 状態遷移した場合 true
 	 */
@@ -403,10 +402,10 @@ public class QNet {
 
 		int kPre = discretize(n, pre);
 		int kPost = discretize(n, post);
-		
+
 		return (kPre != kPost);
 	}
-	
+
 	/**
 	 * 離散化する
 	 * 
@@ -415,7 +414,7 @@ public class QNet {
 	 * @return 離散化された値
 	 */
 	private int discretize(int n, float x) {
-		
+
 		// 入力値を上下限値で制限する
 		float limitedX = x;
 		if (x < 0.0e0F) {
@@ -423,7 +422,7 @@ public class QNet {
 		} else if (x > 1.0e0F) {
 			limitedX = 1.0e0F;
 		}
-		
+
 		int k = (int) (limitedX * (float) n);
 
 		if (1.0e0F - limitedX < th) {
@@ -431,21 +430,19 @@ public class QNet {
 		} else if (limitedX < th) {
 			k--;
 		}
-		
+
 		return k;
 	}
-	
-	
-	
+
 	/**
 	 * 出力ベクトル変換・逆変換のためのパラメータ
 	 */
 	private float transRange;
 	private float transShift;
-
+	private float grobalShift = 0.0e0F;
+	
 	/**
-	 * 出力ベクトルを変換する
-	 * (0　～ 1 の値にする)
+	 * 出力ベクトルを変換する (-1 ～ 1 の値にする)
 	 * 
 	 * @param vec 出力ベクトル
 	 * @return 変換された出力ベクトル
@@ -465,8 +462,9 @@ public class QNet {
 			if (transRange >= 1.0e-6F) {
 				transData[i][0] = (x - transShift) / transRange;
 			} else {
-				transData[i][0] = 0.5e0F;
+				transData[i][0] = 0.0e0F;
 			}
+			transData[i][0] += grobalShift;
 		}
 		INDArray transOut = Nd4j.create(transData);
 
@@ -486,11 +484,13 @@ public class QNet {
 
 		for (int i = 0; i < nSamples; i++) {
 			float x = vec.getFloat(i, 0);
+			x -= grobalShift;
 			if (transRange >= 1.0e-6F) {
 				invData[i][0] = x * transRange + transShift;
 			} else {
 				invData[i][0] = transShift;
 			}
+
 		}
 		INDArray invOut = Nd4j.create(invData);
 
