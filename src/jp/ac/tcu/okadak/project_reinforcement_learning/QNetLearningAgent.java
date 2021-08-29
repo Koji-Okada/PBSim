@@ -68,8 +68,8 @@ public class QNetLearningAgent {
 
 //		int[] inNodes = { 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 		int[] inNodes = { 10, 4, 4, 4, 4, 4, 4, 4, 4 };
-//		int tb = QNet.TOP_BOUNDARY_PLUS | QNet.DIFFERENTIAL;
-		int tb = QNet.NORMAL | QNet.DIFFERENTIAL;
+		int tb = QNet.TOP_BOUNDARY_PLUS | QNet.DIFFERENTIAL;
+//		int tb = QNet.NORMAL | QNet.DIFFERENTIAL;
 		int nr = QNet.NORMAL | QNet.DIFFERENTIAL;
 		int[] encodings = { tb, nr, nr, nr, nr, nr, nr, nr, nr };
 
@@ -145,7 +145,7 @@ public class QNetLearningAgent {
 
 		boolean t = qNet.isStateTransit(10, (float) preState.getProgressRate(), (float) postState.getProgressRate());
 
-		if (t || (randomizer.nextDouble() < 2.0e0D)) {
+		if (t || (randomizer.nextDouble() < 0.2e0D)) {
 //		if (t) {
 //			System.out.println("!:" + preState.getProgressRate() + " => " + postState.getProgressRate());
 			
@@ -183,8 +183,8 @@ public class QNetLearningAgent {
 				for (int a1 = ProjectManagementAction.MIN_ACTION_IE; a1 <= ProjectManagementAction.MAX_ACTION_IE; a1++) {
 					for (int a2 = ProjectManagementAction.MIN_ACTION_SA; a2 <= ProjectManagementAction.MAX_ACTION_SA; a2++) {
 						data[cnt][0] = transProgress(dPrgR, false);
-						data[cnt][1] = transRatio(dSpi, 5.0e0D);
-						data[cnt][2] = transRatio(dCpi, 5.0e0D);
+						data[cnt][1] = transSpi(dSpi);
+						data[cnt][2] = transCpi(dCpi);
 						data[cnt][3] = transActionMemory(dAvgAppPrs, false);
 						data[cnt][4] = transActionMemory(dAvgIncEff, false);
 						data[cnt][5] = transActionMemory(dAvgScpAdj, false);
@@ -213,8 +213,8 @@ public class QNetLearningAgent {
 			int iScpAdj = action.getScopeAdjust();
 
 			data[cnt][0] = transProgress(dPrgR, false);
-			data[cnt][1] = transRatio(dSpi, 5.0e0D);
-			data[cnt][2] = transRatio(dCpi, 5.0e0D);
+			data[cnt][1] = transSpi(dSpi);
+			data[cnt][2] = transCpi(dCpi);
 			data[cnt][3] = transActionMemory(dAvgAppPrs, false);
 			data[cnt][4] = transActionMemory(dAvgIncEff, false);
 			data[cnt][5] = transActionMemory(dAvgScpAdj, false);
@@ -271,7 +271,7 @@ public class QNetLearningAgent {
 		INDArray updateIn = Nd4j.create(upIn);
 		INDArray updateOut = Nd4j.create(upOut);
 
-		checkRec(updateIn, updateOut);
+//		checkRec(updateIn, updateOut);
 		double v = qNet.update(updateIn, updateOut); // 更新処理.
 		checkQ();
 
@@ -305,8 +305,8 @@ public class QNetLearningAgent {
 			for (int a1 = ProjectManagementAction.MIN_ACTION_IE; a1 <= ProjectManagementAction.MAX_ACTION_IE; a1++) {
 				for (int a2 = ProjectManagementAction.MIN_ACTION_SA; a2 <= ProjectManagementAction.MAX_ACTION_SA; a2++) {
 					tmp[cnt][0] = transProgress(dPrgR, false);
-					tmp[cnt][1] = transRatio(dSpi, 5.0e0D);
-					tmp[cnt][2] = transRatio(dCpi, 5.0e0D);
+					tmp[cnt][1] = transSpi(dSpi);
+					tmp[cnt][2] = transCpi(dCpi);
 					tmp[cnt][3] = transActionMemory(dAvgAppPrs, false);
 					tmp[cnt][4] = transActionMemory(dAvgIncEff, false);
 					tmp[cnt][5] = transActionMemory(dAvgScpAdj, false);
@@ -323,7 +323,7 @@ public class QNetLearningAgent {
 		INDArray out = qNet.getValues(in);
 
 		// 最適値を求める
-		double maxQ = -1.0e8;
+		double maxQ = -1.0e6;
 		int maxArg0 = 1;
 		int maxArg1 = 1;
 		int maxArg2 = 1;
@@ -353,42 +353,6 @@ public class QNetLearningAgent {
 
 	// ======================================================
 	/**
-	 * Q-Net関数により Q値を取得する.
-	 *
-	 * @return Q値
-	 */
-//	private double getQV(double dPrgR, double dSpi, double dCpi, double dAvgAppPrs, double dAvgIncEff,
-//			double dAvgScpAdj, int aP, int iE, int sA) {
-//
-//		float[][] tmp = new float[1][9];
-//		tmp[0][0] = transProgress(dPrgR, false);
-//		tmp[0][1] = transRatio(dSpi, 5.0e0D);
-//		tmp[0][2] = transRatio(dCpi, 5.0e0D);
-//		tmp[0][3] = transActionMemory(dAvgAppPrs, false);
-//		tmp[0][4] = transActionMemory(dAvgIncEff, false);
-//		tmp[0][5] = transActionMemory(dAvgScpAdj, false);
-//		tmp[0][6] = transAction(aP, false);
-//		tmp[0][7] = transAction(iE, false);
-//		tmp[0][8] = transAction(sA, false);
-//
-//		INDArray index = Nd4j.create(tmp);
-//		return qNet.getValues(index).getDouble(0, 0);
-//	}
-
-	/**
-	 *
-	 * @param ratio
-	 * @return
-	 */
-	private float transRatio(double ratio, double weight) {
-
-		double logValue = Math.log(ratio);
-		double value = 1.0e0D / (1.0e0D + Math.exp(-logValue * weight));
-
-		return (float) value;
-	}
-
-	/**
 	 *
 	 * @param input (0.0 ～ 1.0)
 	 * @return
@@ -397,7 +361,8 @@ public class QNetLearningAgent {
 
 		double diversity = 1.0e-3D; // 揺らぎの大きさ
 
-		double value = input;
+		double shift = 1.0e0D/100.0e0D;
+		double value = input + shift;
 
 		if (dFlag) {
 			// 小さな揺らぎを加える
@@ -407,6 +372,37 @@ public class QNetLearningAgent {
 		return (float) value;
 	}
 
+	/**
+	 *
+	 * @param ratio
+	 * @return
+	 */
+	private float transSpi(double ratio) {
+
+		// 0.75 ～ 1.25 と想定		
+		double range = 1.25e0D -0.75e0D;
+		double value = (ratio - 0.75e0D) / range ;
+
+		return (float) value;
+	}
+	
+	/**
+	 *
+	 * @param ratio
+	 * @return
+	 */
+	private float transCpi(double ratio) {
+
+		// 0.80 ～ 1.10 と想定
+		double range = 1.10e0D - 0.80e0D;
+		double value = (ratio - 0.80e0D) / range;
+		
+		return (float) value;
+	}
+
+	
+	
+	
 	/**
 	 *
 	 * @param input (-1.0 ～ 2.0)
