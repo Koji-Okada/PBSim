@@ -1,5 +1,8 @@
 package jp.ac.tcu.okadak.project_reinforcement_learning;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.util.Random;
 
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -148,7 +151,7 @@ public class QNetLearningAgent {
 		if (t || (randomizer.nextDouble() < 0.2e0D)) {
 //		if (t) {
 //			System.out.println("!:" + preState.getProgressRate() + " => " + postState.getProgressRate());
-			
+
 			Experience[] data = expMem.addExperience(exp);
 			if (null != data) {
 				// 経験記憶が溜まったら
@@ -271,7 +274,7 @@ public class QNetLearningAgent {
 		INDArray updateIn = Nd4j.create(upIn);
 		INDArray updateOut = Nd4j.create(upOut);
 
-//		checkRec(updateIn, updateOut);
+		checkRec("rec.txt", updateIn, updateOut);
 		double v = qNet.update(updateIn, updateOut); // 更新処理.
 		checkQ();
 
@@ -361,7 +364,7 @@ public class QNetLearningAgent {
 
 		double diversity = 1.0e-3D; // 揺らぎの大きさ
 
-		double shift = 1.0e0D/100.0e0D;
+		double shift = 1.0e0D / 100.0e0D;
 		double value = input + shift;
 
 		if (dFlag) {
@@ -379,13 +382,13 @@ public class QNetLearningAgent {
 	 */
 	private float transSpi(double ratio) {
 
-		// 0.75 ～ 1.25 と想定		
-		double range = 1.25e0D -0.75e0D;
-		double value = (ratio - 0.75e0D) / range ;
+		// 0.75 ～ 1.25 と想定
+		double range = 1.25e0D - 0.75e0D;
+		double value = (ratio - 0.75e0D) / range;
 
 		return (float) value;
 	}
-	
+
 	/**
 	 *
 	 * @param ratio
@@ -396,13 +399,10 @@ public class QNetLearningAgent {
 		// 0.80 ～ 1.10 と想定
 		double range = 1.10e0D - 0.80e0D;
 		double value = (ratio - 0.80e0D) / range;
-		
+
 		return (float) value;
 	}
 
-	
-	
-	
 	/**
 	 *
 	 * @param input (-1.0 ～ 2.0)
@@ -446,18 +446,28 @@ public class QNetLearningAgent {
 	 * @param in  入力値
 	 * @param out 出力値
 	 */
-	void checkRec(INDArray in, INDArray out) {
+	void checkRec(String fName, INDArray in, INDArray out) {
 
-		System.out.println("-- " + in.size(0));
-		for (int i = 0; i < in.size(0); i++) {
-			System.out.printf(" %4d\t:\t", i);
-			for (int j = 0; j < in.size(1); j++) {
-				System.out.printf("%10.4f\t", in.getFloat(i, j));
+		try {
+			File file = new File("D:/PBSimTmp/" + fName);
+			FileWriter fw = new FileWriter(file);
+			PrintWriter pw = new PrintWriter(fw);
+
+			pw.println("-- " + in.size(0));
+			for (int i = 0; i < in.size(0); i++) {
+				pw.printf(" %4d\t:\t", i);
+				for (int j = 0; j < in.size(1); j++) {
+					pw.printf("%10.4f\t", in.getFloat(i, j));
+				}
+				pw.printf(":\t%10.4f", out.getFloat(i, 0));
+				pw.println();
 			}
-			System.out.printf(":\t%10.4f", out.getFloat(i, 0));
-			System.out.println();
+			pw.println("--");
+
+			pw.close();
+		} catch (Exception e) {
+			System.out.println(e);
 		}
-		System.out.println("--");
 	}
 
 	/**

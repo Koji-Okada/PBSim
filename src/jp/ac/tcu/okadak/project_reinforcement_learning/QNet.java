@@ -372,11 +372,13 @@ public class QNet {
 		if (TOP_BOUNDARY_PLUS == (TOP_BOUNDARY_PLUS & encoding)) {
 			if (out[cnt - 1] > th) {
 				out[cnt] = 1.0e0F;
+				out[cnt - 1] = 0.0e0F;
 			}
 		}
 		if (BOTTOM_BOUNDARY_PLUS == (BOTTOM_BOUNDARY_PLUS & encoding)) {
 			if (out[1] > th) {
 				out[0] = 1.0e0F;
+				out[1] = 0.0e0F;
 			}
 		}
 
