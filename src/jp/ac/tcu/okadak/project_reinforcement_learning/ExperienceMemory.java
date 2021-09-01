@@ -5,9 +5,9 @@ import java.util.Random;
 public class ExperienceMemory {
 
 	private Random rdm;
-	static int MAX_MEMORY = 64;
+	static int MAX_MEMORY = 256;
 	static int MAX_GENERATION = 16;
-	static int DUMMY_RATE = 4;
+	static int DUMMY_RATE = 3;
 	private Experience[][] histories;
 	int gen = 0;
 	int cnt = 0;

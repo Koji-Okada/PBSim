@@ -15,6 +15,8 @@ import org.nd4j.linalg.factory.Nd4j;
  */
 public class QNetLearningAgent {
 
+	int recCnt = 0;
+	
 	/**
 	 * ε-Greedy 法 の ε. この値の率で探索
 	 */
@@ -274,7 +276,7 @@ public class QNetLearningAgent {
 		INDArray updateIn = Nd4j.create(upIn);
 		INDArray updateOut = Nd4j.create(upOut);
 
-		checkRec("rec.txt", updateIn, updateOut);
+		checkRec(updateIn, updateOut);
 		double v = qNet.update(updateIn, updateOut); // 更新処理.
 		checkQ();
 
@@ -446,23 +448,24 @@ public class QNetLearningAgent {
 	 * @param in  入力値
 	 * @param out 出力値
 	 */
-	void checkRec(String fName, INDArray in, INDArray out) {
+	void checkRec(INDArray in, INDArray out) {
 
+		String fName = "rec-" + (recCnt++) + ".txt";
 		try {
 			File file = new File("D:/PBSimTmp/" + fName);
 			FileWriter fw = new FileWriter(file);
 			PrintWriter pw = new PrintWriter(fw);
 
-			pw.println("-- " + in.size(0));
+//			pw.println("-- " + in.size(0));
 			for (int i = 0; i < in.size(0); i++) {
-				pw.printf(" %4d\t:\t", i);
+				pw.printf(" %4d\t", i);
 				for (int j = 0; j < in.size(1); j++) {
-					pw.printf("%10.4f\t", in.getFloat(i, j));
+					pw.printf("%16.8f\t", in.getFloat(i, j));
 				}
-				pw.printf(":\t%10.4f", out.getFloat(i, 0));
+				pw.printf("\t%16.8f", out.getFloat(i, 0));
 				pw.println();
 			}
-			pw.println("--");
+//			pw.println("--");
 
 			pw.close();
 		} catch (Exception e) {
