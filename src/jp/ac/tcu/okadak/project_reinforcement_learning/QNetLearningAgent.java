@@ -25,8 +25,8 @@ public class QNetLearningAgent {
 	/**
 	 * 学習率 α. この値の率で Q値を更新
 	 */
-//	private double alpha = 0.20e0D;
-	private double alpha = 1.00e0D;
+	private double alpha = 0.20e0D;
+//	private double alpha = 1.00e0D;
 
 	/**
 	 * 割引率 γ. この値の率を乗算
@@ -72,11 +72,13 @@ public class QNetLearningAgent {
 		expMem = new ExperienceMemory();
 
 //		int[] inNodes = { 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-		int[] inNodes = { 10, 4, 4, 4, 4, 4, 4, 4, 4 };
-		int tb = QNet.TOP_BOUNDARY_PLUS | QNet.DIFFERENTIAL;
-//		int tb = QNet.NORMAL | QNet.DIFFERENTIAL;
-		int nr = QNet.NORMAL | QNet.DIFFERENTIAL;
-		int[] encodings = { tb, nr, nr, nr, nr, nr, nr, nr, nr };
+//		int[] inNodes = { 10, 4, 4, 4, 4, 4, 4, 4, 4 };
+		int[] inNodes = { 10, 1, 1, 1, 1, 1, 1, 1, 1 };
+		int tbdf = QNet.TOP_BOUNDARY_PLUS | QNet.DIFFERENTIAL;
+//		int tb = QNet.TOP_BOUNDARY_PLUS;
+//		int df = QNet.NORMAL | QNet.DIFFERENTIAL;
+		int nr = QNet.NORMAL;
+		int[] encodings = { tbdf, nr, nr, nr, nr, nr, nr, nr, nr };
 
 		qNet.generate(inNodes, encodings);
 		qNet.initialize();
@@ -150,7 +152,7 @@ public class QNetLearningAgent {
 
 		boolean t = qNet.isStateTransit(10, (float) preState.getProgressRate(), (float) postState.getProgressRate());
 
-		if (t || (randomizer.nextDouble() < 0.2e0D)) {
+		if (t || (randomizer.nextDouble() < 1.2e0D)) {
 //		if (t) {
 //			System.out.println("!:" + preState.getProgressRate() + " => " + postState.getProgressRate());
 
@@ -172,6 +174,7 @@ public class QNetLearningAgent {
 		int num = exp.length;
 		int numAct = num * MAX_Q_AP * MAX_Q_IE * MAX_Q_SA;
 		float[][] data = new float[numAct + num][9];
+		boolean[] cmpFlag = new boolean[num];
 		int cnt = 0;
 
 		// 遷移後状態での MaxQ を求めるためのデータを作成
@@ -183,6 +186,7 @@ public class QNetLearningAgent {
 			double dAvgAppPrs = state.getAverageAP();
 			double dAvgIncEff = state.getAverageIE();
 			double dAvgScpAdj = state.getAverageSA();
+			cmpFlag[i] = state.isComplete();
 
 			for (int a0 = ProjectManagementAction.MIN_ACTION_AP; a0 <= ProjectManagementAction.MAX_ACTION_AP; a0++) {
 				for (int a1 = ProjectManagementAction.MIN_ACTION_IE; a1 <= ProjectManagementAction.MAX_ACTION_IE; a1++) {
@@ -255,7 +259,7 @@ public class QNetLearningAgent {
 			postQ[i] = maxQ;
 		}
 
-		// 状態遷移前＋行動の Q値を求める
+		// (状態遷移前＋行動)の Q値を求める
 		double[] q0 = new double[num];
 		for (int i = 0; i < num; i++) {
 			double qValue = out.getDouble(cnt++);
@@ -267,7 +271,12 @@ public class QNetLearningAgent {
 
 		for (int i = 0; i < num; i++) {
 			double reward = exp[i].getReward();
-			double q1 = reward + gamma * postQ[i];
+			
+			double g = gamma;
+//			if (cmpFlag[i]) {
+//				g = 0.0e0D;
+//			} 
+			double q1 = reward + g * postQ[i];
 			double updateQ = (1.0e0D - alpha) * q0[i] + alpha * q1;
 			upOut[i][0] = (float) updateQ;
 			gap += (q1 - q0[i]) * (q1 - q0[i]);
@@ -365,9 +374,7 @@ public class QNetLearningAgent {
 	private float transProgress(double input, boolean dFlag) {
 
 		double diversity = 1.0e-3D; // 揺らぎの大きさ
-
-		double shift = 1.0e0D / 100.0e0D;
-		double value = input + shift;
+		double value = input;
 
 		if (dFlag) {
 			// 小さな揺らぎを加える

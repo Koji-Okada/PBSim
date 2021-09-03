@@ -57,10 +57,10 @@ public class QNet {
 
 		QNet qNetObj = new QNet();
 
-		int[] nodeLevels = { 10, 4, 4, 4, 4, 4, 4, 4, 4 };
+		int[] nodeLevels = { 10, 1, 1, 1, 1, 1, 1, 1, 1 };
 //		int[] nodeLevels = { 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 
-		int tb = TOP_BOUNDARY_PLUS;
+		int tb = NORMAL | DIFFERENTIAL;
 		int nr = NORMAL;
 		int[] encordings = { tb, nr, nr, nr, nr, nr, nr, nr, nr };
 
@@ -305,7 +305,10 @@ public class QNet {
 		return transIn;
 	}
 
-	float th = 0.999999e0F; // 閾値
+	/**
+	 * 
+	 */
+	float th = 0.980e0F; // 閾値
 
 	/**
 	 * 入力値をエンコーディングする
