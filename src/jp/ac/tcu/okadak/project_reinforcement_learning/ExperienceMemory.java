@@ -4,8 +4,9 @@ import java.util.Random;
 
 public class ExperienceMemory {
 
+	private QNet qNet;
 	private Random rdm;
-	static int MAX_MEMORY = 256;
+	static int MAX_MEMORY = 128;
 	static int MAX_GENERATION = 16;
 	static int DUMMY_RATE = 3;
 	private Experience[][] histories;
@@ -15,9 +16,10 @@ public class ExperienceMemory {
 	/**
 	 * 
 	 */
-	public ExperienceMemory() {
+	public ExperienceMemory(QNet qN) {
 		super();
 
+		qNet = qN;
 		rdm = new Random();
 		
 		histories = new Experience[MAX_GENERATION][];
@@ -74,8 +76,13 @@ public class ExperienceMemory {
 				int m = (int) (rdm.nextFloat() * MAX_MEMORY);
 				sampleData[cnt++] = histories[n][m];
 			}
+			
+			// 過去 N期分の経験を追加
+//			for (int j = 0; j < DUMMY_RATE; j ++) {
+//				sampleData[cnt++] = histories[MAX_GENERATION-2-j][i];
+//			}
 		}
 				
 		return sampleData;
-	}
+	}	
 }

@@ -16,7 +16,7 @@ import org.nd4j.linalg.factory.Nd4j;
 public class QNetLearningAgent {
 
 	int recCnt = 0;
-	
+
 	/**
 	 * ε-Greedy 法 の ε. この値の率で探索
 	 */
@@ -69,12 +69,12 @@ public class QNetLearningAgent {
 		qNet = new QNet();
 
 		// 経験記憶器を生成する
-		expMem = new ExperienceMemory();
+		expMem = new ExperienceMemory(qNet);
 
 //		int[] inNodes = { 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 //		int[] inNodes = { 10, 4, 4, 4, 4, 4, 4, 4, 4 };
 		int[] inNodes = { 10, 1, 1, 1, 1, 1, 1, 1, 1 };
-//		int df = QNet.NORMAL | QNet.DIFFERENTIAL;
+		int df = QNet.NORMAL | QNet.DIFFERENTIAL;
 		int tbdf = QNet.TOP_BOUNDARY_PLUS | QNet.DIFFERENTIAL;
 		int nr = QNet.NORMAL;
 		int[] encodings = { tbdf, nr, nr, nr, nr, nr, nr, nr, nr };
@@ -170,14 +170,19 @@ public class QNetLearningAgent {
 	 */
 	private double updateByBatch(Experience[] exp) {
 
+		int anchorRate = 2;
 		int num = exp.length;
-		int numAct = num * MAX_Q_AP * MAX_Q_IE * MAX_Q_SA;
-		float[][] data = new float[numAct + num][9];
-		boolean[] cmpFlag = new boolean[num];
-		int cnt = 0;
+		int numForPre = num;
+		int numForPost = numForPre * MAX_Q_AP * MAX_Q_IE * MAX_Q_SA;
+		int numForAnchor = num * anchorRate;
 
-		// 遷移後状態での MaxQ を求めるためのデータを作成
-		for (int i = 0; i < num; i++) {
+		float[][] data = new float[numForPost + numForPre + numForAnchor][9]; // Q値を纏めて算出するため
+		float[][] upIn = new float[numForPre + numForAnchor][9]; // Q値更新用の入力
+		float[][] upOut = new float[numForPre + numForAnchor][1]; // Q値更新用のラベル
+
+		// ==== 遷移後状態での MaxQ を求めるためのデータを作成 (Step-1A)
+		int cnt = 0; // Step-1 を通じて使用
+		for (int i = 0; i < numForPre; i++) {
 			ProjectState state = exp[i].getPostState();
 			double dPrgR = state.getProgressRate();
 			double dSpi = state.getSPI();
@@ -185,7 +190,6 @@ public class QNetLearningAgent {
 			double dAvgAppPrs = state.getAverageAP();
 			double dAvgIncEff = state.getAverageIE();
 			double dAvgScpAdj = state.getAverageSA();
-			cmpFlag[i] = state.isComplete();
 
 			for (int a0 = ProjectManagementAction.MIN_ACTION_AP; a0 <= ProjectManagementAction.MAX_ACTION_AP; a0++) {
 				for (int a1 = ProjectManagementAction.MIN_ACTION_IE; a1 <= ProjectManagementAction.MAX_ACTION_IE; a1++) {
@@ -205,9 +209,8 @@ public class QNetLearningAgent {
 			}
 		}
 
-		// 遷移前状態での更新前 Q値を求めるためのデータを作成
-		float[][] upIn = new float[num][9];
-		for (int i = 0; i < num; i++) {
+		// ==== 遷移前状態での更新前 Q値を求めるためのデータを作成 (Step-1B)
+		for (int i = 0; i < numForPre; i++) {
 			ProjectState state = exp[i].getPreState();
 			double dPrgR = state.getProgressRate();
 			double dSpi = state.getSPI();
@@ -236,14 +239,32 @@ public class QNetLearningAgent {
 			cnt++;
 		}
 
-		// Q値を算出する
+		// ==== 錨点の Q値を求めるためのデータを作成 (Step-1C)
+		for (int i = 0; i < numForAnchor; i++) {
+			data[cnt][0] = qNet.sampleX();
+			data[cnt][1] = qNet.sampleX();
+			data[cnt][2] = qNet.sampleX();
+			data[cnt][3] = qNet.sampleX();
+			data[cnt][4] = qNet.sampleX();
+			data[cnt][5] = qNet.sampleX();
+			data[cnt][6] = qNet.sampleX();
+			data[cnt][7] = qNet.sampleX();
+			data[cnt][8] = qNet.sampleX();
+
+			for (int j = 0; j < 9; j++) {
+				upIn[numForPre + i][j] = data[cnt][j];
+			}
+			cnt++;
+		}
+
+		// ==== Q値を算出する (Step-2)
 		INDArray in = Nd4j.create(data);
 		INDArray out = qNet.getValues(in);
 
-		// 状態遷移後の最大Q値を求める
-		double[] postQ = new double[num];
-		cnt = 0;
-		for (int i = 0; i < num; i++) {
+		// ==== 状態遷移後の最大Q値を求める (Step-3A)
+		cnt = 0; // Step-3 を通じて使用
+		double[] postQ = new double[numForPre];
+		for (int i = 0; i < numForPre; i++) {
 			double maxQ = -1.0e8;
 			for (int a0 = ProjectManagementAction.MIN_ACTION_AP; a0 <= ProjectManagementAction.MAX_ACTION_AP; a0++) {
 				for (int a1 = ProjectManagementAction.MIN_ACTION_IE; a1 <= ProjectManagementAction.MAX_ACTION_IE; a1++) {
@@ -258,32 +279,34 @@ public class QNetLearningAgent {
 			postQ[i] = maxQ;
 		}
 
-		// (状態遷移前＋行動)の Q値を求める
-		double[] q0 = new double[num];
-		for (int i = 0; i < num; i++) {
-			double qValue = out.getDouble(cnt++);
-			q0[i] = qValue;
-		}
-
+		// ==== (状態遷移前＋行動)の Q値を求める (Step-3B)
 		double gap = 0.0e0D;
-		float[][] upOut = new float[num][1];
-
-		for (int i = 0; i < num; i++) {
+		for (int i = 0; i < numForPre; i++) {
+			double q0 = out.getDouble(cnt++);
 			double reward = exp[i].getReward();
 			
 			double g = gamma;
-			if (cmpFlag[i]) {
+			if (exp[i].getPostState().isComplete()) {
+				// プロジェクト完了時の状態遷移後Q値無効化処理
 				g = 0.0e0D;
-			} 
+			}
 			double q1 = reward + g * postQ[i];
-			
-			System.out.printf("!- %10.4f = %10.4f , %10.4f \n", q1, reward, g*postQ[i]);
-			
-			double updateQ = (1.0e0D - alpha) * q0[i] + alpha * q1;
+
+			System.out.printf("!- %10.4f = %10.4f , %10.4f \n", q1, reward, g * postQ[i]);
+
+			double updateQ = (1.0e0D - alpha) * q0 + alpha * q1;
 			upOut[i][0] = (float) updateQ;
-			gap += (q1 - q0[i]) * (q1 - q0[i]);
+			gap += (q1 - q0) * (q1 - q0);
 		}
 
+		// ==== 錨点の Q値を求める (Step-3C)
+		for (int i = 0; i < numForAnchor; i++) {
+			double q0 = out.getDouble(cnt++);
+			
+			upOut[numForPre + i][0] = (float)q0;
+		}
+		
+		// ==== 更新処理を行う (Step-4)
 		INDArray updateIn = Nd4j.create(upIn);
 		INDArray updateOut = Nd4j.create(upOut);
 
@@ -394,9 +417,17 @@ public class QNetLearningAgent {
 	private float transSpi(double ratio) {
 
 		// 0.75 ～ 1.25 と想定
-		double range = 1.25e0D - 0.75e0D;
-		double value = (ratio - 0.75e0D) / range;
+		double min = 0.75e0D;
+		double max = 1.25e0D;
+		double range = max - min;
+		double value = (ratio - min) / range;
 
+		if (value < 0.0e0F) {
+			value = 0.0e0F;
+		} else if (value > 1.0e0F) {
+			value = 1.0e0F;
+		}
+		
 		return (float) value;
 	}
 
@@ -407,10 +438,18 @@ public class QNetLearningAgent {
 	 */
 	private float transCpi(double ratio) {
 
-		// 0.80 ～ 1.10 と想定
-		double range = 1.10e0D - 0.80e0D;
-		double value = (ratio - 0.80e0D) / range;
+		// 0.70 ～ 1.10 と想定
+		double min = 0.70e0D;
+		double max = 1.10e0D;
+		double range = max - min;
+		double value = (ratio - min) / range;
 
+		if (value < 0.0e0F) {
+			value = 0.0e0F;
+		} else if (value > 1.0e0F) {
+			value = 1.0e0F;
+		}
+		
 		return (float) value;
 	}
 

@@ -40,6 +40,8 @@ public class RewardEvaluator {
 					+ (Math.min(rco, 1.0e0D / rco) - 1.0e0D) * RWD_FN_CST
 					+ (Math.min(rsc, 1.0e0D / rsc) - 1.0e0D) * RWD_FN_CPW;
 
+//			reward += 1.0e3D;	// 	お試し
+			
 			// 投資回収性の評価 (事例により、サービスモデルを切替えること)
 //			 double sd = state.getScheduleDelay();
 //			 double co = state.getCostOverrun();
@@ -54,7 +56,7 @@ public class RewardEvaluator {
 			reward = (1.0e0D - Math.max(spi, 1.0e0D / spi)) * RWD_OG_SCH
 					+ (1.0e0D - Math.max(cpi, 1.0e0D / cpi)) * RWD_OG_CST;
 		}
-
+		
 		return reward;
 	}
 }

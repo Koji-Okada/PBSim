@@ -308,7 +308,7 @@ public class QNet {
 	/**
 	 * 
 	 */
-	float th = 0.980e0F; // 閾値
+	float th = 0.98e0F; // 閾値
 
 	/**
 	 * 入力値をエンコーディングする
@@ -489,14 +489,15 @@ public class QNet {
 
 		for (int i = 0; i < nSamples; i++) {
 			float x = vec.getFloat(i, 0);
+			
 			x -= grobalShift;
 			if (transRange >= 1.0e-6F) {
 				invData[i][0] = x * transRange + transShift;
 			} else {
 				invData[i][0] = transShift;
 			}
-
 		}
+		
 		INDArray invOut = Nd4j.create(invData);
 
 		return invOut;
