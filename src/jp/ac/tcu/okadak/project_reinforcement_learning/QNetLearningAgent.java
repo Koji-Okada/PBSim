@@ -25,8 +25,8 @@ public class QNetLearningAgent {
 	/**
 	 * 学習率 α. この値の率で Q値を更新
 	 */
-	private double alpha = 0.20e0D;
-//	private double alpha = 1.00e0D;
+//	private double alpha = 0.20e0D;
+	private double alpha = 1.00e0D;
 
 	/**
 	 * 割引率 γ. この値の率を乗算
@@ -74,9 +74,8 @@ public class QNetLearningAgent {
 //		int[] inNodes = { 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 //		int[] inNodes = { 10, 4, 4, 4, 4, 4, 4, 4, 4 };
 		int[] inNodes = { 10, 1, 1, 1, 1, 1, 1, 1, 1 };
-		int tbdf = QNet.TOP_BOUNDARY_PLUS | QNet.DIFFERENTIAL;
-//		int tb = QNet.TOP_BOUNDARY_PLUS;
 //		int df = QNet.NORMAL | QNet.DIFFERENTIAL;
+		int tbdf = QNet.TOP_BOUNDARY_PLUS | QNet.DIFFERENTIAL;
 		int nr = QNet.NORMAL;
 		int[] encodings = { tbdf, nr, nr, nr, nr, nr, nr, nr, nr };
 
@@ -273,10 +272,13 @@ public class QNetLearningAgent {
 			double reward = exp[i].getReward();
 			
 			double g = gamma;
-//			if (cmpFlag[i]) {
-//				g = 0.0e0D;
-//			} 
+			if (cmpFlag[i]) {
+				g = 0.0e0D;
+			} 
 			double q1 = reward + g * postQ[i];
+			
+			System.out.printf("!- %10.4f = %10.4f , %10.4f \n", q1, reward, g*postQ[i]);
+			
 			double updateQ = (1.0e0D - alpha) * q0[i] + alpha * q1;
 			upOut[i][0] = (float) updateQ;
 			gap += (q1 - q0[i]) * (q1 - q0[i]);
