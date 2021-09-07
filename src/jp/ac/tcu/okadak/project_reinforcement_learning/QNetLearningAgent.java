@@ -149,9 +149,11 @@ public class QNetLearningAgent {
 		double gap = 0.0e0D;
 		Experience exp = new Experience(preState, action, postState, reward);
 
-		boolean t = qNet.isStateTransit(10, (float) preState.getProgressRate(), (float) postState.getProgressRate());
+//		boolean t = qNet.isStateTransit(10, (float) preState.getProgressRate(), (float) postState.getProgressRate());
 
-		if (t || (randomizer.nextDouble() < 1.2e0D)) {
+		boolean t = postState.isComplete();
+		
+		if (t || (randomizer.nextDouble() <= 0.2e0D)) {
 //		if (t) {
 //			System.out.println("!:" + preState.getProgressRate() + " => " + postState.getProgressRate());
 
