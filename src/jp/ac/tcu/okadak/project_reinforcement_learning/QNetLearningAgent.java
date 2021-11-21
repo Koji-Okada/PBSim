@@ -146,33 +146,37 @@ public class QNetLearningAgent {
 	 */
 	double qLearn(ProjectState preState, ProjectManagementAction action, double reward, ProjectState postState) {
 
-		double gap = 0.0e0D;
+		double gap = 0.0e0D; // 返り値を初期化する
+
 		Experience exp = new Experience(preState, action, postState, reward);
 
-//		boolean t = qNet.isStateTransit(10, (float) preState.getProgressRate(), (float) postState.getProgressRate());
+		Experience[] data = null;
+		double rate = 0.20e0D;
 
-		boolean t = postState.isComplete();
-		
-		if (t || (randomizer.nextDouble() <= 0.2e0D)) {
-//		if (t) {
-//			System.out.println("!:" + preState.getProgressRate() + " => " + postState.getProgressRate());
-
-			Experience[] data = expMem.addExperience(exp);
-			if (null != data) {
-				// 経験記憶が溜まったら
-				gap = updateByBatch(data); // Q関数をバッチ更新する
-			}
+		if ((randomizer.nextDouble() <= rate)) {
+			// 学習データに加える際に間引く
+			data = expMem.addExperience(exp); // 経験として記憶させる
+		} else if (postState.isComplete()) {
+			// プロジェクト完了時は大きな報酬が与えられるので強制的に記憶させる
+			data = expMem.addExperience(exp); // 経験として記憶させる
 		}
+
+		if (null != data) {
+			// 経験記憶が溜まったら
+			gap = updateByBatch(data); // Q関数をバッチ更新する
+		}
+
 		return gap;
 	}
 
 	/**
 	 * 
-	 * @param data
+	 * @param exp
 	 */
 	private double updateByBatch(Experience[] exp) {
 
-		int anchorRate = 2;
+//		int anchorRate = 2;
+		int anchorRate = 1;
 		int num = exp.length;
 		int numForPre = num;
 		int numForPost = numForPre * MAX_Q_AP * MAX_Q_IE * MAX_Q_SA;
@@ -243,15 +247,35 @@ public class QNetLearningAgent {
 
 		// ==== 錨点の Q値を求めるためのデータを作成 (Step-1C)
 		for (int i = 0; i < numForAnchor; i++) {
-			data[cnt][0] = qNet.sampleX();
-			data[cnt][1] = qNet.sampleX();
-			data[cnt][2] = qNet.sampleX();
-			data[cnt][3] = qNet.sampleX();
-			data[cnt][4] = qNet.sampleX();
-			data[cnt][5] = qNet.sampleX();
-			data[cnt][6] = qNet.sampleX();
-			data[cnt][7] = qNet.sampleX();
-			data[cnt][8] = qNet.sampleX();
+
+
+			float th = 1.0e0f;
+			boolean cFlag = false;
+			float d =10.0e0f;
+			do {
+				data[cnt][0] = qNet.sampleX();
+				data[cnt][1] = qNet.sampleX();
+				data[cnt][2] = qNet.sampleX();
+				data[cnt][3] = qNet.sampleX();
+				data[cnt][4] = qNet.sampleX();
+				data[cnt][5] = qNet.sampleX();
+				data[cnt][6] = qNet.sampleX();
+				data[cnt][7] = qNet.sampleX();
+				data[cnt][8] = qNet.sampleX();
+				
+				for (int j = 0; j < numForPre; j++) {
+					int p = numForPost + j;
+					d = squreDist(data[cnt], data[p]);
+					if (d < th) {
+						cFlag = true;
+//						System.out.println("    break!");
+						break;
+					} else {
+						cFlag = false;
+					}
+				}
+//				System.out.println("** d = " + d);					
+			} while (cFlag);
 
 			for (int j = 0; j < 9; j++) {
 				upIn[numForPre + i][j] = data[cnt][j];
@@ -286,7 +310,7 @@ public class QNetLearningAgent {
 		for (int i = 0; i < numForPre; i++) {
 			double q0 = out.getDouble(cnt++);
 			double reward = exp[i].getReward();
-			
+
 			double g = gamma;
 			if (exp[i].getPostState().isComplete()) {
 				// プロジェクト完了時の状態遷移後Q値無効化処理
@@ -304,10 +328,10 @@ public class QNetLearningAgent {
 		// ==== 錨点の Q値を求める (Step-3C)
 		for (int i = 0; i < numForAnchor; i++) {
 			double q0 = out.getDouble(cnt++);
-			
-			upOut[numForPre + i][0] = (float)q0;
+
+			upOut[numForPre + i][0] = (float) q0;
 		}
-		
+
 		// ==== 更新処理を行う (Step-4)
 		INDArray updateIn = Nd4j.create(upIn);
 		INDArray updateOut = Nd4j.create(upOut);
@@ -317,6 +341,24 @@ public class QNetLearningAgent {
 		checkQ();
 
 		return gap;
+	}
+
+	/**
+	 * 
+	 * @param d1
+	 * @param d2
+	 * @return
+	 */
+	private float squreDist(float[] d1, float[] d2) {
+
+		int dim = 9;
+
+		float dist = 0.0e0f;
+		for (int i = 0; i < dim; i++) {
+			dist += (d2[i] - d1[i]) * (d2[i] - d1[i]);
+		}
+
+		return dist;
 	}
 
 	/**
@@ -429,7 +471,7 @@ public class QNetLearningAgent {
 		} else if (value > 1.0e0F) {
 			value = 1.0e0F;
 		}
-		
+
 		return (float) value;
 	}
 
@@ -451,7 +493,7 @@ public class QNetLearningAgent {
 		} else if (value > 1.0e0F) {
 			value = 1.0e0F;
 		}
-		
+
 		return (float) value;
 	}
 
@@ -493,20 +535,21 @@ public class QNetLearningAgent {
 	}
 
 	/**
-	 * 学習のためのサンプル記録を表示する
+	 * 学習のためのサンプル記録をファイル出力する.
 	 * 
 	 * @param in  入力値
 	 * @param out 出力値
 	 */
 	void checkRec(INDArray in, INDArray out) {
 
+		String path = "D:/PBSimTmp/"; // 出力フォルダパス
 		String fName = "rec-" + (recCnt++) + ".txt";
 		try {
-			File file = new File("D:/PBSimTmp/" + fName);
-			FileWriter fw = new FileWriter(file);
-			PrintWriter pw = new PrintWriter(fw);
+			File file = new File(path + fName);
+			PrintWriter pw = new PrintWriter(new FileWriter(file));
 
-//			pw.println("-- " + in.size(0));
+			pw.println("Num\tProgressRate\tSpi\tCpi\tAvAppPrs\tAvIncEff\tAvScpAdj\tAppPrs\tIncEff\tScpAdj\t\tTargetQ");
+
 			for (int i = 0; i < in.size(0); i++) {
 				pw.printf(" %4d\t", i);
 				for (int j = 0; j < in.size(1); j++) {
@@ -515,7 +558,6 @@ public class QNetLearningAgent {
 				pw.printf("\t%16.8f", out.getFloat(i, 0));
 				pw.println();
 			}
-//			pw.println("--");
 
 			pw.close();
 		} catch (Exception e) {
@@ -525,6 +567,8 @@ public class QNetLearningAgent {
 
 	/**
 	 * 
+	 * 学習途中における Q値の値を、Action と ProgressRate の断面で確認する.
+	 * 
 	 */
 	void checkQ() {
 
@@ -533,6 +577,7 @@ public class QNetLearningAgent {
 
 		System.out.println("Q Learnt --");
 
+		// Applying Pressure と Progress Rate の断面で、Q値を表示
 		System.out.println("  Applying Pressure.");
 		cnt = 0;
 		for (int a = ProjectManagementAction.MIN_ACTION_AP; a <= ProjectManagementAction.MAX_ACTION_AP; a++) {
@@ -560,6 +605,7 @@ public class QNetLearningAgent {
 			System.out.println();
 		}
 
+		// Increasing Effort と Progress Rate の断面で、Q値を表示
 		System.out.println("  Increasing Effort.");
 		cnt = 0;
 		for (int a = ProjectManagementAction.MIN_ACTION_IE; a <= ProjectManagementAction.MAX_ACTION_IE; a++) {
@@ -587,6 +633,7 @@ public class QNetLearningAgent {
 			System.out.println();
 		}
 
+		// Scope Adhustment と Progress Rate の断面で、Q値を表示
 		System.out.println("  Scope Adjustment.");
 		cnt = 0;
 		for (int a = ProjectManagementAction.MIN_ACTION_SA; a <= ProjectManagementAction.MAX_ACTION_SA; a++) {
