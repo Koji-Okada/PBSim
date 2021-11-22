@@ -303,6 +303,9 @@ public class QNetLearningAgent {
 				}
 			}
 			postQ[i] = maxQ;
+//			if (maxQ > 100.0e0f) {
+//				System.out.println(" *-- " + maxQ + " : " + data[cnt-1][0] + ", " + data[cnt-1][1] + ", " + data[cnt-1][2]);
+//			}
 		}
 
 		// ==== (状態遷移前＋行動)の Q値を求める (Step-3B)

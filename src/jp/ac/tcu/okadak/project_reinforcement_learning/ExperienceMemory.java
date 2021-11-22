@@ -14,7 +14,7 @@ public class ExperienceMemory {
 	private Random rdm;
 	static int MAX_MEMORY = 128; // 記憶単位
 	static int MAX_GENERATION = 16; // 記憶の世代
-	static int EXPERIENCE_RATE = 3;
+	static int EXPERIENCE_RATE = 0;
 	private Experience[][] histories; // 世代を通した記憶
 	int gen = 0;
 	int cnt = 0;
