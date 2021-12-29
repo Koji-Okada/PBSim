@@ -296,12 +296,14 @@ public class QNetLearningAgent {
 				for (int a1 = ProjectManagementAction.MIN_ACTION_IE; a1 <= ProjectManagementAction.MAX_ACTION_IE; a1++) {
 					for (int a2 = ProjectManagementAction.MIN_ACTION_SA; a2 <= ProjectManagementAction.MAX_ACTION_SA; a2++) {
 						double qValue = out.getDouble(cnt++);
+						System.out.printf("%10.4f\t", qValue);
 						if (qValue > maxQ) {
 							maxQ = qValue;
 						}
 					}
 				}
 			}
+			System.out.println(" ---!");
 			postQ[i] = maxQ;
 //			if (maxQ > 100.0e0f) {
 //				System.out.println(" *-- " + maxQ + " : " + data[cnt-1][0] + ", " + data[cnt-1][1] + ", " + data[cnt-1][2]);
@@ -321,7 +323,7 @@ public class QNetLearningAgent {
 			}
 			double q1 = reward + g * postQ[i];
 
-			System.out.printf("!- %10.4f = %10.4f , %10.4f \n", q1, reward, g * postQ[i]);
+			System.out.printf("!-\t%10.4f\t=\t%10.4f\t%10.4f\t%10.4f \n", q1, reward, g, postQ[i]);
 
 			double updateQ = (1.0e0D - alpha) * q0 + alpha * q1;
 			upOut[i][0] = (float) updateQ;
