@@ -29,32 +29,52 @@ public class RewardEvaluator {
 		double reward;
 
 		if (state.isComplete()) {
-			// プロジェクト終了時
-
-			double rsd = state.getScheduleDelayRate();
-			double rco = state.getCostOverrunRate();
-			double rsc = state.getScopeChangeRate();
-
-			// スケジュール・コストは計画通りが最良
-			reward = (Math.min(rsd, 1.0e0D / rsd) - 1.0e0D) * RWD_FN_SCH
-					+ (Math.min(rco, 1.0e0D / rco) - 1.0e0D) * RWD_FN_CST
-					+ (Math.min(rsc, 1.0e0D / rsc) - 1.0e0D) * RWD_FN_CPW;
-
-			// 投資回収性の評価 (事例により、サービスモデルを切替えること)
-//			 double sd = state.getScheduleDelay();
-//			 double co = state.getCostOverrun();
-//			 ServiceModel sm = new ServiceModel(100.0e0D, 1.0e0D);
-//			 double bizRes = sm.perform(sd, co, rsc);
-//			 reward = bizRes * RWD_FN_BIZ;
+			// プロジェクト完了時
+			reward = evaluateAtCompletion(state);
 		} else {
 			// プロジェクト進行時
-
-			double spi = state.getSPI();
-			double cpi = state.getCPI();
-			reward = (1.0e0D - Math.max(spi, 1.0e0D / spi)) * RWD_OG_SCH
-					+ (1.0e0D - Math.max(cpi, 1.0e0D / cpi)) * RWD_OG_CST;
+			reward = evaluateInProgress(state);
 		}
-
 		return reward;
 	}
+	
+	/**
+	 * プロジェクト完了時の報酬を評価する.
+	 * 
+	 * @param state	プロジェクト状態
+	 * @return 報酬値
+	 */
+	private double evaluateAtCompletion(final ProjectState state) {
+		
+		double reward;
+		
+		double rsd = state.getScheduleDelayRate();
+		double rco = state.getCostOverrunRate();
+		double rsc = state.getScopeChangeRate();
+
+		// スケジュール・コストは計画通りが最良
+		reward = (Math.min(rsd, 1.0e0D / rsd) - 1.0e0D) * RWD_FN_SCH
+				+ (Math.min(rco, 1.0e0D / rco) - 1.0e0D) * RWD_FN_CST
+				+ (Math.min(rsc, 1.0e0D / rsc) - 1.0e0D) * RWD_FN_CPW;
+		
+		return reward;
+	}		
+	
+	/**
+	 * プロジェクト進行中の報酬を評価する.
+	 * 
+	 * @param state	プロジェクト状態
+	 * @return 報酬値
+	 */
+	private double evaluateInProgress(final ProjectState state) {
+		
+		double reward;
+		
+		double spi = state.getSPI();
+		double cpi = state.getCPI();
+		reward = (1.0e0D - Math.max(spi, 1.0e0D / spi)) * RWD_OG_SCH
+				+ (1.0e0D - Math.max(cpi, 1.0e0D / cpi)) * RWD_OG_CST;
+		
+		return reward;
+	}	
 }
