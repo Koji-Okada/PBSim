@@ -16,11 +16,13 @@ public final class QLSimulator {
 	/**
 	 * 探索学習モードでの反復回数.
 	 */
+//	private static final int ITERATION_WITH_EXPLORING = 8000;
 	private static final int ITERATION_WITH_EXPLORING = 8000;
-
+	
 	/**
 	 * 収束学習モードでの反復回数.
 	 */
+//	private static final int ITERATION_WITHOUT_EXPLORING = 2000;
 	private static final int ITERATION_WITHOUT_EXPLORING = 2000;
 
 	/**
@@ -73,7 +75,11 @@ public final class QLSimulator {
 		QLearningAgent agent = new QLearningAgent(agentID); // 再現性確保のため乱数種を固定する
 		
 		// 報酬評価器を生成する
-		RewardEvaluator evaluator = new RewardEvaluator();
+		RewardEvaluator pjEvaluator = new RewardEvaluator();
+		RewardEvaluator pgEvaluator = new RewardEvaluatorWithSD();
+
+		RewardEvaluator evaluator = pgEvaluator;
+		RewardEvaluator evaluator2 = pgEvaluator;
 
 		for (int j = 0; j < ITERATION_ALL; j++) {
 			// 全体の反復ループ
@@ -90,7 +96,7 @@ public final class QLSimulator {
 				// プロジェクトを実施する
 				sumLearningIndex1 += performProject(project, agent, evaluator,
 						true, true);
-			}
+				}
 
 			// 学習収束度パラメータを初期化する
 			double sumLearningIndex2 = 0.0e0D;
@@ -162,7 +168,7 @@ public final class QLSimulator {
 			}
 
 			// 評価結果のコンソール出力
-			System.out.print("\t");
+			System.out.print(j+"\t");
 			System.out.printf("%10.4f\t",
 					sumDelayRate / (double) LAST_EVALUATIONS);
 			System.out.printf("%10.4f\t",
@@ -200,6 +206,31 @@ public final class QLSimulator {
 					sumCostOverrun / (double) LAST_EVALUATIONS);
 			System.out.printf("%10.4f\t",
 					sumReward / (double) LAST_EVALUATIONS);
+
+			
+			// ==================================================================
+			sumDelayRate0 = 0.0e0D;
+			sumCostOverrunRate0 = 0.0e0D;
+			sumDelay0 = 0.0e0D;
+			sumCostOverrun0 = 0.0e0D;
+			sumReward0 = 0.0e0D;
+			
+			// プロジェクトを生成する(プロジェクト属性は同一)
+			ProjectModel project0 = new ProjectModel(1000.0e0D, 20.0e0D,
+					1.0e0D * this.safetyRate, 1.0e0D);
+
+			// プロジェクトを実施する
+			performProject(project0, bestAgent, evaluator2, false, false);
+
+			// 学習結果の評価を行う
+			sumReward0 += evaluator2.evaluate(project0.observe());
+			sumDelayRate0 += project0.observe().getScheduleDelayRate();
+			sumCostOverrunRate0 += project0.observe().getCostOverrunRate();
+			sumDelay0 += project0.observe().getScheduleDelay();
+			sumCostOverrun0 += project0.observe().getCostOverrun();
+			
+			System.out.printf("%10.4f\t",
+					sumReward0 / (double) LAST_EVALUATIONS);
 			System.out.println();
 		}
 		return;

@@ -3,19 +3,31 @@ package jp.ac.tcu.okadak.project_reinforcement_learning;
 /**
  * 報酬評価器.
  *
- * @author K.Okada T.Hayashi
+ * @author K.Okada
  */
-public class RewardEvaluatorWithSD {
+public class RewardEvaluatorWithSD extends RewardEvaluator {
 
-	private static double RWD_FN_SCH = 0.20e3D; // 0.99e3D 0.20e3D 0.01e3D
-	private static double RWD_FN_CST = 0.80e3D; // 0.99e3D 0.80e3D 0.01e3D
+	private static double RWD_FN_SCH = 0.99e3D; // 0.99e3D 0.20e3D 0.01e3D
+	private static double RWD_FN_CST = 0.01e3D; // 0.99e3D 0.80e3D 0.01e3D
 	private static double RWD_FN_CPW = 1.00e3D; // 1.0e3D 0.01e3D
 
-	private static double RWD_OG_SCH = 0.20e1D; // 0.99e1D 0.20e1D 0.01e1D
-	private static double RWD_OG_CST = 0.80e1D; // 0.99e1D 0.80e1D 0.01e1D
+	private static double RWD_OG_SCH = 0.01e1D; // 0.99e1D 0.20e1D 0.01e1D
+	private static double RWD_OG_CST = 0.99e1D; // 0.99e1D 0.80e1D 0.01e1D
 
 	// 投資回収結果の重み係数
 	private static double RWD_FN_BIZ = 1.00e-0D; // 投資回収利益は桁が大き過ぎるので
+
+	VensimLink vensim;
+	
+	/**
+	 * 
+	 */
+	public RewardEvaluatorWithSD() {
+		super();
+		
+		vensim = new VensimLink();
+		vensim.prepare("InterfaceModel.vpmx", "base");	// 実行準備
+	}
 
 	/**
 	 * 報酬を評価する.
@@ -52,18 +64,18 @@ public class RewardEvaluatorWithSD {
 		double rco = state.getCostOverrunRate();
 		double rsc = state.getScopeChangeRate();
 
-		int simTime = state.getSimTime();
-		double ac = state.getAC();
-		double compromiseWorks = state.getCompromiseWorks();
+		double simTime = state.getSimTime() / 4.0e0d;	// 週→月の単位変換
+		double ac = state.getAC() * 250000.0e0D;		// 人週→円への単位変換 
 		
+		double pjStartTime = 13;
+		double pjCompletionTime = pjStartTime + simTime;
 		
+		vensim.process(pjStartTime, pjCompletionTime, ac, rsc);		// 実行
+//		System.out.printf("R ");
 		
-		
-		// スケジュール・コストは計画通りが最良
-		reward = (Math.min(rsd, 1.0e0D / rsd) - 1.0e0D) * RWD_FN_SCH
-				+ (Math.min(rco, 1.0e0D / rco) - 1.0e0D) * RWD_FN_CST
-				+ (Math.min(rsc, 1.0e0D / rsc) - 1.0e0D) * RWD_FN_CPW;
-		
+		reward = vensim.evaluate(36+12+12);
+//		System.out.printf("E\t");
+
 		return reward;
 	}		
 	

@@ -1,17 +1,48 @@
 {UTF-8}
-TotalProjectCost=
-	1e+07
-	~	円/月
+Profit=
+	TotalBenefit - TotalProjectCost
+	~	円
+	~		|
+
+ProjectDelay=
+	ProjectCompletionTime-ProjectCompletionTimePlanned
+	~	月
+	~		|
+
+ProjectCompletionTimePlanned=
+	25
+	~	月
 	~		|
 
 EvaluatedReward=
-	100
-	~	RewardUnit
+	IF THEN ELSE(ProjectDelay <= 2, Profit / RewardByProfit , Profit / RewardByProfit)
+	~	円*円/RewardUnit
 	~		|
 
-ObtainedCapabilityPlanned=
-	100
-	~	CapabilityUnit/月
+Benefit=
+	Capability * BenefitByCapability
+	~	円/月
+	~		|
+
+BenefitByCapability=
+	100000
+	~	円/CapabilityUnit
+	~		|
+
+TotalBenefit= INTEG (
+	Benefit,
+		0)
+	~	円
+	~		|
+
+RewardByProfit=
+	10000
+	~	RewardUnit/円
+	~		|
+
+ProjectStartTime=
+	13
+	~	月
 	~		|
 
 CapabilityImprovement=
@@ -19,8 +50,18 @@ CapabilityImprovement=
 	~	CapabilityUnit/月
 	~		|
 
+TotalProjectCost=
+	2.5e+08
+	~	円
+	~		|
+
+ObtainedCapabilityPlanned=
+	100
+	~	CapabilityUnit/月
+	~		|
+
 ProjectCompletionTime=
-	10
+	25
 	~	月
 	~		|
 
@@ -41,7 +82,7 @@ Capability= INTEG (
 	~		|
 
 InitialCapability=
-	10
+	0
 	~	CapabilityUnit
 	~		|
 
@@ -67,7 +108,7 @@ SAVEPER  =
 	~	出力が蓄えられる頻度
 	|
 
-TIME STEP  = 1
+TIME STEP  = 0.25
 	~	月 [0,?]
 	~	シミュレーションの時間ステップ
 	|
@@ -95,12 +136,38 @@ $192-192-192,0,Courier|12||0-0-0|0-0-0|0-0-255|-1--1--1|255-255-255|96,96,100,0
 10,17,ObtainedCapabilityPlanned,155,420,118,8,8,3,0,0,0,0,0,0,0,0,0,0,0,0
 1,18,17,11,1,0,0,0,0,128,0,-1--1--1,,1|(209,397)|
 10,19,TotalProjectCost,456,420,76,8,8,3,0,0,0,0,0,0,0,0,0,0,0,0
-10,20,EvaluatedReward,857,419,71,8,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,20,EvaluatedReward,1031,419,71,8,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,21,ProjectStartTime,111,116,76,8,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,22,Capability,869,135,56,9,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,23,TotalBenefit,1129,223,65,21,3,131,0,0,0,0,0,0,0,0,0,0,0,0
+12,24,48,881,222,10,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,25,27,23,4,0,0,22,0,0,0,-1--1--1,,1|(1023,222)|
+1,26,27,24,100,0,0,22,0,0,0,-1--1--1,,1|(931,222)|
+11,27,0,977,222,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,28,Benefit,977,239,43,9,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,29,BenefitByCapability,1077,136,90,8,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,30,22,27,1,0,0,0,0,128,0,-1--1--1,,1|(927,167)|
+1,31,29,27,1,0,0,0,0,128,0,-1--1--1,,1|(996,159)|
+10,32,TotalProjectCost,851,312,85,8,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,33,RewardByProfit,1203,356,71,8,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,34,33,20,1,0,0,0,0,128,0,-1--1--1,,1|(1151,381)|
+10,35,Profit,1022,344,29,9,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,36,23,35,1,0,0,0,0,128,0,-1--1--1,,1|(1098,284)|
+1,37,32,35,1,0,0,0,0,128,0,-1--1--1,,1|(982,323)|
+1,38,35,20,1,0,0,0,0,128,0,-1--1--1,,1|(1035,393)|
+10,39,ProjectCompletionTimePlanned,764,514,132,8,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,40,ScopeChangeRate,1173,497,81,8,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+1,41,39,20,0,1,0,0,0,64,0,-1--1--1,,1|(0,0)|
+10,42,ProjectCompletionTime,743,472,109,8,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,43,ProjectDelay,837,421,56,9,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,44,42,43,1,0,0,0,0,128,0,-1--1--1,,1|(763,442)|
+1,45,39,43,1,0,0,0,0,128,0,-1--1--1,,1|(780,451)|
+1,46,43,20,1,0,0,0,0,128,0,-1--1--1,,1|(911,388)|
 ///---\\\
 :L<%^E!@
 1:current.vdfx
 4:Time
-5:Capability
+5:ObtainedCapabiltyByProject
 9:current
 19:100,0
 24:0

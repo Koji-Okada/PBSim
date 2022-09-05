@@ -24,7 +24,7 @@ public class RewardEvaluator {
 	 *            状態
 	 * @return 報酬値
 	 */
-	final double evaluate(final ProjectState state) {
+	double evaluate(final ProjectState state) {
 
 		double reward;
 

@@ -8,8 +8,6 @@ import com.vensim.Vensim;
  */
 public class VensimLink {
 
-
-	
 	/**
 	 * 
 	 * @param args
@@ -21,8 +19,8 @@ public class VensimLink {
 		VensimLink obj = new VensimLink();
 		
 		obj.prepare("InterfaceModel.vpmx", "base");	// 実行準備
-		obj.process();	// 実行
-		obj.evaluate();
+		obj.process(13.0e0d, 24.0e0d, 20000000e0d, 0.8e0d);	// 実行
+		obj.evaluate(60);
 		
 		System.out.println("... Fin.");
 		return;
@@ -30,7 +28,6 @@ public class VensimLink {
 
 	private Vensim vensim = new Vensim("vendll64") ; /* vendml64 for the minimal dll */
 	private String simCaseName;
-
 
 	/**
 	 * 
@@ -43,7 +40,6 @@ public class VensimLink {
 		
 		// SDモデルの読込み
 		result = Vensim.command("SPECIAL>LOADMODEL|" + vensimModelPath);
-		System.out.println(result);
 		if (0 == result) {
 			System.out.println("  Vensim model loading was failed!");
 		}
@@ -61,26 +57,39 @@ public class VensimLink {
 	 * 
 	 * 
 	 */
-	void process() {
+	void process(double pjStartTime, double pjCompTime, double pjTotalCost, double scopeChangeRate) {
 		
+		String cmdStr;
 		int result;
-				
-		// インタフェース変数値の設定
-		result = Vensim.command("SIMULATE>SETVAL|ProjectCompletionTime = 10");
-		System.out.println("  set val <ProjectCompletionTime>. " + result);
-		result = Vensim.command("SIMULATE>SETVAL|TotalProjectCost = 20000000");
-		System.out.println("  set val <TotalProjectCost>. " + result);
-		result = Vensim.command("SIMULATE>SETVAL|ScopeChangeRate = 0.8");
-		System.out.println("  set val <ScopeChangeRate>. " + result);
 
+		// インタフェース変数値の設定
+		cmdStr = String.format("SIMULATE>SETVAL|ProjectCompletionTime = %5.2f", pjCompTime);
+//		System.out.println(cmdStr);
+		result = Vensim.command(cmdStr);
+//		System.out.println("res:"+result);
+
+		cmdStr = String.format("SIMULATE>SETVAL|TotalProjectCost =  %12.0f", pjTotalCost);
+//		System.out.println(cmdStr);
+		result = Vensim.command(cmdStr);
+//		System.out.println("res:"+result);
 		
+		cmdStr = String.format("SIMULATE>SETVAL|ScopeChangeRate = %6.5f", scopeChangeRate);
+//		System.out.println(cmdStr);
+		result = Vensim.command(cmdStr);
+//		System.out.println("res:"+result);
+
 		// シミュレーションの実行
 		result = Vensim.command("MENU>RUN|O");
-		System.out.println("  simulation run. " + result);
+//		System.out.println("  simulation run. " + result);
 
+		return;
 	}
 	
-	private double evaluate() {
+	/**
+	 * 
+	 * @return
+	 */
+	double evaluate(int evaluationTime) {
 		
 		int tPoints = 1024;
 		float val[] = new float[tPoints];
@@ -89,15 +98,15 @@ public class VensimLink {
 		int result;
 
 		// シミュレーション結果の確認
-//		result = Vensim.get_data(simCaseName + ".vdfx", "Capability", "Time", val, tval, 101);
-//		result = Vensim.get_data(simCaseName + ".vdfx", "EvaluatedReward", "Time", val, tval, 101);
-		result = Vensim.get_data(simCaseName + ".vdfx", "CapabilityImprovement", "Time", val, tval, 101);
+		result = Vensim.get_data(simCaseName + ".vdfx", "EvaluatedReward", "Time", val, tval, tPoints);
 
-		System.out.println("  simulation results. " + result );
-		for (int i = 0; i <= 100 ; i++) {
-			System.out.println(i + " : " + val[i] + " : " + tval[i]);
-		}
+//		System.out.println("  simulation results. " + result );
+//		for (int i = 0; i <= 100 ; i++) {
+//			System.out.println(i + " : " + val[i] + " : " + tval[i]);
+//		}
 		
-		return 0.0e0d;
+//		System.out.println("reward = " + val[evaluationTime] + " : " + tval[evaluationTime]);
+		
+		return (double)val[evaluationTime];
 	}
 }
