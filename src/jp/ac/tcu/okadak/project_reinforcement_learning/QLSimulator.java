@@ -90,7 +90,7 @@ public final class QLSimulator {
 				// プロジェクト反復のループ (探索学習モード(ε-Greedyオン))
 
 				// プロジェクトを生成する
-				ProjectModel project = new ProjectModel(1000.0e0D, 20.0e0D,
+				ProjectModel project = new ProjectModel(500.0e0D, 10.0e0D,
 						1.0e0D * this.safetyRate, 1.0e0D);
 
 				// プロジェクトを実施する
@@ -103,7 +103,7 @@ public final class QLSimulator {
 			for (int i = 0; i < ITERATION_WITHOUT_EXPLORING; i++) {
 				// プロジェクト反復のループ (収束学習モード(ε-Greedyオフ))
 
-				ProjectModel project = new ProjectModel(1000.0e0D, 20.0e0D,
+				ProjectModel project = new ProjectModel(500.0e0D, 10.0e0D,
 						1.0e0D * this.safetyRate, 1.0e0D);
 
 				// プロジェクトを実施する
@@ -121,11 +121,13 @@ public final class QLSimulator {
 
 			double sumDelayRate = 0.0e0D;
 			double sumCostOverrunRate = 0.0e0D;
+			double sumScopeChangeRate = 0.0e0d;
 			double sumDelay = 0.0e0D;
 			double sumCostOverrun = 0.0e0D;
 			double sumReward = 0.0e0D;
 			double sumDelayRate0 = 0.0e0D;
 			double sumCostOverrunRate0 = 0.0e0D;
+			double sumScopeChangeRate0 = 0.0e0d;
 			double sumDelay0 = 0.0e0D;
 			double sumCostOverrun0 = 0.0e0D;
 			double sumReward0 = 0.0e0D;
@@ -134,7 +136,7 @@ public final class QLSimulator {
 			for (int i = 0; i < LAST_EVALUATIONS; i++) {
 
 				// プロジェクトを生成する
-				ProjectModel project = new ProjectModel(1000.0e0D, 20.0e0D,
+				ProjectModel project = new ProjectModel(500.0e0D, 10.0e0D,
 						1.0e0D * this.safetyRate, 1.0e0D);
 
 				// プロジェクトを実施する
@@ -143,6 +145,7 @@ public final class QLSimulator {
 				// 学習結果の評価を行う
 				sumReward += evaluator.evaluate(project.observe());
 				sumDelayRate += project.observe().getScheduleDelayRate();
+				sumScopeChangeRate += project.observe().getScopeChangeRate();
 				sumCostOverrunRate += project.observe().getCostOverrunRate();
 				sumDelay += project.observe().getScheduleDelay();
 				sumCostOverrun += project.observe().getCostOverrun();
@@ -153,7 +156,7 @@ public final class QLSimulator {
 				}
 
 				// プロジェクトを生成する(プロジェクト属性は同一)
-				ProjectModel project0 = new ProjectModel(1000.0e0D, 20.0e0D,
+				ProjectModel project0 = new ProjectModel(500.0e0D, 10.0e0D,
 						1.0e0D * this.safetyRate, 1.0e0D);
 
 				// プロジェクトを実施する
@@ -162,6 +165,7 @@ public final class QLSimulator {
 				// 学習結果の評価を行う
 				sumReward0 += evaluator.evaluate(project0.observe());
 				sumDelayRate0 += project0.observe().getScheduleDelayRate();
+				sumScopeChangeRate0 += project0.observe().getScopeChangeRate();
 				sumCostOverrunRate0 += project0.observe().getCostOverrunRate();
 				sumDelay0 += project0.observe().getScheduleDelay();
 				sumCostOverrun0 += project0.observe().getCostOverrun();
@@ -173,6 +177,8 @@ public final class QLSimulator {
 					sumDelayRate / (double) LAST_EVALUATIONS);
 			System.out.printf("%10.4f\t",
 					sumCostOverrunRate / (double) LAST_EVALUATIONS);
+			System.out.printf("%10.4f\t",
+					sumScopeChangeRate / (double) LAST_EVALUATIONS);
 			System.out.printf("%10.4f\t", sumDelay / (double) LAST_EVALUATIONS);
 			System.out.printf("%10.4f\t",
 					sumCostOverrun / (double) LAST_EVALUATIONS);
@@ -190,6 +196,7 @@ public final class QLSimulator {
 				// 最良学習エージェントの結果に置換する
 				sumReward = sumReward0;
 				sumDelayRate = sumDelayRate0;
+				sumScopeChangeRate = sumScopeChangeRate0;
 				sumCostOverrunRate = sumCostOverrunRate0;
 				sumDelay = sumDelay0;
 				sumCostOverrun = sumCostOverrun0;
@@ -201,6 +208,8 @@ public final class QLSimulator {
 					sumDelayRate / (double) LAST_EVALUATIONS);
 			System.out.printf("%10.4f\t",
 					sumCostOverrunRate / (double) LAST_EVALUATIONS);
+			System.out.printf("%10.4f\t",
+					sumScopeChangeRate / (double) LAST_EVALUATIONS);
 			System.out.printf("%10.4f\t", sumDelay / (double) LAST_EVALUATIONS);
 			System.out.printf("%10.4f\t",
 					sumCostOverrun / (double) LAST_EVALUATIONS);
@@ -216,7 +225,7 @@ public final class QLSimulator {
 			sumReward0 = 0.0e0D;
 			
 			// プロジェクトを生成する(プロジェクト属性は同一)
-			ProjectModel project0 = new ProjectModel(1000.0e0D, 20.0e0D,
+			ProjectModel project0 = new ProjectModel(500.0e0D, 10.0e0D,
 					1.0e0D * this.safetyRate, 1.0e0D);
 
 			// プロジェクトを実施する
@@ -229,7 +238,7 @@ public final class QLSimulator {
 			sumDelay0 += project0.observe().getScheduleDelay();
 			sumCostOverrun0 += project0.observe().getCostOverrun();
 			
-			System.out.printf("%10.4f\t",
+			System.out.printf("\t%10.4f\t",
 					sumReward0 / (double) LAST_EVALUATIONS);
 			System.out.println();
 		}

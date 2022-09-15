@@ -26,9 +26,15 @@ public class RewardEvaluatorWithSD extends RewardEvaluator {
 		super();
 		
 		vensim = new VensimLink();
-		vensim.prepare("InterfaceModel.vpmx", "base");	// 実行準備
+		vensim.prepare("SampleCaseWithAgent.vpmx", "base");	// 実行準備
+		
+		vensim.process(12.0e0d, 999.0e0d, 0.0e0d, 0.0e0d);		// 実行		
+		baseBenefit = vensim.evaluate("Benefit", 60);
 	}
 
+	
+	double baseBenefit;
+	
 	/**
 	 * 報酬を評価する.
 	 *
@@ -58,24 +64,25 @@ public class RewardEvaluatorWithSD extends RewardEvaluator {
 	 */
 	private double evaluateAtCompletion(final ProjectState state) {
 		
+		double benefit;
 		double reward;
 		
-		double rsd = state.getScheduleDelayRate();
-		double rco = state.getCostOverrunRate();
+//		double rsd = state.getScheduleDelayRate();
+//		double rco = state.getCostOverrunRate();
 		double rsc = state.getScopeChangeRate();
 
 		double simTime = state.getSimTime() / 4.0e0d;	// 週→月の単位変換
 		double ac = state.getAC() * 250000.0e0D;		// 人週→円への単位変換 
 		
-		double pjStartTime = 13;
+		double pjStartTime = 12.0e0d;
 		double pjCompletionTime = pjStartTime + simTime;
 		
-		vensim.process(pjStartTime, pjCompletionTime, ac, rsc);		// 実行
-//		System.out.printf("R ");
-		
-		reward = vensim.evaluate(36+12+12);
-//		System.out.printf("E\t");
 
+		vensim.process(pjStartTime, pjCompletionTime, ac, rsc);		// 実行		
+		benefit = vensim.evaluate("Benefit", 60);
+
+		reward = (benefit - this.baseBenefit) / 100000.0e0d;
+		
 		return reward;
 	}		
 	

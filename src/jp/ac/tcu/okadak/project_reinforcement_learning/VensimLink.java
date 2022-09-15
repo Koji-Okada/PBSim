@@ -18,10 +18,14 @@ public class VensimLink {
 
 		VensimLink obj = new VensimLink();
 		
-		obj.prepare("InterfaceModel.vpmx", "base");	// 実行準備
-		obj.process(13.0e0d, 24.0e0d, 20000000e0d, 0.8e0d);	// 実行
-		obj.evaluate(60);
+		obj.prepare("SampleCaseWithAgent.vpmx", "base");	// 実行準備
 		
+		obj.process(12.0e0d, 999.0e0d, 0.0e0d, 0.0e0d);	// 実行
+		obj.evaluate("Benefit", 60);
+
+		obj.process(12.0e0d, 24.0e0d, 2.4e8d, 1.0e0d);	// 実行
+		obj.evaluate("Benefit", 60);
+				
 		System.out.println("... Fin.");
 		return;
 	}
@@ -89,24 +93,26 @@ public class VensimLink {
 	 * 
 	 * @return
 	 */
-	double evaluate(int evaluationTime) {
+	double evaluate(String varName, int evaluationTime) {
 		
 		int tPoints = 1024;
 		float val[] = new float[tPoints];
 		float tval[]  = new float[tPoints];
 
+		int time = evaluationTime * 4;
+		
 		int result;
 
 		// シミュレーション結果の確認
-		result = Vensim.get_data(simCaseName + ".vdfx", "EvaluatedReward", "Time", val, tval, tPoints);
+		result = Vensim.get_data(simCaseName + ".vdfx", varName, "Time", val, tval, tPoints);
 
 //		System.out.println("  simulation results. " + result );
 //		for (int i = 0; i <= 100 ; i++) {
 //			System.out.println(i + " : " + val[i] + " : " + tval[i]);
 //		}
 		
-//		System.out.println("reward = " + val[evaluationTime] + " : " + tval[evaluationTime]);
+//		System.out.println("Value of " + varName + " = " + val[time] + " : " + tval[time]);
 		
-		return (double)val[evaluationTime];
+		return (double)val[time];
 	}
 }
