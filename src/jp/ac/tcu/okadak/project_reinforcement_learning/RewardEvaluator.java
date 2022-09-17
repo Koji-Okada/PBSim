@@ -9,7 +9,7 @@ public class RewardEvaluator {
 
 	private static double RWD_FN_SCH = 0.99e3D; // 0.99e3D 0.20e3D 0.01e3D
 	private static double RWD_FN_CST = 0.01e3D; // 0.99e3D 0.80e3D 0.01e3D
-	private static double RWD_FN_CPW = 0.01e3D; // 1.0e3D 0.01e3D
+	private static double RWD_FN_CPW = 1.00e3D; // 1.0e3D 0.01e3D
 
 	private static double RWD_OG_SCH = 0.99e1D; // 0.99e1D 0.20e1D 0.01e1D
 	private static double RWD_OG_CST = 0.01e1D; // 0.99e1D 0.80e1D 0.01e1D

@@ -82,6 +82,9 @@ public class RewardEvaluatorWithSD extends RewardEvaluator {
 		benefit = vensim.evaluate("Benefit", 60);
 
 		reward = (benefit - this.baseBenefit) / 100000.0e0d;
+		// baseBenefitは、変革プログラムを実施しなかった場合の便益
+		
+		reward -= 3000.0e0d;		// 学習での局所最適化防止のため、報酬の負値化
 		
 		return reward;
 	}		
