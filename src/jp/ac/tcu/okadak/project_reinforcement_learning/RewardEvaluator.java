@@ -7,15 +7,15 @@ package jp.ac.tcu.okadak.project_reinforcement_learning;
  */
 public class RewardEvaluator {
 
-	private static double RWD_FN_SCH = 0.99e3D; // 0.99e3D 0.20e3D 0.01e3D
-	private static double RWD_FN_CST = 0.01e3D; // 0.99e3D 0.80e3D 0.01e3D
-	private static double RWD_FN_CPW = 1.00e3D; // 1.0e3D 0.01e3D
+	private static double RWD_FN_SCH = 0.99e3D; // 0.99e3D 0.50e3D 0.01e3D
+	private static double RWD_FN_CST = 0.01e3D; // 0.99e3D 0.50e3D 0.01e3D
+	private static double RWD_FN_CPW = 1.00e4D; // 1.0e4D 0.01e4D
 
-	private static double RWD_OG_SCH = 0.99e1D; // 0.99e1D 0.20e1D 0.01e1D
-	private static double RWD_OG_CST = 0.01e1D; // 0.99e1D 0.80e1D 0.01e1D
+	private static double RWD_OG_SCH = 0.99e1D; // 0.99e1D 0.50e1D 0.01e1D
+	private static double RWD_OG_CST = 0.01e1D; // 0.99e1D 0.50e1D 0.01e1D
 
 	// 投資回収結果の重み係数
-	private static double RWD_FN_BIZ = 1.00e-0D; // 投資回収利益は桁が大き過ぎるので
+//	private static double RWD_FN_BIZ = 1.00e-0D; // 投資回収利益は桁が大き過ぎるので
 
 	/**
 	 * 報酬を評価する.
@@ -53,9 +53,14 @@ public class RewardEvaluator {
 		double rsc = state.getScopeChangeRate();
 
 		// スケジュール・コストは計画通りが最良
-		reward = (Math.min(rsd, 1.0e0D / rsd) - 1.0e0D) * RWD_FN_SCH
-				+ (Math.min(rco, 1.0e0D / rco) - 1.0e0D) * RWD_FN_CST
-				+ (Math.min(rsc, 1.0e0D / rsc) - 1.0e0D) * RWD_FN_CPW;
+//		reward = (Math.min(rsd, 1.0e0D / rsd) - 1.0e0D) * RWD_FN_SCH
+//				+ (Math.min(rco, 1.0e0D / rco) - 1.0e0D) * RWD_FN_CST
+//				+ (Math.min(rsc, 1.0e0D / rsc) - 1.0e0D) * RWD_FN_CPW;
+
+		reward = - Math.pow(Math.log(rsd), 2) * RWD_FN_SCH
+				 - Math.pow(Math.log(rco), 2) * RWD_FN_CST
+				 - Math.pow(Math.log(rsc), 2) * RWD_FN_CPW	;
+		
 		
 		return reward;
 	}		
@@ -72,9 +77,12 @@ public class RewardEvaluator {
 		
 		double spi = state.getSPI();
 		double cpi = state.getCPI();
-		reward = (1.0e0D - Math.max(spi, 1.0e0D / spi)) * RWD_OG_SCH
-				+ (1.0e0D - Math.max(cpi, 1.0e0D / cpi)) * RWD_OG_CST;
-		
+//		reward = (1.0e0D - Math.max(spi, 1.0e0D / spi)) * RWD_OG_SCH
+//				+ (1.0e0D - Math.max(cpi, 1.0e0D / cpi)) * RWD_OG_CST;
+
+		reward = - Math.pow(Math.log(spi), 2) * RWD_OG_SCH
+				 - Math.pow(Math.log(cpi), 2) * RWD_OG_CST;
+
 		return reward;
 	}	
 }

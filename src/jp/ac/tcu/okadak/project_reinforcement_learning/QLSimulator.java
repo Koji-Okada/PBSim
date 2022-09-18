@@ -78,7 +78,7 @@ public final class QLSimulator {
 		RewardEvaluator pjEvaluator = new RewardEvaluator();
 		RewardEvaluator pgEvaluator = new RewardEvaluatorWithSD();
 
-		RewardEvaluator evaluator = pgEvaluator;
+		RewardEvaluator evaluator = pjEvaluator;
 		RewardEvaluator evaluator2 = pgEvaluator;
 
 		for (int j = 0; j < ITERATION_ALL; j++) {
